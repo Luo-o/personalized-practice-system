@@ -1,0 +1,110 @@
+.strategy-section {
+  margin-top: 18px;
+}
+
+.strategy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0 12px;
+}
+
+.strategy-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* 卡片本体：淡色大块，圆角，hover 微抬 */
+.strategy-card {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 18px 18px;
+  border-radius: 16px;
+
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.strategy-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10);
+}
+
+.strategy-card:focus {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10);
+}
+
+.strategy-card:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+/* 左侧图标块（圆角方块 + 彩色） */
+.strategy-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  flex: 0 0 auto;
+}
+
+/* 文案 */
+.strategy-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.strategy-card-desc {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* 四种淡色背景（接近你图里的浅蓝/浅绿/浅紫/浅橙） */
+.tone-blue.strategy-card {
+  background: rgba(59, 130, 246, 0.08);
+}
+.tone-green.strategy-card {
+  background: rgba(34, 197, 94, 0.08);
+}
+.tone-purple.strategy-card {
+  background: rgba(168, 85, 247, 0.08);
+}
+.tone-orange.strategy-card {
+  background: rgba(249, 115, 22, 0.08);
+}
+
+/* 图标块颜色 */
+.tone-blue.strategy-icon {
+  background: #3b82f6; 
+  color: #fff;
+}
+
+.tone-green.strategy-icon {
+  background: #22c55e;
+  color: #fff;
+}
+
+.tone-purple.strategy-icon {
+  background: #a855f7; 
+  color: #fff;
+}
+
+.tone-orange.strategy-icon {
+  background: #f97316; 
+  color: #fff;
+}
+
