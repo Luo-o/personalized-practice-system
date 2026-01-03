@@ -1,0 +1,46 @@
+/* 字体 & 基础布局 */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f7f9fc;
+  color: #1f1f1f;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 链接统一样式 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #1677ff;
+}
+
+/* 按钮默认圆角统一 */
+button, .ant-btn {
+  border-radius: 6px;
+}
+
+/* 表单元素基本对齐 */
+input, textarea, button, select {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* 滚动条样式（可选） */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
