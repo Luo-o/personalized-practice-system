@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Checkbox, Typography, message } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import './login.css'
+import { APP_NAME } from '../constants'
 
 const { Text, Link } = Typography
 
@@ -28,7 +29,7 @@ export default function Login() {
   return (
     <div className="login-wrapper">
       <div style={{ fontSize: 40, color: '#1677ff', marginBottom: 8 }}>📘</div>
-      <div className="login-title">智慧刷题系统</div>
+      <div className="login-title">{APP_NAME}</div>
       <div className="login-subtitle">{isStudent ? '学生登录' : '教师登录'}</div>
       <div className="login-box">
         <Form layout="vertical" onFinish={onFinish} initialValues={{ remember: true }}>
@@ -65,7 +66,7 @@ export default function Login() {
       </div>
 
       <Text type="secondary" style={{ marginTop: 48, fontSize: 12 }}>
-        © 2026 智慧刷题系统
+        © 2026 {APP_NAME}
       </Text>
     </div>
   )
