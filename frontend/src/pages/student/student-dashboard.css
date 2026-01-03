@@ -1,0 +1,10 @@
+.student-layout {
+  min-height: 100vh;
+  background-color: #f5f6fa;
+}
+
+.student-content {
+  padding: 24px;
+  width: 100%;
+  margin: 0 auto;
+}

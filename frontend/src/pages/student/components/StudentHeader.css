@@ -7,19 +7,29 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-
 .header-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-
-.system-name {
-  margin: 0;
+.header-logo {
+  font-size: 28px;
 }
 
+.header-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.system-name {
+  margin: 0 !important;
+  font-weight: 600;
+}
 
 .welcome-text {
   color: #666;
+  font-size: 13px;
 }
