@@ -56,7 +56,7 @@ export default function StrategyCards({
 
       <Row gutter={[18, 18]}>
         {strategies.map((s) => (
-          <Col key={s.key} xs={24} sm={12} lg={6}>
+          <Col key={s.key} xs={24} sm={12} lg={12}>
             <button
               type="button"
               className={`strategy-card tone-${s.tone}`}

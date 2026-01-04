@@ -18,6 +18,7 @@
 /* 卡片本体：淡色大块，圆角，hover 微抬 */
 .strategy-card {
   width: 100%;
+  min-height: 112px;
   border: 0;
   cursor: pointer;
   text-align: left;
@@ -26,7 +27,7 @@
   align-items: center;
   gap: 14px;
 
-  padding: 18px 18px;
+  padding: 24px 18px;
   border-radius: 16px;
 
   transition: transform 120ms ease, box-shadow 120ms ease;

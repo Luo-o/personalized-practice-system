@@ -3,9 +3,10 @@
 }
 
 .stats-card-ui {
+  min-height: 96px;
   background: #fff;
   border-radius: 14px;
-  padding: 18px 18px;
+  padding: 20px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;

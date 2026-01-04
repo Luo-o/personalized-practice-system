@@ -4,7 +4,7 @@
 }
 
 .student-content {
-  padding: 24px;
-  width: 100%;
+  padding: 24px 40px;
+  max-width: 1440px;
   margin: 0 auto;
 }
