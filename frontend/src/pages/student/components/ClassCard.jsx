@@ -1,11 +1,13 @@
 import React from 'react'
 import { Card, Typography, Button } from 'antd'
 import { RightOutlined, TeamOutlined } from '@ant-design/icons'
-import './ClassCard.css'
+import { useNavigate } from 'react-router-dom'
+import './class-card.css'
 
 const { Text, Link } = Typography
 
 export default function ClassCard() {
+  const navigate = useNavigate()
   return (
     <Card className="class-card" variant={false}>
       <div className="class-card-content">
@@ -19,7 +21,9 @@ export default function ClassCard() {
           </div>
         </div>
         <div className="class-card-right">
-          <Link className="class-card-link">
+          <Link className="class-card-link"
+            onClick={() => navigate('/student/class/1')}
+          >
             查看详情 <RightOutlined />
           </Link>
         </div>

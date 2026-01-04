@@ -1,7 +1,7 @@
 import React from 'react'
 import { Layout, Typography, Button } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
-import './StudentHeader.css'
+import './student-header.css'
 import { APP_NAME } from '../../../constants'
 
 

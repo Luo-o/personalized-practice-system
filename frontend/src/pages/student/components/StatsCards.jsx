@@ -5,7 +5,7 @@ import {
   AimOutlined,
   BarChartOutlined,
 } from "@ant-design/icons"
-import "./StatsCard.css"
+import "./stats-card.css"
 
 export default function StatsCards({ stats }) {
   const data = useMemo(() => {

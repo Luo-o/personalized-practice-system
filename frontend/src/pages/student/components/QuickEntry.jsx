@@ -5,7 +5,7 @@ import {
   BarChartOutlined,
   UserOutlined,
 } from "@ant-design/icons"
-import "./QuickEntry.css"
+import "./quick-entry.css"
 
 export default function QuickEntry({ counts, onNavigate }) {
   // counts: { wrongCount: 23, recordCount: 156 }

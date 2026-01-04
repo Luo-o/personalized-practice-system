@@ -1,0 +1,279 @@
+.class-detail {
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0;
+  background: #f7f9fc;
+}
+
+.class-detail-body {
+  max-width: 960px;
+  height: 100%;
+  padding: 24px 40px;
+  margin: 0 auto;
+}
+
+/* 顶部 */
+.class-detail-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 14px;
+}
+
+.topbar-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.topbar-back:focus {
+  outline: none;
+}
+.topbar-back:focus-visible {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25),
+    0 8px 20px rgba(15, 23, 42, 0.10);
+}
+
+.topbar-titlewrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topbar-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.topbar-sub {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* 班级信息蓝卡 */
+.class-info-card {
+  margin-top: 8px;
+  border-radius: 16px;
+  padding: 22px 22px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.22);
+}
+
+.info-item .info-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 600;
+}
+
+.info-item .info-value {
+  margin-top: 6px;
+  font-size: 20px;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 分区标题 */
+.section {
+  margin-top: 18px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  margin: 10px 0 12px;
+}
+
+.count-red {
+  color: #ef4444;
+}
+
+.count-green {
+  color: #22c55e;
+}
+
+/* 待完成卡片 */
+.pending-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  min-height: 248px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pending-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pending-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pending-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #f97316;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.16);
+}
+
+.pending-status-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.pending-no {
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+}
+
+.pending-title {
+  margin-top: 14px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.pending-meta {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.meta-ico {
+  color: #94a3b8;
+}
+
+.pending-btn {
+  margin-top: auto;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 800;
+  background: #f97316;
+  border-color: #f97316;
+}
+
+.pending-btn:hover {
+  background: #fb7d24 !important;
+  border-color: #fb7d24 !important;
+}
+
+/* 已完成列表 */
+.finished-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.finished-item {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.finished-left {
+  min-width: 0;
+}
+
+.finished-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+.finished-check {
+  color: #22c55e;
+}
+
+.finished-title {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 720px;
+}
+
+.finished-meta {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.finished-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 auto;
+}
+
+.score-wrap {
+  text-align: right;
+}
+
+.score-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.score-value {
+  margin-top: 6px;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.score-blue {
+  color: #2563eb;
+}
+
+.score-green {
+  color: #16a34a;
+}
+
+.detail-btn {
+  height: 40px;
+  border-radius: 12px;
+  font-weight: 800;
+  border-color: rgba(37, 99, 235, 0.45);
+  color: #2563eb;
+}

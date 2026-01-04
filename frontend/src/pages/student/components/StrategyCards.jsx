@@ -6,7 +6,7 @@ import {
   BulbOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons"
-import "./StrategyCards.css"
+import "./strategy-cards.css"
 
 export default function StrategyCards({
   onSelectStrategy,
