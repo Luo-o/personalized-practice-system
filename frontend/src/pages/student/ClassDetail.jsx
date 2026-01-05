@@ -7,9 +7,11 @@ import {
   CheckCircleFilled,
 } from "@ant-design/icons"
 import PageHeader from "../../components/PageHeader"
+import { useNavigate } from "react-router-dom"
 import "./class-detail.css"
 
 export default function ClassDetail() {
+  const navigate = useNavigate()
 
   // ===== mock 数据（后续接接口直接替换这里）=====
   const classInfo = {
@@ -70,7 +72,9 @@ export default function ClassDetail() {
   ]
 
   // ===== 静态行为（后续接跳转）=====
-  const onStart = (examId) => console.log("start exam:", examId)
+  const onStart = (examId) => {
+    navigate(`/student/exam/${examId}`)
+  }
   const onDetail = (examId) => console.log("view detail:", examId)
 
   return (

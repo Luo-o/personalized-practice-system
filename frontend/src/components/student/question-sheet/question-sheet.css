@@ -1,0 +1,293 @@
+/* 页面容器 */
+.qs-page {
+  min-height: 100%;
+  background: #f7f9fc;
+  padding-bottom: 88px; /* 给底部提交栏留空间 */
+}
+
+.qs-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 18px 24px 0;
+}
+
+/* 进度卡片 */
+.qs-progress-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: 18px;
+}
+
+.qs-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.qs-progress-title {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.qs-progress-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.qs-progress-count {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.qs-progress-timer {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.qs-progress-bar {
+  height: 8px;
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.qs-progress-bar-inner {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* 题目列表 */
+.qs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 单题卡片 */
+.qs-qcard {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.qs-qhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.qs-qhead-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.qs-qindex {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+/* 难度标签 */
+.qs-diff-tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.qs-tag-easy {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.qs-tag-mid {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.qs-tag-hard {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.qs-qtag {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.qs-status {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.qs-status.ok {
+  color: #16a34a;
+}
+.qs-status.bad {
+  color: #dc2626;
+}
+
+/* 题干 */
+.qs-stem {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+  margin: 10px 0 14px;
+}
+
+/* 选项 */
+.qs-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qs-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 14px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  background: #fff;
+}
+
+.qs-option input {
+  width: 18px;
+  height: 18px;
+}
+
+.qs-option.is-checked {
+  border-color: rgba(37, 99, 235, 0.7);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.qs-option.is-correct {
+  border-color: rgba(22, 163, 74, 0.7);
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.qs-option.is-wrong {
+  border-color: rgba(220, 38, 38, 0.7);
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+}
+
+.qs-op-key {
+  font-weight: 800;
+  color: #111827;
+}
+
+.qs-op-text {
+  color: #111827;
+  font-weight: 600;
+}
+
+.qs-op-badge {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.qs-op-badge.correct {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.qs-op-badge.wrong {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* 解析区域 */
+.qs-review {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+}
+
+.qs-review-row {
+  display: flex;
+  gap: 8px;
+  line-height: 1.6;
+}
+
+.qs-review-label {
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.qs-review-val {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* 底部提交栏 */
+.qs-submitbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.08);
+  padding: 12px 0;
+  z-index: 50;
+}
+
+.qs-submitbtn {
+  width: min(960px, calc(100% - 48px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 56px;
+  border-radius: 14px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  gap: 10px;
+}
+
+.qs-submitbtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.qs-submiticon {
+  font-size: 18px;
+  transform: translateY(-1px);
+}
