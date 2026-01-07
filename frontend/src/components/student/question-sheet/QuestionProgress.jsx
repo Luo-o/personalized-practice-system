@@ -1,5 +1,5 @@
 import React from "react"
-import "./question-sheet.css"
+import "./qs-sheet.css"
 
 export default function QuestionProgress({
   answered = 0,

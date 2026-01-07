@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import StudentDashboard from '../pages/student/StudentDashboard'
+import StudentDashboard from '../pages/student/StudentDashboard.jsx'
 import ClassDetail from "../pages/student/ClassDetail"
 import ExamDo from "../pages/student/ExamDo"
 import TeacherDashboard from '../pages/teacher/TeacherDashboard'

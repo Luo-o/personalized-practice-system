@@ -1,5 +1,6 @@
 import React from "react"
-import "./question-sheet.css"
+import "./qs-sheet.css"
+import { FileDoneOutlined } from "@ant-design/icons"
 
 export default function QuestionSubmitBar({ text, onClick, disabled, loading }) {
   return (
@@ -10,7 +11,7 @@ export default function QuestionSubmitBar({ text, onClick, disabled, loading }) 
         disabled={disabled || loading}
         onClick={onClick}
       >
-        <span className="qs-submiticon">✈</span>
+        <FileDoneOutlined className="qs-submiticon" />
         {loading ? "提交中..." : text}
       </button>
     </div>

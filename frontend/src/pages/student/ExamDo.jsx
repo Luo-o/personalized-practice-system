@@ -2,6 +2,7 @@ import React, { useMemo } from "react"
 import { useParams } from "react-router-dom"
 import PageHeader from "../../components/PageHeader"
 import { FileTextOutlined } from "@ant-design/icons"
+import { useNavigate } from "react-router-dom"
 import QuestionSheet from "../../components/student/question-sheet/QuestionSheet"
 
 // 先写死：不同 examId 给不同题（后续你接接口只替换这里）
@@ -52,6 +53,12 @@ export default function ExamDo() {
 
   const questions = useMemo(() => buildMockQuestions(examId), [examId])
 
+  const navigate = useNavigate()
+  
+  const handelBackHome = () => {
+    navigate('/student/dashboard')
+  }
+
   return (
     <div>
       <PageHeader
@@ -70,6 +77,7 @@ export default function ExamDo() {
           console.log("submit exam:", examId, answers)
           return {} // 这里返回空，QuestionSheet 会用题目自带 correct/explanation
         }}
+        onBackHome={handelBackHome}
       />
     </div>
   )

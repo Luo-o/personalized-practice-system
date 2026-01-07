@@ -1,5 +1,5 @@
 import React from "react"
-import "./question-sheet.css"
+import "./qs-sheet.css"
 import { CheckCircleOutlined } from "@ant-design/icons"
 
 function toneClass(difficulty) {

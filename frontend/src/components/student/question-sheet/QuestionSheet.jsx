@@ -2,7 +2,8 @@ import React, { useMemo, useState } from "react"
 import QuestionProgress from "./QuestionProgress"
 import QuestionItem from "./QuestionItem"
 import QuestionSubmitBar from "./QuestionSubmitBar"
-import "./question-sheet.css"
+import QuestionResultSummary from "./QuestionResultSummary"
+import "./qs-sheet.css"
 
 /**
  * ✅新增：
@@ -101,6 +102,20 @@ export default function QuestionSheet({
     }
   }
 
+  const { correctCount, wrongCount, percent } = useMemo(() => {
+    let ok = 0
+    let bad = 0
+    for (const q of questions) {
+      const chosen = answers[q.id]
+      if (!chosen) continue
+      const corr = (solutions[q.id]?.correct || q.correct || "").toString().trim()
+      if (corr && chosen === corr) ok++
+      else bad++
+    }
+    const p = total ? Math.round((ok / total) * 100) : 0
+    return { correctCount: ok, wrongCount: bad, percent: p }
+  }, [questions, answers, solutions, total])
+
   return (
     <div className="qs-page">
       <div className="qs-wrap">
@@ -113,7 +128,14 @@ export default function QuestionSheet({
             showTimer={showTimer}
             timerText={timerText}
           />
-        ) : null}
+        ) : (
+          <QuestionResultSummary
+            total={total}
+            correctCount={correctCount}
+            wrongCount={wrongCount}
+            percent={percent}
+          />
+        )}
 
         <div className="qs-list">
           {questions.map((q, idx) => (
