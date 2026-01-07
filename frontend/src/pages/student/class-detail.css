@@ -48,7 +48,7 @@
 
 .topbar-title {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   color: #111827;
 }
 
@@ -77,7 +77,7 @@
   margin-top: 6px;
   font-size: 20px;
   color: #fff;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 /* 分区标题 */
@@ -87,7 +87,7 @@
 
 .section-title {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   color: #111827;
   margin: 10px 0 12px;
 }
@@ -146,7 +146,7 @@
 .pending-title {
   margin-top: 14px;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 700;
   color: #111827;
 }
 
@@ -174,7 +174,7 @@
   margin-top: auto;
   height: 44px;
   border-radius: 12px;
-  font-weight: 800;
+  font-weight: 700;
   background: #f97316;
   border-color: #f97316;
 }
@@ -212,7 +212,7 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   color: #16a34a;
 }
 
@@ -223,7 +223,7 @@
 .finished-title {
   margin-top: 8px;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 600;
   color: #111827;
   white-space: nowrap;
   overflow: hidden;
@@ -235,7 +235,7 @@
   margin-top: 8px;
   font-size: 13px;
   color: #6b7280;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .finished-right {
@@ -258,7 +258,7 @@
 .score-value {
   margin-top: 6px;
   font-size: 34px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -273,7 +273,7 @@
 .detail-btn {
   height: 40px;
   border-radius: 12px;
-  font-weight: 800;
+  font-weight: 700;
   border-color: rgba(37, 99, 235, 0.45);
   color: #2563eb;
 }

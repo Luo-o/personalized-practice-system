@@ -2,7 +2,6 @@
 .qs-page {
   min-height: 100%;
   background: #f7f9fc;
-  padding-bottom: 88px; /* 给底部提交栏留空间 */
 }
 
 .qs-wrap {
@@ -151,7 +150,7 @@
 /* 题干 */
 .qs-stem {
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 600;
   color: #111827;
   margin: 10px 0 14px;
 }
@@ -164,46 +163,117 @@
 }
 
 .qs-option {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 
-  padding: 14px 14px;
-  border: 1px solid rgba(15, 23, 42, 0.14);
+  padding: 16px 18px;
   border-radius: 12px;
-  cursor: pointer;
-  position: relative;
+
+  border: 1px solid rgba(15, 23, 42, 0.12);
   background: #fff;
+
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease,
+    transform 0.06s ease;
 }
 
-.qs-option input {
-  width: 18px;
-  height: 18px;
+.qs-option:active {
+  transform: translateY(1px);
+}
+
+.qs-option-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.qs-radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(15, 23, 42, 0.18);
+  background: #fff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 22px;
+}
+
+.qs-radio-icon {
+  font-size: 14px;
+  color: #fff;
+  opacity: 0;
+  transform: rotate(-10deg);
+}
+
+.qs-option.is-checked .qs-radio {
+  border-color: #2563eb;
+  background: #2563eb;
+}
+.qs-option.is-checked .qs-radio-icon {
+  opacity: 1;
+}
+
+.qs-option.is-correct .qs-radio {
+  border-color: #16a34a;
+  background: #16a34a;
+}
+.qs-option.is-correct .qs-radio-icon {
+  opacity: 1;
+}
+
+.qs-option.is-wrong .qs-radio {
+  border-color: #dc2626;
+  background: #dc2626;
+}
+.qs-option.is-wrong .qs-radio-icon {
+  opacity: 1;
+}
+
+.qs-qcard.is-review .qs-option:not(.is-correct):not(.is-wrong) .qs-radio {
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #fff;
+}
+.qs-qcard.is-review .qs-option:not(.is-correct):not(.is-wrong) .qs-radio-icon {
+  opacity: 0;
+}
+
+.qs-option:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .qs-option.is-checked {
-  border-color: rgba(37, 99, 235, 0.7);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  border: 1px solid #2563eb;
+  background: #eff6ff;
+
 }
 
-.qs-option.is-correct {
-  border-color: rgba(22, 163, 74, 0.7);
-  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+.qs-qcard.is-review .qs-option {
+  cursor: default;
+}
+.qs-qcard.is-review .qs-option:hover {
+  box-shadow: none;
 }
 
-.qs-option.is-wrong {
-  border-color: rgba(220, 38, 38, 0.7);
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+.qs-option:has(.qs-option-input:focus-visible) {
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.22),
+    0 12px 26px rgba(15, 23, 42, 0.06);
+  border-color: #2563eb;
 }
 
 .qs-op-key {
-  font-weight: 800;
-  color: #111827;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .qs-op-text {
-  color: #111827;
-  font-weight: 600;
+  color: rgba(15, 23, 42, 0.82);
 }
 
 .qs-op-badge {
@@ -228,11 +298,9 @@
 
 /* 解析区域 */
 .qs-review {
-  margin-top: 14px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(37, 99, 235, 0.06);
-  border: 1px solid rgba(37, 99, 235, 0.12);
+  margin-top: 28px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(37, 99, 235, 0.12);
 }
 
 .qs-review-row {
@@ -253,15 +321,39 @@
 
 /* 底部提交栏 */
 .qs-submitbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.qs-footerbar {
+  margin: 18px 0 28px;
+}
+
+.qs-result-actions {
+  display: flex;
+  padding-bottom: 20px;
+  gap: 16px;
+}
+
+.qs-resultbtn {
+  flex: 1;
+  height: 56px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.qs-resultbtn.danger {
   background: #fff;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.08);
-  padding: 12px 0;
-  z-index: 50;
+  border: 2px solid rgba(220, 38, 38, 0.65);
+  color: #dc2626;
+}
+
+.qs-resultbtn.primary {
+  background: #2563eb;
+  border: none;
+  color: #fff;
 }
 
 .qs-submitbtn {
@@ -290,4 +382,175 @@
 .qs-submiticon {
   font-size: 18px;
   transform: translateY(-1px);
+}
+
+/* ====== 结果页头 ====== */
+.qs-result-block {
+  margin-bottom: 18px;
+}
+
+.qs-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 12px;
+}
+
+.qs-result-h1 {
+  font-size: 20px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.qs-result-h2 {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* ====== 结果大卡（你图里红色那块） ====== */
+.qs-result {
+  border-radius: 18px;
+  padding: 34px 24px;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  color: #fff;
+  text-align: center;
+}
+
+.qs-result.bad { background: #d40000; }
+.qs-result.mid { background: #2563eb; }
+.qs-result.good { background: #16a34a; }
+
+.qs-result-percent {
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 1000;
+  letter-spacing: -1px;
+}
+
+.qs-result-title {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 900;
+  opacity: 0.95;
+}
+
+.qs-result-stats {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 38px;
+}
+
+.qs-result-stat-label {
+  font-size: 14px;
+  font-weight: 800;
+  opacity: 0.95;
+}
+
+.qs-result-stat-value {
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: 1000;
+}
+
+/* ====== 题卡：错误红框 / 正确绿框（像你图） ====== */
+.qs-qcard.is-wrong-card {
+  border: 2px solid rgba(220, 38, 38, 0.35);
+}
+
+.qs-qcard.is-right-card {
+  border: 2px solid rgba(22, 163, 74, 0.28);
+}
+
+/* 右上角“× 错误 / ✓ 正确”更贴图 */
+.qs-status.bad { color: #dc2626; font-weight: 900; }
+.qs-status.ok { color: #16a34a; font-weight: 900; }
+
+/* ====== 选项：错误红底 / 正确绿底（像你图） ====== */
+.qs-option.is-correct {
+  background: rgba(22, 163, 74, 0.08);
+  border-color: rgba(22, 163, 74, 0.55);
+  box-shadow: none;
+}
+
+.qs-option.is-wrong {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.55);
+  box-shadow: none;
+}
+
+.qs-answer-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #2b3cb8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.qs-explain {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+}
+
+.qs-explain-title {
+  font-weight: 500;
+  color: #2b3cb8;
+  margin-bottom: 8px;
+}
+
+.qs-explain-body {
+  color: #2b3cb8;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* 结果页底部两按钮（查看错题 / 返回首页） */
+.qs-resultbar {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f9fc;
+  padding: 16px 0 22px;
+  z-index: 60;
+}
+
+.qs-resultbar::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 1px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.qs-resultbtn {
+  width: min(960px, calc(100% - 48px));
+  margin: 0 auto;
+  height: 56px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 950;
+  cursor: pointer;
+  display: block;
+}
+
+/* 左：红色描边按钮 */
+.qs-resultbtn.danger {
+  background: #fff;
+  border: 2px solid rgba(220, 38, 38, 0.65);
+  color: #dc2626;
+}
+
+/* 右：蓝色主按钮 */
+.qs-resultbtn.primary {
+  background: #2563eb;
+  border: none;
+  color: #fff;
 }

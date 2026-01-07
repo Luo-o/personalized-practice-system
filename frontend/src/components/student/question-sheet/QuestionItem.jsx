@@ -1,5 +1,6 @@
 import React from "react"
 import "./question-sheet.css"
+import { CheckCircleOutlined } from "@ant-design/icons"
 
 function toneClass(difficulty) {
   if (difficulty === "简单") return "qs-tag-easy"
@@ -22,10 +23,19 @@ export default function QuestionItem({
 
   const isReview = mode === "review"
   const isAnswered = !!value
-  const isCorrect = isReview && value && correct && value === correct
+  const hasCorrect = !!correct
+  const isCorrect = isReview && value && hasCorrect && value === correct
+  const isWrong = isReview && value && hasCorrect && value !== correct
 
   return (
-    <div className={`qs-qcard ${isReview ? "is-review" : ""}`}>
+    <div
+      className={[
+        "qs-qcard",
+        isReview ? "is-review" : "",
+        isWrong ? "is-wrong-card" : "",
+        isCorrect ? "is-right-card" : "",
+      ].join(" ")}
+    >
       <div className="qs-qhead">
         <div className="qs-qhead-left">
           <div className="qs-qindex">{index}</div>
@@ -37,7 +47,7 @@ export default function QuestionItem({
 
         {isReview ? (
           <div className={`qs-status ${isCorrect ? "ok" : "bad"}`}>
-            {isAnswered ? (isCorrect ? "✅ 已答对" : "❌ 已答错") : "未作答"}
+            {isAnswered ? (isCorrect ? "√ 正确" : "× 错误") : "未作答"}
           </div>
         ) : null}
       </div>
@@ -47,8 +57,15 @@ export default function QuestionItem({
       <div className="qs-options">
         {options.map((op) => {
           const checked = value === op.key
-          const correctMark = isReview && correct === op.key
-          const wrongMark = isReview && checked && correct && op.key !== correct
+
+          // ✅图2要求：
+          // - 答错：标注【错误选项】+【正确选项】
+          // - 答对：只标注【正确选项】（即当前选中的那一项）
+          const showCorrect = isReview && hasCorrect && correct === op.key
+          const showWrong = isReview && isWrong && checked
+
+          const correctMark = showCorrect && (isWrong || !isAnswered || isCorrect)
+          const wrongMark = showWrong
 
           return (
             <label
@@ -60,37 +77,43 @@ export default function QuestionItem({
                 wrongMark ? "is-wrong" : "",
               ].join(" ")}
             >
+              {/* 自绘 radio（配合 CSS） */}
               <input
+                className="qs-option-input"
                 type="radio"
                 name={`q_${question.id}`}
                 checked={checked}
                 disabled={isReview}
                 onChange={() => onChange?.(op.key)}
               />
+              <span className="qs-radio">
+                <CheckCircleOutlined className="qs-radio-icon" />
+              </span>
+
               <span className="qs-op-key">{op.key}.</span>
               <span className="qs-op-text">{op.text}</span>
 
-              {isReview && correctMark ? (
-                <span className="qs-op-badge correct">正确答案</span>
-              ) : null}
               {isReview && wrongMark ? (
                 <span className="qs-op-badge wrong">你的选择</span>
+              ) : null}
+
+              {/* 只有“答错/未作答”时展示“正确答案”徽标；答对不额外提示 */}
+              {isReview && correctMark && (isWrong || !isAnswered) ? (
+                <span className="qs-op-badge correct">正确答案</span>
               ) : null}
             </label>
           )
         })}
       </div>
 
+      {/* ✅图3：正确答案 pill + 解析框分别展示 */}
       {isReview ? (
         <div className="qs-review">
-          <div className="qs-review-row">
-            <span className="qs-review-label">正确答案：</span>
-            <span className="qs-review-val">{correct || "-"}</span>
-          </div>
+          <div className="qs-answer-pill">正确答案：{correct || "-"}</div>
           {explanation ? (
-            <div className="qs-review-row">
-              <span className="qs-review-label">解析：</span>
-              <span className="qs-review-val">{explanation}</span>
+            <div className="qs-explain">
+              <div className="qs-explain-title">📖 解析</div>
+              <div className="qs-explain-body">{explanation}</div>
             </div>
           ) : null}
         </div>

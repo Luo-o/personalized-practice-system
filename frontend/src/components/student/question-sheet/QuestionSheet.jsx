@@ -5,27 +5,9 @@ import QuestionSubmitBar from "./QuestionSubmitBar"
 import "./question-sheet.css"
 
 /**
- * QuestionSheet
- * - 题单容器：进度 + 题目列表 + 提交栏
- *
- * props:
- * - questions: Array<Question>
- * - initialAnswers?: Record<string, string>   // 题目 id -> 选项 key（单选）
- * - onSubmit?: ({ answers, questions }) => Promise<{ solutions?: Record<string, { correct: string, explanation: string }> } | void>
- * - showTimer?: boolean
- * - timerText?: string                         // 右上角时间文案（交给页面层管理也行）
- * - mode?: "answer" | "review"                 // 可外部控制；不传则内部控制
- *
- * Question 结构建议：
- * {
- *   id: "q1",
- *   difficulty: "简单" | "中等" | "困难",
- *   tag: "Python基础 · 变量与数据类型",
- *   stem: "题干",
- *   options: [{ key:"A", text:"..." }, ...],
- *   correct?: "C",                 // 可选：若后端已给
- *   explanation?: "解析"           // 可选：若后端已给
- * }
+ * ✅新增：
+ * - onModeChange：用于外层 Nav 替换（图1）
+ * - onViewWrong / onBackHome：结果页按钮回调（图4）
  */
 export default function QuestionSheet({
   questions = [],
@@ -34,6 +16,14 @@ export default function QuestionSheet({
   showTimer = true,
   timerText = "0:00",
   mode: controlledMode,
+  /**
+   * 可选：当模式从答题 -> 结果页时通知外层，用于替换 Nav 标题/副标题（图1）
+   * onModeChange({ mode, total, answeredCount, correctCount, wrongCount, percent })
+   */
+  onModeChange,
+  /** 结果页按钮回调（由页面层接路由） */
+  onViewWrong,
+  onBackHome,
 }) {
   const [answers, setAnswers] = useState(initialAnswers || {})
   const [submitting, setSubmitting] = useState(false)
@@ -58,17 +48,17 @@ export default function QuestionSheet({
   }
 
   const handleSubmit = async () => {
-    // 这里不强制必须答完，你也可以改成：answeredCount < total 则提示
     try {
       setSubmitting(true)
       const res = (await onSubmit?.({ answers, questions })) || null
 
-      // 如果后端返回了正确答案与解析
+      // 统一成 finalSolutions，便于后续统计/渲染
       const sol = res?.solutions || null
+      let finalSolutions = {}
+
       if (sol && typeof sol === "object") {
-        setSolutions(sol)
+        finalSolutions = sol
       } else {
-        // 没有返回就尝试从 questions 自带 correct/explanation 构建
         const fallback = {}
         for (const q of questions) {
           if (q.correct || q.explanation) {
@@ -78,10 +68,34 @@ export default function QuestionSheet({
             }
           }
         }
-        setSolutions(fallback)
+        finalSolutions = fallback
       }
 
+      setSolutions(finalSolutions)
       setInnerMode("review")
+
+      // ✅通知外层替换 nav（图1）
+      if (onModeChange) {
+        let ok = 0
+        let bad = 0
+        for (const q of questions) {
+          const chosen = answers[q.id]
+          if (!chosen) continue
+          const corr =
+            (finalSolutions[q.id]?.correct || q.correct || "").toString().trim()
+          if (corr && chosen === corr) ok++
+          else bad++
+        }
+        const percent = total ? Math.round((ok / total) * 100) : 0
+        onModeChange({
+          mode: "review",
+          total,
+          answeredCount,
+          correctCount: ok,
+          wrongCount: bad,
+          percent,
+        })
+      }
     } finally {
       setSubmitting(false)
     }
@@ -89,15 +103,17 @@ export default function QuestionSheet({
 
   return (
     <div className="qs-page">
-      {/* 你现在的 header 用 PageHeader，这里只做题单区域 */}
       <div className="qs-wrap">
-        <QuestionProgress
-          answered={answeredCount}
-          total={total}
-          percent={progressPercent}
-          showTimer={showTimer}
-          timerText={timerText}
-        />
+        {/* ✅图1：结果页标题在 Nav 替换，这里不重复显示进度卡 */}
+        {mode !== "review" ? (
+          <QuestionProgress
+            answered={answeredCount}
+            total={total}
+            percent={progressPercent}
+            showTimer={showTimer}
+            timerText={timerText}
+          />
+        ) : null}
 
         <div className="qs-list">
           {questions.map((q, idx) => (
@@ -112,14 +128,36 @@ export default function QuestionSheet({
             />
           ))}
         </div>
-      </div>
 
-      <QuestionSubmitBar
-        disabled={submitting || total === 0}
-        loading={submitting}
-        text={mode === "review" ? "已提交" : "提交答卷"}
-        onClick={mode === "review" ? undefined : handleSubmit}
-      />
+        {/* ✅图4：提交/结果按钮都在题单末尾，不 fixed */}
+        <div className="qs-footerbar">
+          {mode === "review" ? (
+            <div className="qs-result-actions">
+              <button
+                className="qs-resultbtn danger"
+                type="button"
+                onClick={onViewWrong}
+              >
+                查看错题
+              </button>
+              <button
+                className="qs-resultbtn primary"
+                type="button"
+                onClick={onBackHome}
+              >
+                返回首页
+              </button>
+            </div>
+          ) : (
+            <QuestionSubmitBar
+              disabled={submitting || total === 0}
+              loading={submitting}
+              text="提交答卷"
+              onClick={handleSubmit}
+            />
+          )}
+        </div>
+      </div>
     </div>
   )
 }
