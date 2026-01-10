@@ -3,8 +3,9 @@
   background: linear-gradient(to right, #1677ff, #4096ff);
   color: #fff;
   margin: 0 auto;
-  margin-bottom: 16px;
+  margin-bottom: 28px;
   border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
 }
 
 .class-card-content {
