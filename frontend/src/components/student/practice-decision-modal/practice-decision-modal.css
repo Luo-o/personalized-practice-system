@@ -1,0 +1,379 @@
+/* 标题 */
+.pdm-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pdm-title-main {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.pdm-title-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 内容布局 */
+.pdm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 分区卡片（图1那种每块一个卡片） */
+.pdm-section-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.pdm-section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pdm-section-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdm-section-icon {
+  font-size: 18px;
+  color: #2563eb;
+  display: inline-flex;
+}
+
+.pdm-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.pdm-section-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdm-section-meta {
+  font-weight: 500;
+  color: #2563eb;
+  font-size: 12px;
+}
+
+/* 右侧总题数 */
+.pdm-total {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* min/max */
+.pdm-minmax {
+  display: flex;
+  justify-content: space-between;
+  color: #9ca3af;
+  font-size: 12px;
+  margin-top: -6px;
+}
+
+/* ✅ 两根 slider 的圆圈统一 */
+.pdm-slider .ant-slider-handle {
+  width: 16px;
+  height: 16px;
+  margin-top: -3px;
+  border: 3px solid #91caff;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.pdm-slider .ant-slider-handle:hover {
+  border-color: #539bff;
+}
+
+.pdm-slider .ant-slider-handle::after {
+  display: none;
+}
+
+.pdm-slider .ant-slider-handle:focus,
+.pdm-slider .ant-slider-handle:focus-visible,
+.pdm-slider .ant-slider-handle:active {
+  box-shadow: none;
+}
+
+/* 难度滑条轨道更干净 */
+.pdm-split .ant-slider-rail {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #91caff 0%, #91caff 50%, #91caff 100%);
+}
+
+.pdm-split .ant-slider-track {
+  background: transparent !important;
+}
+
+.pdm-split .ant-slider-step {
+  background: transparent;
+}
+
+.pdm-split-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -6px;
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* ========== 图1 / 图2：选择按钮网格 ========== */
+.pdm-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.pdm-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .pdm-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pdm-choice {
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.pdm-choice:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.pdm-choice.is-active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+/* ========== 搜索框 ========== */
+.pdm-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+}
+
+.pdm-search-icon {
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.pdm-search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+  color: #111827;
+}
+
+.pdm-search-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* ========== 图2：已选区（淡紫底） ========== */
+.pdm-selected-box {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  background: #eff6ff;
+  border: 1px solid #2563eb;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.pdm-selected-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 10px;
+}
+
+.pdm-selected-empty {
+  color: rgba(15, 23, 42, 0.55);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.pdm-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* chip（紫色 pill + ×） */
+.pdm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.pdm-chip-text {
+  font-size: 13px;
+}
+
+.pdm-chip-x {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.pdm-chip-x:hover {
+  color: #ffffff;
+}
+
+/* 清空选择（右上角红色链接） */
+.pdm-link-danger {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #ef4444;
+  padding: 0;
+}
+
+.pdm-link-danger:hover {
+  text-decoration: underline;
+}
+
+/* 勾选项 */
+.pdm-checks {
+  display: flex;
+  gap: 14px;
+}
+
+.pdm-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  flex: 1;
+}
+
+.pdm-check span {
+  font-weight: 400;
+  color: #111827;
+}
+
+/* 开始按钮 */
+.pdm-start {
+  height: 56px;
+  border-radius: 16px;
+  font-weight: 950;
+  font-size: 16px;
+}
+
+/* ===== 知识点：分页 3×3 网格（一次展示 9 个） ===== */
+
+.pdm-pager {
+  position: relative;
+  margin-top: 12px;
+}
+
+/* 中间网格占满整行 */
+.pdm-grid-9 {
+  width: 100%;
+  padding: 0 40px;
+}
+
+/* 翻页按钮：悬浮在左右，不挤压网格 */
+.pdm-page-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+/* 左右位置 */
+.pdm-page-btn--prev {
+  left: -12px;
+}
+
+.pdm-page-btn--next {
+  right: -12px;
+}
+
+.pdm-page-btn:hover {
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+/* 禁用态 */
+.pdm-page-btn:disabled,
+.pdm-page-btn.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+/* 不足 9 个时补空位（可选） */
+.pdm-choice--empty {
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.02);
+  cursor: default;
+  box-shadow: none;
+}
+
+/* 页码提示 */
+.pdm-page-indicator {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: left;
+}
+

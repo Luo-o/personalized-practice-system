@@ -6,7 +6,7 @@ import ClassCard from './components/ClassCard'
 import StatsCards from './components/StatsCards'
 import StrategyCards from './components/StrategyCards'
 import QuickEntry from './components/QuickEntry'
-import PracticeDecisionModal from "./components/PracticeDecisionModal"
+import PracticeDecisionModal from "../../components/student/practice-decision-modal/PracticeDecisionModal"
 import './student-dashboard.css'
 
 
@@ -37,7 +37,8 @@ export default function StudentDashboard() {
           strategy={strategy}
           onClose={() => setOpen(false)}
           onStart={(cfg) => {
-            navigate("/student/question-sheet", { state: cfg })
+            const examId = `exam_${Date.now()}`
+            navigate(`/student/exam/${examId}`, { state: { cfg } })
           }}
         />
     </Layout>

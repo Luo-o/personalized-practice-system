@@ -42,7 +42,8 @@ export default function StrategyCards({
     },
   ]
 
-  const handleClick = (item) => {
+  const handleClick = (item, e) => {
+    e.currentTarget.blur()
     onSelectStrategy?.(item.key)
   }
 
@@ -60,7 +61,7 @@ export default function StrategyCards({
             <button
               type="button"
               className={`strategy-card tone-${s.tone}`}
-              onClick={() => handleClick(s)}
+              onClick={(e) => handleClick(s, e)}
             >
               <div className={`strategy-icon tone-${s.tone}`}>
                 {s.icon}
