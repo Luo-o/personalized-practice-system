@@ -12,11 +12,38 @@ import './student-dashboard.css'
 
 const { Content } = Layout
 
-
 export default function StudentDashboard() {
   const [open, setOpen] = useState(false)
   const [strategy, setStrategy] = useState(null)
   const navigate = useNavigate()
+  const subjects = [
+    {
+      id: "math",
+      name: "高等数学",
+      chapters: [
+        {
+          id: "c1",
+          name: "第一章 极限",
+          knowledgePoints: [
+            { id: "k1", name: "数列极限" },
+            { id: "k2", name: "函数极限" },
+            { id: "k3", name: "无穷小与无穷大" },
+            { id: "k4", name: "无穷小与无穷大1" },
+          ],
+        },
+        {
+          id: "c2",
+          name: "第二章 导数",
+          knowledgePoints: [
+            { id: "k8", name: "导数定义" },
+            { id: "k9", name: "求导法则" },
+            { id: "k10", name: "高阶导数" },
+            { id: "k11", name: "高阶导数" },
+          ],
+        },
+      ],
+    },
+  ]
 
   return (
     <Layout className="student-layout">
@@ -40,6 +67,7 @@ export default function StudentDashboard() {
             const examId = `exam_${Date.now()}`
             navigate(`/student/exam/${examId}`, { state: { cfg } })
           }}
+          subjects={subjects}
         />
     </Layout>
   )

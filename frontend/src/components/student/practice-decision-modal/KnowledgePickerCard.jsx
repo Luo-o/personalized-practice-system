@@ -1,59 +1,39 @@
 import React, { useMemo, useState } from "react"
 import SectionCard from "./SectionCard"
-import { BulbOutlined, SearchOutlined, CloseOutlined } from "@ant-design/icons"
-import "./practice-decision-modal.css"
+
+import { BulbOutlined } from "@ant-design/icons"
 
 export default function KnowledgePickerCard({
-  points = [], // [{id,name}]
+  points = [],
   value = [],
   onChange,
 }) {
-  const [kw, setKw] = useState("")
-  const [page, setPage] = useState(0)
-
-  const PAGE_SIZE = 9 // ✅ 每页展示 9 个
+  const [keyword, setKeyword] = useState("")
+  const [open, setOpen] = useState(false)
 
   const selectedSet = useMemo(() => new Set(value), [value])
 
-  const filtered = useMemo(() => {
-    const k = kw.trim().toLowerCase()
-    if (!k) return points
-    return points.filter((p) => String(p.name).toLowerCase().includes(k))
-  }, [points, kw])
+  const filteredPoints = useMemo(() => {
+    const key = keyword.trim()
+    if (!key) return points
+    return points.filter((p) => p.name.includes(key) || p.chapterName.includes(key))
+  }, [points, keyword])
 
-  const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  }, [filtered.length])
-
-  const safePage = useMemo(() => {
-    const maxPage = totalPages - 1
-    return Math.max(0, Math.min(page, maxPage))
-  }, [page, totalPages])
-
-  const pageItems = useMemo(() => {
-    const start = safePage  * PAGE_SIZE
-    return filtered.slice(start, start + PAGE_SIZE)
-  }, [filtered, safePage])
-
-  const toggle = (id) => {
-    const has = selectedSet.has(id)
-    const next = has ? value.filter((x) => x !== id) : [...value, id]
-    onChange?.(next)
-  }
-
-  const remove = (id) => {
-    onChange?.(value.filter((x) => x !== id))
-  }
-
-  const clear = () => onChange?.([])
-
-  const selectedItems = useMemo(() => {
+  const selectedPoints = useMemo(() => {
+    if (!value.length) return []
+    // 保持选择顺序（更符合用户直觉）
     const map = new Map(points.map((p) => [p.id, p]))
     return value.map((id) => map.get(id)).filter(Boolean)
   }, [points, value])
 
-  const canPrev = page > 0
-  const canNext = page < totalPages - 1
+  const toggle = (id) => {
+    if (selectedSet.has(id)) onChange(value.filter((x) => x !== id))
+    else onChange([...value, id])
+  }
+
+  const remove = (id) => onChange(value.filter((x) => x !== id))
+
+  const clearAll = () => onChange([])
 
   return (
     <SectionCard
@@ -61,63 +41,58 @@ export default function KnowledgePickerCard({
       title="选择知识点"
       right={
         value.length ? (
-          <button type="button" className="pdm-link-danger" onClick={clear}>
-            清空选择
+          <button className="pdm-link-danger" onClick={clearAll}>
+            清空
           </button>
         ) : null
       }
-      className="pdm-kp"
     >
-      {/* 搜索 */}
+      {/* 搜索框 */}
       <div className="pdm-search">
-        <SearchOutlined className="pdm-search-icon" />
         <input
           className="pdm-search-input"
-          value={kw}
-          placeholder="搜索知识点..."
-          onChange={(e) => {
-            setKw(e.target.value)
-            setPage(0) // ✅ 搜索后回到第一页
-          }}
+          placeholder="搜索知识点或章节"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
         />
       </div>
 
-      {/* 已选 */}
+      {/* 已选知识点（折叠摘要） */}
       <div className="pdm-selected-box">
-        <div className="pdm-selected-title">已选择 {value.length} 个知识点：</div>
-        <div className="pdm-chip-row">
-          {selectedItems.length ? (
-            selectedItems.map((p) => (
-              <span key={p.id} className="pdm-chip">
-                <span className="pdm-chip-text">{p.name}</span>
-                <button
-                  type="button"
-                  className="pdm-chip-x"
-                  onClick={() => remove(p.id)}
-                  aria-label="remove"
-                >
-                  <CloseOutlined />
-                </button>
-              </span>
-            ))
-          ) : (
-            <span className="pdm-selected-empty">暂未选择</span>
-          )}
+        <div className="pdm-kp-chapterline">
+          <div className="pdm-selected-title">已选知识点（{value.length}）</div>
+          <button className="pdm-link-danger" onClick={() => setOpen((v) => !v)}>
+            {open ? "收起" : "展开"}
+          </button>
         </div>
+
+        {open ? (
+          value.length ? (
+            <div className="pdm-chip-row">
+              {selectedPoints.map((p) => (
+                <div key={p.id} className="pdm-chip">
+                  <span className="pdm-chip-text">{p.name}</span>
+                  <button className="pdm-chip-x" onClick={() => remove(p.id)}>
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="pdm-selected-empty">尚未选择任何知识点</div>
+          )
+        ) : (
+          // 折叠态给一个轻提示，不占空间
+          <div className="pdm-selected-empty">
+            {value.length ? "已选择，点击展开查看" : "尚未选择任何知识点"}
+          </div>
+        )}
       </div>
 
-      <div className="pdm-pager">
-          <button
-            type="button"
-            className="pdm-page-btn pdm-page-btn--prev"
-            disabled={!canPrev}
-            onClick={() => canPrev && setPage(safePage - 1)}
-          >
-          ‹
-        </button>
-
-        <div className="pdm-grid pdm-grid-3 pdm-grid-9">
-          {pageItems.map((p) => {
+      {/* 知识点选择（内部滚动） */}
+      <div className="pdm-kp-scroll">
+        <div className="pdm-grid pdm-grid-3">
+          {filteredPoints.map((p) => {
             const active = selectedSet.has(p.id)
             return (
               <button
@@ -125,33 +100,17 @@ export default function KnowledgePickerCard({
                 type="button"
                 className={`pdm-choice ${active ? "is-active" : ""}`}
                 onClick={() => toggle(p.id)}
-                title={p.name}
+                title={`${p.name}（${p.chapterName}）`}
               >
                 {p.name}
               </button>
             )
           })}
 
-          {/* 不足 9 个时补空位，让布局稳定 */}
-          {pageItems.length < PAGE_SIZE
-            ? Array.from({ length: PAGE_SIZE - pageItems.length }).map((_, i) => (
-                <div key={`empty-${i}`} className="pdm-choice pdm-choice--empty" />
-              ))
-            : null}
+          {!filteredPoints.length && (
+            <div className="pdm-kp-empty">未找到匹配的知识点</div>
+          )}
         </div>
-
-        <button
-          type="button"
-          className="pdm-page-btn pdm-page-btn--next"
-          disabled={!canNext}
-          onClick={() => canNext && setPage(safePage + 1)}
-        >
-          ›
-        </button>
-      </div>
-
-      <div className="pdm-page-indicator">
-        第 {totalPages === 0 ? 0 : page + 1} / {totalPages} 页（共 {filtered.length} 个）
       </div>
     </SectionCard>
   )
