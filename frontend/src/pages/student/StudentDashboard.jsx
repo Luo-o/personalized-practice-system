@@ -16,6 +16,21 @@ export default function StudentDashboard() {
   const [open, setOpen] = useState(false)
   const [strategy, setStrategy] = useState(null)
   const navigate = useNavigate()
+  const handleQuickEntryNavigate = (key) => {
+    switch (key) {
+      case "wrongbook":
+        navigate("/student/wrong-book")
+        break
+      case "records":
+        navigate("/student/records")
+        break
+      case "profile":
+        navigate("/student/profile")
+        break
+      default:
+        break
+    }
+  }
   const subjects = [
     {
       id: "math",
@@ -57,7 +72,9 @@ export default function StudentDashboard() {
             setOpen(true)
           }}
         />
-        <QuickEntry />
+        <QuickEntry 
+          onNavigate={handleQuickEntryNavigate}
+        />
       </Content>
       <PracticeDecisionModal
           open={open}

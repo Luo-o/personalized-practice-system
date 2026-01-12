@@ -3,6 +3,7 @@ import StudentDashboard from '../pages/student/StudentDashboard.jsx'
 import ClassList from "../pages/student/ClassList"
 import ClassDetail from "../pages/student/ClassDetail"
 import ExamDo from "../pages/student/ExamDo"
+import WrongBook from "../pages/student/WrongBook"
 import TeacherDashboard from '../pages/teacher/TeacherDashboard'
 import Login from '../pages/Login'
 
@@ -14,6 +15,7 @@ const AppRouter = () => {
       <Route path="/student/class-list" element={<ClassList />} />
       <Route path="/student/class/:id" element={<ClassDetail />} />
       <Route path="/student/exam/:examId" element={<ExamDo />} />
+      <Route path="/student/wrong-book" element={<WrongBook />} />
       <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
       <Route path="/login" element={<Login />} />
     </Routes>
