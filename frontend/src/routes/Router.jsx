@@ -4,6 +4,8 @@ import ClassList from "../pages/student/ClassList"
 import ClassDetail from "../pages/student/ClassDetail"
 import ExamDo from "../pages/student/ExamDo"
 import WrongBook from "../pages/student/WrongBook"
+import PracticeRecords from '../pages/student/PracticeRecords.jsx'
+import PracticeRecordDetail from '../pages/student/PracticeRecordDetail.jsx'
 import TeacherDashboard from '../pages/teacher/TeacherDashboard'
 import Login from '../pages/Login'
 
@@ -16,8 +18,11 @@ const AppRouter = () => {
       <Route path="/student/class/:id" element={<ClassDetail />} />
       <Route path="/student/exam/:examId" element={<ExamDo />} />
       <Route path="/student/wrong-book" element={<WrongBook />} />
+      <Route path="/student/records" element={<PracticeRecords />} />
+      <Route path="/student/records/:recordId" element={<PracticeRecordDetail />} />
       <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
       <Route path="/login" element={<Login />} />
+      <Route path="*" element={<div style={{ padding: 24 }}>404 Not Found</div>} />
     </Routes>
   )
 }
