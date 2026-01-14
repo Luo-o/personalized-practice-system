@@ -1,7 +1,8 @@
 // src/pages/student/WrongBookPage.jsx
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Input, Tag } from "antd"
 import { FileTextOutlined, FilterOutlined, SearchOutlined } from "@ant-design/icons"
+import { useSearchParams } from "react-router-dom"
 import PageHeader from "../../components/PageHeader"
 import WrongQuestionSheetDrawer from "../../components/student/wrong-book/WrongQuestionSheetDrawer"
 import "./wrong-book.css"
@@ -17,7 +18,6 @@ const MOCK_WRONGS = [
     title: "下列关于列表和元组的描述，错误的是？",
     difficulty: "中等",
     tag: "列表与元组",
-    // 题目结构：尽量贴近 QuestionItem 需要的 question 字段
     question: {
       id: "q_2",
       difficulty: "中等",
@@ -32,7 +32,6 @@ const MOCK_WRONGS = [
       correct: "D",
       explanation: "元组是不可变序列，不支持 append / remove 等原地修改操作。",
     },
-    // 上次作答记录（查看解析需要）
     lastAttempt: {
       answer: "B",
       answeredAt: "2024-12-27 19:20",
@@ -76,13 +75,35 @@ export default function WrongBook() {
 
   const totalWrongCount = wrongs.length
   const masteredCount = wrongs.filter((w) => w.mastered).length
-  // ✅不再单独展示“待复习/掌握率”，但数据你仍可在内部用
-  // const pendingCount = totalWrongCount - masteredCount
-  // const masteryRate = totalWrongCount ? Math.round((masteredCount / totalWrongCount) * 100) : 0
+  const pendingCount = wrongs.filter((w) => !w.mastered).length
+
+  // ====== URL 参数：kp ======
+  const [searchParams, setSearchParams] = useSearchParams()
 
   // knowledge point tabs + 搜索
   const [kpSearch, setKpSearch] = useState("")
   const [activeKp, setActiveKp] = useState("全部")
+
+  // ✅ URL 同步：/student/wrong-book?kp=xxx
+  useEffect(() => {
+    const kpFromUrl = searchParams.get("kp")
+    if (!kpFromUrl) return
+
+    // 同步搜索框
+    setKpSearch((prev) => (prev === kpFromUrl ? prev : kpFromUrl))
+
+    // 如果存在该知识点，则选中对应 tab
+    const exists = wrongs.some((w) => (w.knowledgePoint || "未归类") === kpFromUrl)
+    if (exists) {
+      setActiveKp((prev) => (prev === kpFromUrl ? prev : kpFromUrl))
+    } else {
+      // 不存在则保持 tabs 不变（也可以强制回到全部）
+      // setActiveKp("全部")
+    }
+
+    // 可选：跳转后滚动到顶部
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [searchParams, wrongs])
 
   const kpStats = useMemo(() => {
     const map = new Map()
@@ -90,23 +111,37 @@ export default function WrongBook() {
       const kp = w.knowledgePoint || "未归类"
       map.set(kp, (map.get(kp) || 0) + 1)
     }
-    // 转数组
-    const arr = Array.from(map.entries())
+    return Array.from(map.entries())
       .map(([kp, count]) => ({ kp, count }))
       .sort((a, b) => b.count - a.count)
-    return arr
   }, [wrongs])
 
+  // tabs 区域：按搜索过滤可见 tab（但不影响 activeKp 自身）
   const filteredKpStats = useMemo(() => {
     const s = kpSearch.trim().toLowerCase()
     if (!s) return kpStats
     return kpStats.filter((x) => x.kp.toLowerCase().includes(s))
   }, [kpStats, kpSearch])
 
+  // ✅ 列表展示：tabs + 搜索框都生效
   const displayWrongs = useMemo(() => {
-    if (activeKp === "全部") return wrongs
-    return wrongs.filter((w) => (w.knowledgePoint || "未归类") === activeKp)
-  }, [wrongs, activeKp])
+    let list = wrongs
+
+    // 1) tabs 过滤
+    if (activeKp !== "全部") {
+      list = list.filter((w) => (w.knowledgePoint || "未归类") === activeKp)
+    }
+
+    // 2) 搜索过滤（知识点名包含）
+    const s = kpSearch.trim().toLowerCase()
+    if (s) {
+      list = list.filter((w) =>
+        (w.knowledgePoint || "未归类").toLowerCase().includes(s)
+      )
+    }
+
+    return list
+  }, [wrongs, activeKp, kpSearch])
 
   // ====== 弹窗控制 ======
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -115,21 +150,29 @@ export default function WrongBook() {
 
   const openPractice = (wrong) => {
     setCurrentWrong(wrong)
-    setDrawerDefaultView("practice") // ✅重新练习：无上次作答记录
+    setDrawerDefaultView("practice")
     setDrawerOpen(true)
   }
 
   const openAnalysis = (wrong) => {
     setCurrentWrong(wrong)
-    setDrawerDefaultView("analysis") // ✅查看解析：带上次作答记录
+    setDrawerDefaultView("analysis")
     setDrawerOpen(true)
+  }
+
+  const hasFilter = activeKp !== "全部" || kpSearch.trim().length > 0
+
+  const clearFilter = () => {
+    setActiveKp("全部")
+    setKpSearch("")
+    setSearchParams({}) // ✅ 清掉 URL 参数
   }
 
   return (
     <div className="wb-page">
       <PageHeader
         title="我的错题本"
-        subtitle={`共${totalWrongCount}道错题待复习`}
+        subtitle={`共${pendingCount}道错题待复习`}
         icon={
           <div className="wb-ph-icon">
             <FileTextOutlined />
@@ -138,7 +181,7 @@ export default function WrongBook() {
       />
 
       <div className="wb-wrap">
-        {/* ✅统计卡：只保留 2 个 */}
+        {/* 统计卡：只保留 2 个 */}
         <div className="wb-stats">
           <div className="wb-stat">
             <div className="wb-stat-label">总错题数</div>
@@ -150,7 +193,7 @@ export default function WrongBook() {
           </div>
         </div>
 
-        {/* ✅按知识点筛选 + 搜索框 */}
+        {/* 按知识点筛选 + 搜索框 */}
         <div className="wb-filter-card">
           <div className="wb-filter-head">
             <div className="wb-filter-title">
@@ -188,6 +231,7 @@ export default function WrongBook() {
               </button>
             ))}
           </div>
+
         </div>
 
         {/* 列表 */}
@@ -200,7 +244,6 @@ export default function WrongBook() {
                   <Tag className="wb-tag-wrong" color="red">
                     错误{w.wrongCount}次
                   </Tag>
-
                   <span className="wb-item-title">{w.title}</span>
                 </div>
 
@@ -230,17 +273,27 @@ export default function WrongBook() {
                   重新练习
                 </button>
 
-                {/* ✅不再出现“标记为已掌握”，统一换成“查看解析” */}
                 <button className="wb-btn ghost" type="button" onClick={() => openAnalysis(w)}>
                   查看解析
                 </button>
               </div>
             </div>
           ))}
+
+          {displayWrongs.length === 0 && (
+            <div className="wb-empty">
+              当前筛选下暂无错题
+              {hasFilter && (
+                <button type="button" className="wb-empty-clear" onClick={clearFilter}>
+                  清除筛选
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ✅底部 Sheet 弹窗（统一承接 重新练习 / 查看解析） */}
+      {/* 底部 Sheet 弹窗 */}
       <WrongQuestionSheetDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -248,9 +301,7 @@ export default function WrongBook() {
         defaultView={drawerDefaultView}
         onMarkMastered={(wrongId) => {
           setWrongs((prev) =>
-            prev.map((w) =>
-              w.id === wrongId ? { ...w, mastered: true } : w
-            )
+            prev.map((w) => (w.id === wrongId ? { ...w, mastered: true } : w))
           )
         }}
       />
