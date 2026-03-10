@@ -1,0 +1,83 @@
+.qpm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 题目标题区域 */
+.qpm-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qpm-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* 标签区域 */
+.qpm-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qpm-tags span {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eaf3ff;
+  color: #0b57d0;
+}
+
+/* 每个区块 */
+.qpm-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qpm-label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* 选项列表 */
+.qpm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 单个选项 */
+.qpm-option {
+  background: #f6f8fb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text);
+}
+
+/* 正确答案高亮 */
+.qpm-option.is-correct {
+  background: #dcfce7;
+  border: 1px solid #16a34a;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* 图片区域（如果有图片） */
+.qpm-images {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.qpm-image {
+  width: 140px;
+  height: 100px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}

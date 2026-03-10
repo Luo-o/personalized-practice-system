@@ -1,84 +1,354 @@
-import React, { useMemo } from "react"
-import { useParams } from "react-router-dom"
-import PageHeader from "../../components/PageHeader"
-import { FileTextOutlined } from "@ant-design/icons"
-import { useNavigate } from "react-router-dom"
-import QuestionSheet from "../../components/student/question-sheet/QuestionSheet"
+// import React, { useMemo } from "react";
+// import { useParams, useNavigate, useLocation } from "react-router-dom";
+// import PageHeader from "../../components/PageHeader";
+// import { FileTextOutlined } from "@ant-design/icons";
+// import QuestionSheet from "../../components/student/question-sheet/QuestionSheet";
+// import {
+//   useExamStore,
+//   useQuestionStore,
+//   useSubmissionStore,
+//   useAnswerRecordStore,
+//   useAuthStore,
+// } from "../../store";
 
-// 先写死：不同 examId 给不同题（后续你接接口只替换这里）
-function buildMockQuestions(examId) {
-  const base = [
-    {
-      id: "q1",
-      difficulty: "简单",
-      tag: "Python基础 · 变量与数据类型",
-      stem: "以下关于Python变量的描述，正确的是？",
-      options: [
-        { key: "A", text: "Python变量必须先声明后使用" },
-        { key: "B", text: "Python变量名可以以数字开头" },
-        { key: "C", text: "Python是动态类型语言，变量类型可以改变" },
-        { key: "D", text: "Python变量名区分大小写" },
-      ],
-      correct: "C",
-      explanation: "Python 是动态类型语言，变量名绑定对象，类型可随赋值改变。",
-    },
-    {
-      id: "q2",
-      difficulty: "简单",
-      tag: "Python基础 · 数据类型",
-      stem: "下列哪个不是 Python 的内置数据类型？",
-      options: [
-        { key: "A", text: "list" },
-        { key: "B", text: "tuple" },
-        { key: "C", text: "map" },
-        { key: "D", text: "dict" },
-      ],
-      correct: "C",
-      explanation: "map 是内置函数，不是内置数据类型。",
-    },
-  ]
+// export default function ExamDo() {
+//   const { examId } = useParams();
+//   const navigate = useNavigate();
+//   const location = useLocation();
 
-  // 你也可以根据 examId 拼更多题
-  if (String(examId) === "2") {
-    return base.map((q) => ({
-      ...q,
-      tag: "第二章 · 数据结构",
-    }))
-  }
-  return base
-}
+//   const exams = useExamStore((s) => s.exams);
+//   const questions = useQuestionStore((s) => s.questions);
+//   const addSubmission = useSubmissionStore((s) => s.addSubmission);
+//   const addAnswerRecords = useAnswerRecordStore((s) => s.addAnswerRecords);
+//   const currentUser = useAuthStore((s) => s.currentUser);
+
+//   const currentStudentId =
+//     currentUser?.role === "student" ? currentUser.id : null;
+
+//   const practiceState = location.state || {};
+//   const practiceMode = practiceState?.mode === "practice";
+//   const practiceQuestionsFromState = practiceState?.questions || [];
+//   const practiceQuestionIdsFromState = practiceState?.questionIds || [];
+//   const practiceCfg = practiceState?.cfg || null;
+
+//   const exam = useMemo(() => {
+//     return exams.find((e) => String(e.id) === String(examId)) || null;
+//   }, [exams, examId]);
+
+//   const rawQuestionList = useMemo(() => {
+//     // 1. 刷题模式：优先使用路由 state 里直接传来的 questions
+//     if (practiceMode && practiceQuestionsFromState.length > 0) {
+//       return practiceQuestionsFromState;
+//     }
+
+//     // 2. 刷题模式：如果只传了 questionIds，就从 questionStore 中反查
+//     if (practiceMode && practiceQuestionIdsFromState.length > 0) {
+//       return questions.filter((q) =>
+//         practiceQuestionIdsFromState.includes(q.id),
+//       );
+//     }
+
+//     // 3. 正式考试：从 examStore 中取 exam.questionIds
+//     if (exam) {
+//       return questions.filter((q) => exam.questionIds?.includes(q.id));
+//     }
+
+//     return [];
+//   }, [
+//     practiceMode,
+//     practiceQuestionsFromState,
+//     practiceQuestionIdsFromState,
+//     questions,
+//     exam,
+//   ]);
+
+//   const examQuestions = useMemo(() => {
+//     return rawQuestionList.map((q) => ({
+//       id: q.id,
+//       difficulty: q.difficulty,
+//       tag: `${q.subject} · ${q.chapter}`,
+//       stem: q.title,
+//       options: q.options,
+//       correct: q.correct,
+//       explanation: q.analysis,
+//     }));
+//   }, [rawQuestionList]);
+
+//   const pageTitle = useMemo(() => {
+//     if (practiceMode) {
+//       return `${practiceCfg?.subjectName || "刷题"}练习`;
+//     }
+//     return exam?.title || "答题进行中";
+//   }, [practiceMode, practiceCfg, exam]);
+
+//   const pageSubtitle = useMemo(() => {
+//     return `测验ID：${examId} · 共${examQuestions.length}题`;
+//   }, [examId, examQuestions.length]);
+
+//   const handleBackHome = () => {
+//     navigate("/student/dashboard");
+//   };
+
+//   const handleBackWrong = () => {
+//     navigate("/student/wrong-book");
+//   };
+
+//   return (
+//     <div>
+//       <PageHeader
+//         title={pageTitle}
+//         subtitle={pageSubtitle}
+//         icon={<FileTextOutlined />}
+//       />
+
+//       <QuestionSheet
+//         questions={examQuestions}
+//         showTimer={true}
+//         timerText="0:00"
+//         onSubmit={async ({ answers }) => {
+//           if (!currentStudentId) {
+//             navigate("/login");
+//             return {};
+//           }
+
+//           const total = examQuestions.length;
+//           let correctCount = 0;
+
+//           examQuestions.forEach((q) => {
+//             if (answers[String(q.id)] === q.correct) {
+//               correctCount += 1;
+//             }
+//           });
+
+//           const score = total ? Math.round((correctCount / total) * 100) : 0;
+//           const submissionId = Date.now();
+//           const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+
+//           addSubmission({
+//             id: submissionId,
+//             examId: practiceMode ? submissionId : Number(examId),
+//             studentId: currentStudentId,
+//             title: practiceMode
+//               ? `${practiceCfg?.subjectName || "刷题"}练习`
+//               : exam?.title || "未命名测验",
+//             subject: practiceMode
+//               ? practiceCfg?.subjectName || ""
+//               : exam?.subject || "",
+//             total,
+//             score,
+//             correctCount,
+//             durationMin: 20,
+//             finishedAt: now,
+//             classId: practiceMode ? null : exam?.classId,
+//           });
+
+//           const records = examQuestions.map((q, index) => ({
+//             id: submissionId * 100 + index,
+//             submissionId,
+//             examId: practiceMode ? submissionId : Number(examId),
+//             studentId: currentStudentId,
+//             questionId: q.id,
+//             selectedAnswer: answers[String(q.id)] || "",
+//             correctAnswer: q.correct,
+//             isCorrect: (answers[String(q.id)] || "") === q.correct,
+//             answeredAt: now,
+//           }));
+
+//           addAnswerRecords(records);
+
+//           navigate(`/student/records/${submissionId}`);
+//           return {};
+//         }}
+//         onBackHome={handleBackHome}
+//         onViewWrong={handleBackWrong}
+//       />
+//     </div>
+//   );
+// }
+
+import React, { useEffect, useMemo } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { message } from "antd";
+import PageHeader from "../../components/PageHeader";
+import { FileTextOutlined } from "@ant-design/icons";
+import QuestionSheet from "../../components/student/question-sheet/QuestionSheet";
+import {
+  useExamStore,
+  useQuestionStore,
+  useSubmissionStore,
+} from "../../store";
 
 export default function ExamDo() {
-  const { examId } = useParams()
+  const { examId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const questions = useMemo(() => buildMockQuestions(examId), [examId])
+  const currentExam = useExamStore((s) => s.currentExam);
+  const examQuestionsFromStore = useExamStore((s) => s.examQuestions);
+  const fetchExamById = useExamStore((s) => s.fetchExamById);
+  const fetchExamQuestions = useExamStore((s) => s.fetchExamQuestions);
 
-  const navigate = useNavigate()
-  
-  const handelBackHome = () => {
-    navigate('/student/dashboard')
-  }
+  const questions = useQuestionStore((s) => s.questions);
+  const fetchQuestions = useQuestionStore((s) => s.fetchQuestions);
+
+  const submitExam = useSubmissionStore((s) => s.submitExam);
+
+  const practiceState = location.state || {};
+  const practiceMode = practiceState?.mode === "practice";
+  const practiceQuestionsFromState = practiceState?.questions || [];
+  const practiceCfg = practiceState?.cfg || null;
+
+  useEffect(() => {
+    if (practiceMode) {
+      if (!practiceQuestionsFromState.length) {
+        fetchQuestions();
+      }
+      return;
+    }
+
+    fetchExamById(examId);
+    fetchExamQuestions(examId);
+  }, [
+    practiceMode,
+    practiceQuestionsFromState,
+    examId,
+    fetchExamById,
+    fetchExamQuestions,
+    fetchQuestions,
+  ]);
+
+  const rawQuestionList = useMemo(() => {
+    if (practiceMode) return practiceQuestionsFromState;
+    return examQuestionsFromStore || [];
+  }, [practiceMode, practiceQuestionsFromState, examQuestionsFromStore]);
+
+  const examQuestions = useMemo(() => {
+    return rawQuestionList.map((q) => ({
+      id: q.id,
+      difficulty: q.difficulty,
+      tag: `${q.subjectName || q.subject || ""} · ${q.chapterName || q.chapter || ""}`,
+      stem: q.title,
+      options: (q.options || []).map((item) => ({
+        key: item.key || item.option_key,
+        text: item.text || item.option_text,
+      })),
+      correct: q.correct || q.correct_answer,
+      explanation: q.analysis,
+    }));
+  }, [rawQuestionList]);
+
+  const pageTitle = useMemo(() => {
+    if (practiceMode) {
+      return `${practiceCfg?.subjectName || "刷题"}练习`;
+    }
+    return currentExam?.title || "答题进行中";
+  }, [practiceMode, practiceCfg, currentExam]);
+
+  const pageSubtitle = useMemo(() => {
+    return `测验ID：${examId} · 共${examQuestions.length}题`;
+  }, [examId, examQuestions.length]);
+
+  const handleBackHome = () => {
+    navigate("/student/dashboard");
+  };
+
+  const handleBackWrong = () => {
+    navigate("/student/wrong-book");
+  };
 
   return (
     <div>
       <PageHeader
-        title="答题进行中"
-        subtitle={`测验ID：${examId} · 共${questions.length}题`}
+        title={pageTitle}
+        subtitle={pageSubtitle}
         icon={<FileTextOutlined />}
       />
 
       <QuestionSheet
-        questions={questions}
-        // 先不做倒计时：给个静态展示
+        questions={examQuestions}
         showTimer={true}
         timerText="0:00"
         onSubmit={async ({ answers }) => {
-          // 后续：把 answers 发给后端即可
-          console.log("submit exam:", examId, answers)
-          return {} // 这里返回空，QuestionSheet 会用题目自带 correct/explanation
+          if (practiceMode) {
+            const now = new Date().toISOString().slice(0, 19).replace("T", " ");
+            const practiceRecordId = `practice_${Date.now()}`;
+
+            const reviewQuestions = examQuestions.map((q) => ({
+              id: q.id,
+              tag: q.tag,
+              difficulty: q.difficulty,
+              stem: q.stem,
+              options: q.options,
+              correct: q.correct,
+              explanation: q.explanation,
+            }));
+
+            const reviewAnswers = reviewQuestions.map((q, index) => ({
+              id: index + 1,
+              question_id: q.id,
+              selected_answer: answers[String(q.id)] || "",
+              correct_answer: q.correct,
+              is_correct: (answers[String(q.id)] || "") === q.correct ? 1 : 0,
+              answered_at: now,
+            }));
+
+            const correctCount = reviewAnswers.filter(
+              (x) => x.is_correct === 1,
+            ).length;
+            const score = reviewQuestions.length
+              ? Math.round((correctCount / reviewQuestions.length) * 100)
+              : 0;
+
+            navigate(`/student/records/${practiceRecordId}`, {
+              state: {
+                practiceReview: {
+                  record: {
+                    id: practiceRecordId,
+                    title: `${practiceCfg?.subjectName || "刷题"}练习`,
+                    score,
+                    total_count: reviewQuestions.length,
+                    correct_count: correctCount,
+                    duration_min: 20,
+                    submitted_at: now,
+                  },
+                  answerRecords: reviewAnswers,
+                  questions: reviewQuestions,
+                },
+              },
+            });
+
+            return {};
+          }
+
+          try {
+            const answerList = examQuestions.map((q) => ({
+              question_id: q.id,
+              selected_answer: answers[String(q.id)] || "",
+            }));
+
+            const res = await submitExam({
+              examId: Number(examId),
+              duration: 20,
+              answers: answerList,
+            });
+
+            const recordId = res?.submission?.id;
+            message.success("提交成功");
+
+            if (recordId) {
+              navigate(`/student/records/${recordId}`);
+            } else {
+              navigate("/student/records");
+            }
+          } catch (error) {
+            message.error(error.message || "提交失败");
+          }
+
+          return {};
         }}
-        onBackHome={handelBackHome}
+        onBackHome={handleBackHome}
+        onViewWrong={handleBackWrong}
       />
     </div>
-  )
+  );
 }

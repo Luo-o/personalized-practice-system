@@ -1,0 +1,45 @@
+.cm-modal .ant-modal-content {
+  border-radius: 18px;
+}
+.cm-x {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.cm-form {
+  padding-top: 6px;
+}
+.cm-field {
+  margin-bottom: 14px;
+}
+.cm-label {
+  color: var(--text);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.cm-actions .ant-btn {
+  height: 44px;
+  border-radius: 12px;
+  padding: 0 18px;
+}
+.cm-primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.cm-field .ant-select {
+  width: 100%;
+}
+
+.cm-field .ant-select-selector {
+  height: 40px !important;
+  border-radius: 10px !important;
+  display: flex;
+  align-items: center;
+}

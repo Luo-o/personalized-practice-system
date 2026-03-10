@@ -1,0 +1,50 @@
+.tp-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 0;
+}
+
+.tp-card {
+  width: 100%;
+  max-width: 560px;
+
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.tp-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.tp-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.tp-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.tp-row label {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.tp-btn {
+  margin-top: 10px;
+}
+
+.tp-logout {
+  margin-top: 16px;
+}

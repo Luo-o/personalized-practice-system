@@ -1,0 +1,95 @@
+.td-drawer .ant-drawer-content {
+  border-radius: 16px 0 0 16px;
+}
+
+/* 表单两列 */
+.td-form-row {
+  display: flex;
+  gap: 14px;
+}
+
+.td-form-col {
+  flex: 1;
+}
+
+.td-section-title {
+  margin: 6px 0 10px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+/* 选项区 */
+.td-options {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.td-option-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 70px;
+  gap: 10px;
+  align-items: center;
+}
+
+.td-option-key {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+/* 知识点 */
+.td-kp-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.td-kp-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.td-kp-chip {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+
+.td-kp-chip.is-active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #fff;
+}
+
+.td-kp-add {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 84px;
+  gap: 10px;
+}
+
+.td-kp-selected {
+  margin-top: 10px;
+}
+
+.td-muted {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.td-drawer-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

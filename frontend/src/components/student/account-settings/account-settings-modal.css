@@ -1,0 +1,79 @@
+.asm-modal .ant-modal-content {
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+}
+
+.asm-close {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.asm-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.asm-head {
+  margin-bottom: 12px;
+}
+
+.asm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.asm-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.asm-form .ant-form-item-label > label {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.asm-form .ant-input,
+.asm-form .ant-input-password {
+  border-radius: 10px;
+}
+
+.asm-form .ant-input:not([disabled]),
+.asm-form .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled) {
+  border-color: #cbd5e1;
+}
+
+.asm-form .ant-input:focus,
+.asm-form .ant-input-focused,
+.asm-form .ant-input-affix-wrapper:focus,
+.asm-form .ant-input-affix-wrapper-focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.asm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.asm-btn {
+  height: 36px;
+  border-radius: 10px;
+  padding: 0 14px;
+}

@@ -1,0 +1,125 @@
+.ep-wrap {
+  max-width: 1200px;
+  margin: 18px auto 50px;
+  padding: 0 18px;
+}
+
+.ep-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ep-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ep-primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  border-radius: 12px !important;
+  height: 40px !important;
+}
+
+.ep-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.ep-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.ep-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ep-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ep-tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ep-tags span {
+  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eaf3ff;
+  color: #0b57d0;
+}
+
+.ep-tag-sub {
+  background: var(--primary-weak) !important;
+  color: var(--primary) !important;
+  border: 0 !important;
+}
+
+.ep-meta {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.ep-progress {
+  margin-top: 12px;
+}
+.ep-progress-label {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.ep-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ep-bar {
+  flex: 1;
+}
+.ep-progress-num {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* antd Progress 颜色：用 CSS 覆盖，不在 JSX 写颜色 */
+.ep-wrap .ant-progress-bg {
+  background: var(--primary) !important;
+}
+.ep-wrap .ant-progress-inner {
+  background: #e5e7eb !important;
+}
+
+.ep-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ep-ghost,
+.ep-danger {
+  height: 40px !important;
+  border-radius: 12px !important;
+}
+
+.ep-ghost {
+  font-weight: 700 !important;
+}

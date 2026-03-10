@@ -1,180 +1,140 @@
-import React, { useMemo, useState } from "react"
-import { Modal, Slider, Button, Checkbox } from "antd"
-import "./practice-decision-modal.css"
+import React from "react";
+import { Modal, Slider, Button, Checkbox, Empty } from "antd";
+import { RiseOutlined, SettingOutlined } from "@ant-design/icons";
+import "./practice-decision-modal.css";
 
-import SectionCard from "./SectionCard"
-import SubjectPickerCard from "./SubjectPickerCard"
-import ChapterPickerCard from "./ChapterPickerCard"
-import KnowledgePickerCard from "./KnowledgePickerCard"
+import SectionCard from "./SectionCard";
+import SubjectPickerCard from "./SubjectPickerCard";
+import ChapterPickerCard from "./ChapterPickerCard";
+import KnowledgePickerCard from "./KnowledgePickerCard";
+import { usePracticeDecisionLogic } from "./usePracticeDecisionLogic";
 
-import { RiseOutlined, SettingOutlined } from "@ant-design/icons"
+function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
+  const {
+    subjects,
+    currentSubject,
+    safeSubjectId,
 
-export default function PracticeDecisionModal({
-  open,
-  strategy, // "chapter" | "knowledge" | "mix"
-  onClose,
-  onStart,
-  subjects = [],
-}) {
-  const [total, setTotal] = useState(20)
-  const [split, setSplit] = useState([6, 14])
+    isChapterMode,
+    isKnowledgeMode,
 
-  const [includeTrue, setIncludeTrue] = useState(true)
-  const [shuffle, setShuffle] = useState(false)
+    availableChapters,
+    availableKnowledgePoints,
 
-  const [selectedChapters, setSelectedChapters] = useState([])
-  const [selectedKnowledge, setSelectedKnowledge] = useState([])
+    requestedTotal,
+    setRequestedTotal,
+    setRequestedSplit,
 
-  const [easyEnd, midEnd] = split
-  const easy = easyEnd
-  const mid = midEnd - easyEnd
-  const hard = total - midEnd
+    includeTrue,
+    shuffle,
+    setShuffle,
 
-  // 只在 mix 模式使用
-  const [mixScope, setMixScope] = useState("chapter") // "chapter" | "knowledge"
+    selectedChapters,
+    setSelectedChapters,
+    selectedKnowledge,
+    setSelectedKnowledge,
 
-  // 默认科目
-  const [subjectId, setSubjectId] = useState(() => subjects?.[0]?.id ?? null)
+    mixScope,
 
-  const currentSubject = useMemo(() => {
-    return subjects.find((s) => s.id === subjectId) || null
-  }, [subjects, subjectId])
+    safeTotal,
+    safeSplit,
+    easy,
+    mid,
+    hard,
 
-  const chapters = useMemo(() => {
-    return currentSubject?.chapters || []
-  }, [currentSubject])
+    difficultyCaps,
+    maxQuestionCount,
+    minQuestionCount,
 
-  // 扁平化知识点（用于 knowledge / mix+knowledge）
-  const allKnowledgePoints = useMemo(() => {
-    const list = []
-    for (const ch of chapters) {
-      for (const kp of ch.knowledgePoints || []) {
-        list.push({
-          ...kp,
-          chapterId: ch.id,
-          chapterName: ch.name,
-        })
-      }
-    }
-    return list
-  }, [chapters])
+    handleSubjectChange,
+    handleIncludeTrueChange,
+    handleSwitchToChapter,
+    handleSwitchToKnowledge,
+    buildConfig,
+  } = usePracticeDecisionLogic(strategy);
 
-  const isChapterMode =
-    strategy === "chapter" ||
-    (strategy === "mix" && mixScope === "chapter")
-
-  const isKnowledgeMode =
-    strategy === "knowledge" ||
-    (strategy === "mix" && mixScope === "knowledge")
+  const renderEmpty = !subjects.length || !currentSubject;
 
   const handleStart = () => {
-    const cfg = {
-      strategy,
-      total,
-      includeTrue,
-      shuffle,
-      subjectId,
-    }
-
-    if (strategy === "chapter") {
-      cfg.chapters = selectedChapters
-    }
-
-    if (strategy === "knowledge") {
-      cfg.knowledgePoints = selectedKnowledge
-    }
-
-    if (strategy === "mix") {
-      cfg.mixScope = mixScope
-      cfg.split = split
-
-      if (mixScope === "chapter") {
-        cfg.chapters = selectedChapters
-      } else {
-        cfg.knowledgePoints = selectedKnowledge
-      }
-    }
-
-    onStart(cfg)
-    onClose()
-  }
+    const cfg = buildConfig();
+    if (!cfg) return;
+    onStart?.(cfg);
+    onClose?.();
+  };
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      centered
-      width={860}
-      title={
-        <div className="pdm-title">
-          <div className="pdm-title-main">刷题设置</div>
-        </div>
-      }
-    >
-      <div className="pdm-body">
-        <SubjectPickerCard
-          subjects={subjects}
-          value={subjectId}
-          onChange={(id) => {
-            setSubjectId(id)
-            setSelectedChapters([])
-            setSelectedKnowledge([])
-            setMixScope("chapter")
-          }}
-        />
+    <div className="pdm-body">
+      {renderEmpty ? (
+        <Empty description="暂无可用科目数据" />
+      ) : (
+        <>
+          <SubjectPickerCard
+            subjects={subjects}
+            value={safeSubjectId}
+            onChange={handleSubjectChange}
+          />
 
-        <SectionCard
-          icon={<SettingOutlined />}
-          title="题目数量"
-          right={<div>{total}题</div>}
-        >
-          <Slider min={5} max={100} value={total} onChange={setTotal} />
-        </SectionCard>
-
-        {strategy === "mix" && (
-          <SectionCard title="题目分布" icon={<SettingOutlined />}>
-            <div className="pdm-scope-row">
-              <button
-                className={`pdm-scope-btn ${mixScope === "chapter" ? "is-active" : ""}`}
-                onClick={() => {
-                  setMixScope("chapter")
-                  setSelectedKnowledge([])
-                }}
-              >
-                按章节
-              </button>
-
-              <button
-                className={`pdm-scope-btn ${mixScope === "knowledge" ? "is-active" : ""}`}
-                onClick={() => {
-                  setMixScope("knowledge")
-                  setSelectedChapters([])
-                }}
-              >
-                按知识点
-              </button>
-            </div>
+          <SectionCard
+            icon={<SettingOutlined />}
+            title="题目数量"
+            right={
+              <div>
+                {safeTotal}题 / 最多 {maxQuestionCount}题
+              </div>
+            }
+          >
+            <Slider
+              min={minQuestionCount}
+              max={Math.max(minQuestionCount, maxQuestionCount)}
+              value={safeTotal}
+              onChange={setRequestedTotal}
+              disabled={maxQuestionCount <= 0}
+            />
           </SectionCard>
-        )}
 
-        {isChapterMode && (
-          <ChapterPickerCard
-            chapters={chapters}
-            value={selectedChapters}
-            onChange={setSelectedChapters}
-          />
-        )}
+          {strategy === "mix" && (
+            <SectionCard title="题目分布" icon={<SettingOutlined />}>
+              <div className="pdm-scope-row">
+                <button
+                  type="button"
+                  className={`pdm-scope-btn ${
+                    mixScope === "chapter" ? "is-active" : ""
+                  }`}
+                  onClick={handleSwitchToChapter}
+                >
+                  按章节
+                </button>
 
-        {isKnowledgeMode && (
-          <KnowledgePickerCard
-            points={allKnowledgePoints}
-            value={selectedKnowledge}
-            onChange={setSelectedKnowledge}
-          />
-        )}
+                <button
+                  type="button"
+                  className={`pdm-scope-btn ${
+                    mixScope === "knowledge" ? "is-active" : ""
+                  }`}
+                  onClick={handleSwitchToKnowledge}
+                >
+                  按知识点
+                </button>
+              </div>
+            </SectionCard>
+          )}
 
-        {(strategy === "mix") && (
+          {isChapterMode && (
+            <ChapterPickerCard
+              chapters={availableChapters}
+              value={selectedChapters}
+              onChange={setSelectedChapters}
+            />
+          )}
+
+          {isKnowledgeMode && (
+            <KnowledgePickerCard
+              points={availableKnowledgePoints}
+              value={selectedKnowledge}
+              onChange={setSelectedKnowledge}
+            />
+          )}
+
+          {(strategy === "mix" || strategy === "difficulty") && (
             <SectionCard
               title="难度划分"
               icon={<RiseOutlined />}
@@ -189,12 +149,12 @@ export default function PracticeDecisionModal({
                 range={{ draggableTrack: true }}
                 allowCross={false}
                 min={0}
-                max={total}
-                value={split}
-                onChange={setSplit}
+                max={safeTotal}
+                value={safeSplit}
+                onChange={setRequestedSplit}
+                disabled={safeTotal <= 0}
                 tooltip={{ formatter: (v) => `${v}题` }}
               />
-
               <div className="pdm-split-labels">
                 <span>简单</span>
                 <span>困难</span>
@@ -202,30 +162,69 @@ export default function PracticeDecisionModal({
             </SectionCard>
           )}
 
-        <SectionCard icon={<SettingOutlined />} title="其他选项">
-          <div className="pdm-checks">
-            <label className="pdm-check">
-              <Checkbox
-                checked={includeTrue}
-                onChange={(e) => setIncludeTrue(e.target.checked)}
-              />
-              <span>包含真题</span>
-            </label>
+          <SectionCard icon={<SettingOutlined />} title="其他选项">
+            <div className="pdm-checks">
+              <label className="pdm-check">
+                <Checkbox
+                  checked={includeTrue}
+                  onChange={(e) => handleIncludeTrueChange(e.target.checked)}
+                />
+                <span>包含真题</span>
+              </label>
 
-            <label className="pdm-check">
-              <Checkbox
-                checked={shuffle}
-                onChange={(e) => setShuffle(e.target.checked)}
-              />
-              <span>随机顺序</span>
-            </label>
-          </div>
-        </SectionCard>
+              <label className="pdm-check">
+                <Checkbox
+                  checked={shuffle}
+                  onChange={(e) => setShuffle(e.target.checked)}
+                />
+                <span>随机顺序</span>
+              </label>
+            </div>
+          </SectionCard>
 
-        <Button className="pdm-start" type="primary" size="large" onClick={handleStart}>
-          开始刷题
-        </Button>
-      </div>
+          <Button
+            className="pdm-start"
+            type="primary"
+            size="large"
+            onClick={handleStart}
+            disabled={maxQuestionCount <= 0}
+          >
+            开始刷题
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function PracticeDecisionModal({
+  open,
+  strategy,
+  onClose,
+  onStart,
+}) {
+  const modalSessionKey = `${String(open)}-${strategy || "none"}`;
+
+  return (
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+      width={860}
+      destroyOnHidden
+      title={
+        <div className="pdm-title">
+          <div className="pdm-title-main">刷题设置</div>
+        </div>
+      }
+    >
+      <InnerPracticeDecisionContent
+        key={modalSessionKey}
+        strategy={strategy}
+        onClose={onClose}
+        onStart={onStart}
+      />
     </Modal>
-  )
+  );
 }

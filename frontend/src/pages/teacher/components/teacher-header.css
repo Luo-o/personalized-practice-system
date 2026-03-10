@@ -1,0 +1,99 @@
+.teacher-header {
+  background: #fff;
+  border-bottom: 1px solid #eef2f7;
+  padding: 0;
+  height: 72px;
+  line-height: 72px;
+}
+
+/* 参考 student-header 的 header-content：统一左右边距、控制宽度 */
+.teacher-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 22px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.teacher-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.teacher-header-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #2c87ff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex: 0 0 auto;
+}
+
+.teacher-header-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.teacher-system-name {
+  margin: 0 !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+.teacher-welcome-text {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* 右侧 tabs：不挤，必要时横向滚动 */
+.teacher-header-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 2px 0;
+}
+
+.teacher-header-tabs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.teacher-header-tabs::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+}
+
+.teacher-tab {
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #0f172a;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.teacher-tab.is-active {
+  border-color: #cfe5ff;
+  background: #e8f3ff;
+  color: #2c87ff;
+}

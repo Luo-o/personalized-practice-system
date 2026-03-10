@@ -1,99 +1,284 @@
-// src/pages/student/PracticeRecords.jsx
-import React, { useMemo, useState } from "react"
-import { DatePicker, Tag } from "antd"
-import { useNavigate } from "react-router-dom"
-import { BarChartOutlined, CalendarOutlined } from "@ant-design/icons"
-import PageHeader from "../../components/PageHeader"
-import "./practice-records.css"
+// import React, { useMemo, useState } from "react";
+// import { DatePicker } from "antd";
+// import { useNavigate } from "react-router-dom";
+// import { BarChartOutlined, CalendarOutlined } from "@ant-design/icons";
+// import PageHeader from "../../components/PageHeader";
+// import { useSubmissionStore, useAuthStore } from "../../store";
+// import "./practice-records.css";
 
-const { RangePicker } = DatePicker
+// const { RangePicker } = DatePicker;
 
-// ===== mock 数据（后续换接口即可）=====
-const MOCK_OVERVIEW = {
-  totalSolved: 156,
-  todayDelta: 12,
-  streakDays: 7,
-  studyHoursWeek: 18,
-}
+// function toDateOnlyStr(datetimeStr) {
+//   return (datetimeStr || "").split(" ")[0];
+// }
 
-// record: { id, title, total, correct, score, durationMin, finishedAt, questions, answers, solutions }
-const MOCK_RECORDS = [
-  {
-    id: "r4",
-    title: "Python基础综合测验",
-    total: 50,
-    score: 88,
-    durationMin: 120,
-    finishedAt: "2024-12-25 21:32",
-    // 详情页预览用（questions + answers）
-    questions: [
-      {
-        id: "q1",
-        tag: "列表与元组",
-        difficulty: "简单",
-        stem: "以下哪个是不可变序列？",
-        options: [
-          { key: "A", text: "list" },
-          { key: "B", text: "tuple" },
-          { key: "C", text: "dict" },
-          { key: "D", text: "set" },
-        ],
-        correct: "B",
-        explanation: "tuple（元组）不可变。",
-      },
-    ],
-    answers: { q1: "A" },
-  },
-  {
-    id: "r5",
-    title: "期中测验",
-    total: 60,
-    score: 92,
-    durationMin: 120,
-    finishedAt: "2024-12-20 22:10",
-    questions: [
-      {
-        id: "q2",
-        tag: "字典操作",
-        difficulty: "中等",
-        stem: "关于 dict 的说法正确的是？",
-        options: [
-          { key: "A", text: "键可以是 list" },
-          { key: "B", text: "键必须可哈希" },
-          { key: "C", text: "dict 不能嵌套" },
-          { key: "D", text: "dict 不支持 in" },
-        ],
-        correct: "B",
-        explanation: "dict 的键必须是可哈希类型。",
-      },
-    ],
-    answers: { q2: "B" },
-  },
-]
+// export default function PracticeRecords() {
+//   const navigate = useNavigate();
+//   const submissions = useSubmissionStore((s) => s.submissions);
+//   const currentUser = useAuthStore((s) => s.currentUser);
+
+//   const currentStudentId =
+//     currentUser?.role === "student" ? currentUser.id : null;
+
+//   const records = useMemo(() => {
+//     if (!currentStudentId) return [];
+//     return submissions
+//       .filter((r) => r.studentId === currentStudentId)
+//       .sort((a, b) => new Date(b.finishedAt) - new Date(a.finishedAt));
+//   }, [submissions, currentStudentId]);
+
+//   const overview = useMemo(() => {
+//     const totalSolved = records.reduce((sum, r) => sum + (r.total || 0), 0);
+//     const todayDelta = 0;
+//     const streakDays = records.length ? 7 : 0;
+//     const studyHoursWeek =
+//       Math.round(
+//         (records.reduce((sum, r) => sum + (r.durationMin || 0), 0) / 60) * 10,
+//       ) / 10;
+
+//     return {
+//       totalSolved,
+//       todayDelta,
+//       streakDays,
+//       studyHoursWeek,
+//     };
+//   }, [records]);
+
+//   const [range, setRange] = useState(null);
+
+//   const filteredRecords = useMemo(() => {
+//     if (!range || range.length !== 2 || !range[0] || !range[1]) return records;
+//     const start = range[0].format("YYYY-MM-DD");
+//     const end = range[1].format("YYYY-MM-DD");
+//     return records.filter((r) => {
+//       const d = toDateOnlyStr(r.finishedAt);
+//       return d >= start && d <= end;
+//     });
+//   }, [records, range]);
+
+//   return (
+//     <div className="pr-page">
+//       <PageHeader
+//         title="刷题记录"
+//         subtitle="近30天学习数据分析"
+//         icon={
+//           <div className="pr-ph-icon">
+//             <BarChartOutlined />
+//           </div>
+//         }
+//       />
+
+//       <div className="pr-wrap">
+//         <div className="pr-stats">
+//           <div className="pr-card tone-blue">
+//             <div className="pr-card-label">累计刷题</div>
+//             <div className="pr-card-value">{overview.totalSolved}</div>
+//             <div className="pr-card-sub">+{overview.todayDelta} 今日</div>
+//           </div>
+
+//           <div className="pr-card tone-orange">
+//             <div className="pr-card-label">连续打卡</div>
+//             <div className="pr-card-value">{overview.streakDays}天</div>
+//             <div className="pr-card-sub">继续保持！</div>
+//           </div>
+
+//           <div className="pr-card tone-purple">
+//             <div className="pr-card-label">学习时长</div>
+//             <div className="pr-card-value">{overview.studyHoursWeek}h</div>
+//             <div className="pr-card-sub">累计</div>
+//           </div>
+//         </div>
+
+//         <div className="pr-list-card">
+//           <div className="pr-list-head">
+//             <div className="pr-list-title">
+//               <CalendarOutlined />
+//               <span>做题记录</span>
+//             </div>
+
+//             <RangePicker
+//               className="pr-range"
+//               allowClear
+//               onChange={(val) => setRange(val)}
+//               placeholder={["开始日期", "结束日期"]}
+//             />
+//           </div>
+
+//           <div className="pr-list">
+//             {filteredRecords.map((r) => (
+//               <div key={r.id} className="pr-item">
+//                 <div className="pr-item-left">
+//                   <div className="pr-item-title">{r.title}</div>
+//                   <div className="pr-item-sub">
+//                     <span>{r.total}题</span>
+//                     <span className="dot">·</span>
+//                     <span>{r.durationMin}分钟</span>
+//                     <span className="dot">·</span>
+//                     <span>完成：{r.finishedAt}</span>
+//                   </div>
+//                 </div>
+
+//                 <div className="pr-item-right">
+//                   <div className="pr-score">
+//                     <div className="pr-score-label">得分</div>
+//                     <div className="pr-score-value">{r.score}</div>
+//                   </div>
+
+//                   <button
+//                     type="button"
+//                     className="pr-detail-btn"
+//                     onClick={() => navigate(`/student/records/${r.id}`)}
+//                   >
+//                     查看详情
+//                   </button>
+//                 </div>
+//               </div>
+//             ))}
+
+//             {filteredRecords.length === 0 && (
+//               <div className="pr-empty">该时间范围内暂无记录</div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+import React, { useEffect, useMemo, useState } from "react";
+import { DatePicker } from "antd";
+import { useNavigate } from "react-router-dom";
+import { BarChartOutlined, CalendarOutlined } from "@ant-design/icons";
+import PageHeader from "../../components/PageHeader";
+import { useSubmissionStore, useStudentStore } from "../../store";
+import "./practice-records.css";
+
+const { RangePicker } = DatePicker;
 
 function toDateOnlyStr(datetimeStr) {
-  // "2024-12-25 21:32" -> "2024-12-25"
-  return (datetimeStr || "").split(" ")[0]
+  return (datetimeStr || "").split(" ")[0];
+}
+
+function toDateSafe(v) {
+  if (!v) return null;
+  const d = new Date(String(v).replace(" ", "T"));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function calcStreakDays(records = []) {
+  if (!records.length) return 0;
+
+  const days = [
+    ...new Set(
+      records
+        .map((r) => {
+          const d = toDateSafe(r.submitted_at);
+          if (!d) return null;
+          return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        })
+        .filter(Boolean),
+    ),
+  ].sort((a, b) => new Date(b) - new Date(a));
+
+  if (!days.length) return 0;
+
+  let streak = 0;
+  let cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
+
+  for (const day of days) {
+    const d = new Date(day);
+    d.setHours(0, 0, 0, 0);
+
+    const diff = Math.round((cursor - d) / (1000 * 60 * 60 * 24));
+
+    if (diff === 0 || diff === 1) {
+      streak += 1;
+      cursor = d;
+    } else if (streak === 0) {
+      streak = 1;
+      cursor = d;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
 }
 
 export default function PracticeRecords() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [overview] = useState(MOCK_OVERVIEW)
-  const [records] = useState(MOCK_RECORDS)
+  const studentId = useStudentStore((s) => s.getCurrentStudentId());
 
-  // 时间筛选（RangePicker）
-  const [range, setRange] = useState(null) // [dayjs, dayjs] | null
+  const submissions = useSubmissionStore((s) => s.submissions);
+  const fetchSubmissions = useSubmissionStore((s) => s.fetchSubmissions);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
+
+  const records = useMemo(() => {
+    if (!studentId) return [];
+
+    return (submissions || [])
+      .filter((r) => Number(r.student_id) === Number(studentId))
+      .sort(
+        (a, b) =>
+          new Date(String(b.submitted_at).replace(" ", "T")) -
+          new Date(String(a.submitted_at).replace(" ", "T")),
+      );
+  }, [submissions, studentId]);
+
+  const overview = useMemo(() => {
+    const totalSolved = records.reduce(
+      (sum, r) => sum + Number(r.total_count || 0),
+      0,
+    );
+
+    const today = new Date();
+    const todayDelta = records
+      .filter((r) => {
+        const d = toDateSafe(r.submitted_at);
+        if (!d) return false;
+        return (
+          d.getFullYear() === today.getFullYear() &&
+          d.getMonth() === today.getMonth() &&
+          d.getDate() === today.getDate()
+        );
+      })
+      .reduce((sum, r) => sum + Number(r.total_count || 0), 0);
+
+    const streakDays = calcStreakDays(records);
+
+    const studyHoursWeek =
+      Math.round(
+        (records.reduce((sum, r) => sum + Number(r.duration_min || 0), 0) /
+          60) *
+          10,
+      ) / 10;
+
+    return {
+      totalSolved,
+      todayDelta,
+      streakDays,
+      studyHoursWeek,
+    };
+  }, [records]);
+
+  const [range, setRange] = useState(null);
 
   const filteredRecords = useMemo(() => {
-    if (!range || range.length !== 2 || !range[0] || !range[1]) return records
-    const start = range[0].format("YYYY-MM-DD")
-    const end = range[1].format("YYYY-MM-DD")
+    if (!range || range.length !== 2 || !range[0] || !range[1]) return records;
+
+    const start = range[0].format("YYYY-MM-DD");
+    const end = range[1].format("YYYY-MM-DD");
+
     return records.filter((r) => {
-      const d = toDateOnlyStr(r.finishedAt)
-      return d >= start && d <= end
-    })
-  }, [records, range])
+      const d = toDateOnlyStr(r.submitted_at);
+      return d >= start && d <= end;
+    });
+  }, [records, range]);
 
   return (
     <div className="pr-page">
@@ -108,7 +293,6 @@ export default function PracticeRecords() {
       />
 
       <div className="pr-wrap">
-        {/* 顶部 3 卡（不含正确率卡） */}
         <div className="pr-stats">
           <div className="pr-card tone-blue">
             <div className="pr-card-label">累计刷题</div>
@@ -125,11 +309,10 @@ export default function PracticeRecords() {
           <div className="pr-card tone-purple">
             <div className="pr-card-label">学习时长</div>
             <div className="pr-card-value">{overview.studyHoursWeek}h</div>
-            <div className="pr-card-sub">本周</div>
+            <div className="pr-card-sub">累计</div>
           </div>
         </div>
 
-        {/* 图1下面：做题记录列表（带时间筛选） */}
         <div className="pr-list-card">
           <div className="pr-list-head">
             <div className="pr-list-title">
@@ -151,11 +334,11 @@ export default function PracticeRecords() {
                 <div className="pr-item-left">
                   <div className="pr-item-title">{r.title}</div>
                   <div className="pr-item-sub">
-                    <span>{r.total}题</span>
+                    <span>{r.total_count}题</span>
                     <span className="dot">·</span>
-                    <span>{r.durationMin}分钟</span>
+                    <span>{r.duration_min}分钟</span>
                     <span className="dot">·</span>
-                    <span>完成：{r.finishedAt}</span>
+                    <span>完成：{r.submitted_at}</span>
                   </div>
                 </div>
 
@@ -183,5 +366,5 @@ export default function PracticeRecords() {
         </div>
       </div>
     </div>
-  )
+  );
 }

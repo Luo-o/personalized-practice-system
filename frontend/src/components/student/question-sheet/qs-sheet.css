@@ -176,8 +176,11 @@
   background: #fff;
 
   cursor: pointer;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease,
-    background 0.16s ease, transform 0.06s ease;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease,
+    transform 0.06s ease;
 }
 
 .qs-option:active {
@@ -261,7 +264,8 @@
 }
 
 .qs-option:has(.qs-option-input:focus-visible) {
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.22),
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.22),
     0 12px 26px rgba(15, 23, 42, 0.06);
   border-color: #2563eb;
 }
@@ -471,4 +475,19 @@
   background: #2563eb;
   border: none;
   color: #fff;
+}
+
+.qs-askai {
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #2563eb;
+  font-size: 13px;
+  text-align: left;
+}
+
+.qs-askai:hover {
+  text-decoration: underline;
 }

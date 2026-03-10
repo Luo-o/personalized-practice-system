@@ -1,15 +1,11 @@
-import React, { useMemo, useState } from "react"
-import QuestionProgress from "./QuestionProgress"
-import QuestionItem from "./QuestionItem"
-import QuestionSubmitBar from "./QuestionSubmitBar"
-import QuestionResultSummary from "./QuestionResultSummary"
-import "./qs-sheet.css"
+import React, { useMemo, useState } from "react";
+import QuestionProgress from "./QuestionProgress";
+import QuestionItem from "./QuestionItem";
+import QuestionSubmitBar from "./QuestionSubmitBar";
+import QuestionResultSummary from "./QuestionResultSummary";
+import AiHelpFloat from "../ai-help/AiHelpFloat"; // ✅新增
+import "./qs-sheet.css";
 
-/**
- * ✅新增：
- * - onModeChange：用于外层 Nav 替换（图1）
- * - onViewWrong / onBackHome：结果页按钮回调（图4）
- */
 export default function QuestionSheet({
   questions = [],
   initialAnswers,
@@ -17,77 +13,85 @@ export default function QuestionSheet({
   showTimer = true,
   timerText = "0:00",
   mode: controlledMode,
-  /**
-   * 可选：当模式从答题 -> 结果页时通知外层，用于替换 Nav 标题/副标题（图1）
-   * onModeChange({ mode, total, answeredCount, correctCount, wrongCount, percent })
-   */
   onModeChange,
-  /** 结果页按钮回调（由页面层接路由） */
   onViewWrong,
   onBackHome,
+
+  // ✅可选：如果你在更外层已经有 ai 接口回调，也可以透传进来
+  onAskAI,
 }) {
-  const [answers, setAnswers] = useState(initialAnswers || {})
-  const [submitting, setSubmitting] = useState(false)
-  const [innerMode, setInnerMode] = useState("answer") // answer | review
-  const [solutions, setSolutions] = useState({}) // qid -> {correct, explanation}
+  const [answers, setAnswers] = useState(initialAnswers || {});
+  const [submitting, setSubmitting] = useState(false);
+  const [innerMode, setInnerMode] = useState("answer");
+  const [solutions, setSolutions] = useState({});
 
-  const mode = controlledMode || innerMode
+  const mode = controlledMode || innerMode;
 
-  const total = questions.length
+  const total = questions.length;
   const answeredCount = useMemo(() => {
-    let c = 0
+    let c = 0;
     for (const q of questions) {
-      if (answers[q.id]) c++
+      if (answers[q.id]) c++;
     }
-    return c
-  }, [questions, answers])
+    return c;
+  }, [questions, answers]);
 
-  const progressPercent = total ? Math.round((answeredCount / total) * 100) : 0
+  const progressPercent = total ? Math.round((answeredCount / total) * 100) : 0;
 
   const updateAnswer = (qid, val) => {
-    setAnswers((prev) => ({ ...prev, [qid]: val }))
-  }
+    setAnswers((prev) => ({ ...prev, [qid]: val }));
+  };
+
+  // ✅全局唯一浮窗：open + 当前题目
+  const [aiOpen, setAiOpen] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState(null);
+
+  const openAiForQuestion = (q) => {
+    setActiveQuestion(q);
+    setAiOpen(true);
+  };
+
+  const closeAi = () => setAiOpen(false);
 
   const handleSubmit = async () => {
     try {
-      setSubmitting(true)
-      const res = (await onSubmit?.({ answers, questions })) || null
+      setSubmitting(true);
+      const res = (await onSubmit?.({ answers, questions })) || null;
 
-      // 统一成 finalSolutions，便于后续统计/渲染
-      const sol = res?.solutions || null
-      let finalSolutions = {}
+      const sol = res?.solutions || null;
+      let finalSolutions = {};
 
       if (sol && typeof sol === "object") {
-        finalSolutions = sol
+        finalSolutions = sol;
       } else {
-        const fallback = {}
+        const fallback = {};
         for (const q of questions) {
           if (q.correct || q.explanation) {
             fallback[q.id] = {
               correct: q.correct,
               explanation: q.explanation,
-            }
+            };
           }
         }
-        finalSolutions = fallback
+        finalSolutions = fallback;
       }
 
-      setSolutions(finalSolutions)
-      setInnerMode("review")
+      setSolutions(finalSolutions);
+      setInnerMode("review");
 
-      // ✅通知外层替换 nav（图1）
       if (onModeChange) {
-        let ok = 0
-        let bad = 0
+        let ok = 0;
+        let bad = 0;
         for (const q of questions) {
-          const chosen = answers[q.id]
-          if (!chosen) continue
-          const corr =
-            (finalSolutions[q.id]?.correct || q.correct || "").toString().trim()
-          if (corr && chosen === corr) ok++
-          else bad++
+          const chosen = answers[q.id];
+          if (!chosen) continue;
+          const corr = (finalSolutions[q.id]?.correct || q.correct || "")
+            .toString()
+            .trim();
+          if (corr && chosen === corr) ok++;
+          else bad++;
         }
-        const percent = total ? Math.round((ok / total) * 100) : 0
+        const percent = total ? Math.round((ok / total) * 100) : 0;
         onModeChange({
           mode: "review",
           total,
@@ -95,31 +99,32 @@ export default function QuestionSheet({
           correctCount: ok,
           wrongCount: bad,
           percent,
-        })
+        });
       }
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const { correctCount, wrongCount, percent } = useMemo(() => {
-    let ok = 0
-    let bad = 0
+    let ok = 0;
+    let bad = 0;
     for (const q of questions) {
-      const chosen = answers[q.id]
-      if (!chosen) continue
-      const corr = (solutions[q.id]?.correct || q.correct || "").toString().trim()
-      if (corr && chosen === corr) ok++
-      else bad++
+      const chosen = answers[q.id];
+      if (!chosen) continue;
+      const corr = (solutions[q.id]?.correct || q.correct || "")
+        .toString()
+        .trim();
+      if (corr && chosen === corr) ok++;
+      else bad++;
     }
-    const p = total ? Math.round((ok / total) * 100) : 0
-    return { correctCount: ok, wrongCount: bad, percent: p }
-  }, [questions, answers, solutions, total])
+    const p = total ? Math.round((ok / total) * 100) : 0;
+    return { correctCount: ok, wrongCount: bad, percent: p };
+  }, [questions, answers, solutions, total]);
 
   return (
     <div className="qs-page">
       <div className="qs-wrap">
-        {/* ✅图1：结果页标题在 Nav 替换，这里不重复显示进度卡 */}
         {mode !== "review" ? (
           <QuestionProgress
             answered={answeredCount}
@@ -147,11 +152,11 @@ export default function QuestionSheet({
               mode={mode}
               solution={solutions[q.id]}
               onChange={(val) => updateAnswer(q.id, val)}
+              onOpenAI={(payload) => openAiForQuestion(payload)} // ✅新增
             />
           ))}
         </div>
 
-        {/* ✅图4：提交/结果按钮都在题单末尾，不 fixed */}
         <div className="qs-footerbar">
           {mode === "review" ? (
             <div className="qs-result-actions">
@@ -180,6 +185,14 @@ export default function QuestionSheet({
           )}
         </div>
       </div>
+
+      {/* ✅全局唯一 AI 浮窗：只渲染一次，避免叠加 */}
+      <AiHelpFloat
+        open={aiOpen}
+        onClose={closeAi}
+        question={activeQuestion}
+        onAskAI={onAskAI}
+      />
     </div>
-  )
+  );
 }

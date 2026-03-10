@@ -1,0 +1,168 @@
+/* ========== 悬浮球（最小化态） ========== */
+.ai-float-ball-wrap {
+  position: fixed;
+  right: 16px;
+  z-index: 9999;
+  transform: translateY(-50%);
+}
+
+.ai-float-ball {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: grab;
+}
+
+.ai-float-ball:active {
+  cursor: grabbing;
+}
+
+.ai-float-ball-text {
+  color: #2563eb;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* 叉在悬浮球右上角 */
+.ai-float-ball-close {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 16px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ai-float-ball-close:hover {
+  filter: brightness(0.98);
+}
+
+/* ========== 展开态浮窗面板 ========== */
+.ai-float-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 380px;
+  height: 520px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-float-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.ai-float-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ai-float-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-float-iconbtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  cursor: pointer;
+  color: #334155;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.ai-float-iconbtn:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.ai-float-body {
+  flex: 1;
+  padding: 12px;
+  overflow: auto;
+  background: #f8fafc;
+}
+
+.ai-float-row {
+  display: flex;
+  margin: 8px 0;
+}
+
+.ai-float-row.is-ai {
+  justify-content: flex-start;
+}
+
+.ai-float-row.is-user {
+  justify-content: flex-end;
+}
+
+.ai-float-bubble {
+  max-width: 78%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ai-float-row.is-user .ai-float-bubble {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.ai-float-foot {
+  padding: 12px;
+  border-top: 1px solid #eef2f7;
+  background: #ffffff;
+}
+
+.ai-float-foot .ant-input {
+  border-radius: 12px;
+}
+
+.ai-float-foot .ant-input:focus,
+.ai-float-foot .ant-input-focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.ai-float-btns {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

@@ -1,0 +1,95 @@
+import React, { useMemo, useState } from "react";
+import { Modal, Input, Button, Select, message } from "antd";
+import "./create-class-modal.css";
+import { useSubjectStore } from "../../../store";
+
+export default function CreateClassModal({ open, onClose, onSubmit }) {
+  const subjects = useSubjectStore((s) => s.subjects);
+
+  const [name, setName] = useState("");
+  const [subject, setSubject] = useState(undefined);
+  const [desc, setDesc] = useState("");
+
+  const subjectOptions = useMemo(() => {
+    return subjects.map((item) => ({
+      value: item.subject,
+      label: item.subject,
+    }));
+  }, [subjects]);
+
+  const resetForm = () => {
+    setName("");
+    setSubject(undefined);
+    setDesc("");
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose?.();
+  };
+
+  const submit = () => {
+    const n = name.trim();
+    if (!n) return message.warning("请填写班级名称");
+    if (!subject) return message.warning("请选择班级科目");
+
+    onSubmit?.({
+      name: n,
+      subject,
+      desc: desc.trim(),
+    });
+
+    resetForm();
+    onClose?.();
+  };
+
+  return (
+    <Modal
+      open={open}
+      onCancel={handleClose}
+      footer={null}
+      title="创建新班级"
+      className="cm-modal"
+      closeIcon={<span className="cm-x">×</span>}
+    >
+      <div className="cm-form">
+        <div className="cm-field">
+          <div className="cm-label">班级名称</div>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="例如：计算机网络A班"
+          />
+        </div>
+
+        <div className="cm-field">
+          <div className="cm-label">科目</div>
+          <Select
+            value={subject}
+            onChange={setSubject}
+            placeholder="请选择科目"
+            options={subjectOptions}
+            style={{ width: "100%" }}
+          />
+        </div>
+
+        <div className="cm-field">
+          <div className="cm-label">班级描述</div>
+          <Input.TextArea
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            placeholder="选填：班级介绍、课程信息等"
+            autoSize={{ minRows: 4, maxRows: 6 }}
+          />
+        </div>
+
+        <div className="cm-actions">
+          <Button onClick={handleClose}>取消</Button>
+          <Button type="primary" className="cm-primary" onClick={submit}>
+            确认创建
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}

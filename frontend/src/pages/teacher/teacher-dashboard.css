@@ -1,0 +1,95 @@
+:root {
+  --primary: #2c87ff;
+  --primary-weak: #e8f3ff;
+  --border: #eaeef4;
+  --bg: #f7f9fc;
+  --text: #0f172a;
+  --muted: #64748b;
+}
+
+.td-page {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+.td-header {
+  height: 72px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+
+.td-header-inner {
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 18px;
+}
+
+.td-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 260px;
+}
+
+.td-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.td-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.td-subtitle {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.td-top-tabs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.td-top-tab {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.td-top-tab.is-active {
+  border-color: #bcdcff;
+  background: var(--primary-weak);
+  color: var(--primary);
+}
+
+.td-body {
+  max-width: 1200px;
+  margin: 18px auto 50px;
+  padding: 0 18px;
+}

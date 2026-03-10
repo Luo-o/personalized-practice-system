@@ -1,0 +1,93 @@
+.tb-filter-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.tb-filter-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tb-search {
+  max-width: 520px;
+  flex: 1;
+}
+
+.tb-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 18px;
+  color: var(--text);
+}
+
+.tb-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.tb-primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  border-radius: 12px !important;
+  height: 40px !important;
+}
+
+.tb-filter-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.tb-filter-label {
+  width: 80px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.tb-chip-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tb-chip {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.tb-chip.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.tb-table-card {
+  margin-top: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+/* 你原来的 Tag 样式 */
+.tb-tag-subject {
+  background: #efe8ff !important;
+  color: #6d28d9 !important;
+  border: 0 !important;
+}
+.tb-tag-kp {
+  background: var(--primary-weak) !important;
+  color: var(--primary) !important;
+  border: 0 !important;
+}
