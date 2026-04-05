@@ -25,14 +25,14 @@ function findUserProfile(role, profileId) {
 
     if (role === "student") {
       sql = `
-        SELECT id, student_no, name, gender, phone, email, major, grade, class_name
+        SELECT id, student_no, name, gender, phone, email, major, grade, class_name, avatar
         FROM students
         WHERE id = ?
         LIMIT 1
       `;
     } else if (role === "teacher") {
       sql = `
-        SELECT id, teacher_no, name, gender, phone, email, title, department
+        SELECT id, teacher_no, name, gender, phone, email, title, department, avatar
         FROM teachers
         WHERE id = ?
         LIMIT 1
@@ -52,7 +52,169 @@ function findUserProfile(role, profileId) {
   });
 }
 
+function updateStudentProfile(profileId, data) {
+  return new Promise((resolve, reject) => {
+    const selectSql = `
+      SELECT id, name, gender, phone, email, major, grade, class_name, avatar
+      FROM students
+      WHERE id = ?
+      LIMIT 1
+    `;
+
+    db.get(selectSql, [profileId], (selectErr, currentRow) => {
+      if (selectErr) {
+        reject(selectErr);
+        return;
+      }
+
+      if (!currentRow) {
+        reject(new Error("学生资料不存在"));
+        return;
+      }
+
+      const nextName = data.name ?? currentRow.name;
+      const nextGender = data.gender ?? currentRow.gender;
+      const nextPhone = data.phone ?? currentRow.phone;
+      const nextEmail = data.email ?? currentRow.email;
+      const nextMajor = data.major ?? currentRow.major;
+      const nextGrade = data.grade ?? currentRow.grade;
+      const nextClassName = data.class_name ?? currentRow.class_name;
+      const nextAvatar = data.avatar ?? currentRow.avatar;
+
+      const updateSql = `
+        UPDATE students
+        SET
+          name = ?,
+          gender = ?,
+          phone = ?,
+          email = ?,
+          major = ?,
+          grade = ?,
+          class_name = ?,
+          avatar = ?
+        WHERE id = ?
+      `;
+
+      db.run(
+        updateSql,
+        [
+          nextName,
+          nextGender,
+          nextPhone,
+          nextEmail,
+          nextMajor,
+          nextGrade,
+          nextClassName,
+          nextAvatar,
+          profileId,
+        ],
+        function (updateErr) {
+          if (updateErr) {
+            reject(updateErr);
+            return;
+          }
+
+          resolve({
+            changes: this.changes,
+          });
+        },
+      );
+    });
+  });
+}
+
+function updateTeacherProfile(profileId, data) {
+  return new Promise((resolve, reject) => {
+    const selectSql = `
+      SELECT id, name, gender, phone, email, title, department, avatar
+      FROM teachers
+      WHERE id = ?
+      LIMIT 1
+    `;
+
+    db.get(selectSql, [profileId], (selectErr, currentRow) => {
+      if (selectErr) {
+        reject(selectErr);
+        return;
+      }
+
+      if (!currentRow) {
+        reject(new Error("教师资料不存在"));
+        return;
+      }
+
+      const nextName = data.name ?? currentRow.name;
+      const nextGender = data.gender ?? currentRow.gender;
+      const nextPhone = data.phone ?? currentRow.phone;
+      const nextEmail = data.email ?? currentRow.email;
+      const nextTitle = data.title ?? currentRow.title;
+      const nextDepartment = data.department ?? currentRow.department;
+      const nextAvatar = data.avatar ?? currentRow.avatar;
+
+      const updateSql = `
+        UPDATE teachers
+        SET
+          name = ?,
+          gender = ?,
+          phone = ?,
+          email = ?,
+          title = ?,
+          department = ?,
+          avatar = ?
+        WHERE id = ?
+      `;
+
+      db.run(
+        updateSql,
+        [
+          nextName,
+          nextGender,
+          nextPhone,
+          nextEmail,
+          nextTitle,
+          nextDepartment,
+          nextAvatar,
+          profileId,
+        ],
+        function (updateErr) {
+          if (updateErr) {
+            reject(updateErr);
+            return;
+          }
+
+          resolve({
+            changes: this.changes,
+          });
+        },
+      );
+    });
+  });
+}
+
+function updateUserPassword(userId, newPassword) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      UPDATE users
+      SET password_hash = ?
+      WHERE id = ?
+    `;
+
+    db.run(sql, [newPassword, userId], function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve({
+        changes: this.changes,
+      });
+    });
+  });
+}
+
 module.exports = {
   findUserByUsername,
   findUserProfile,
+  updateStudentProfile,
+  updateTeacherProfile,
+  updateUserPassword,
 };

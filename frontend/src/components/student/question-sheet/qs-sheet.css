@@ -1,123 +1,87 @@
-/* 页面容器 */
 .qs-page {
-  min-height: 100%;
-  background: #f7f9fc;
+  min-height: calc(100vh - 52px);
+  background: transparent;
 }
 
-.qs-wrap {
+.qs-shell {
   max-width: 960px;
   margin: 0 auto;
-  padding: 18px 24px 0;
+  padding: 10px 12px 0;
 }
 
-/* 进度卡片 */
-.qs-progress-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 18px 20px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  margin-bottom: 18px;
+.qs-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 12px;
+  align-items: start;
 }
 
-.qs-progress-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+.qs-main {
+  min-width: 0;
 }
 
-.qs-progress-title {
-  font-size: 14px;
-  color: #111827;
-  font-weight: 700;
+.qs-main-card {
+  border-radius: 22px;
+  padding: 0 16px 18px;
 }
 
-.qs-progress-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.qs-title {
+  text-align: left;
+  padding-left: 20px;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 14px;
 }
 
-.qs-progress-count {
-  color: #2563eb;
-  font-weight: 700;
-}
-
-.qs-progress-timer {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.qs-progress-bar {
-  height: 8px;
-  background: rgba(15, 23, 42, 0.08);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.qs-progress-bar-inner {
-  height: 100%;
-  background: #2563eb;
-  border-radius: 999px;
-  width: 0%;
-  transition: width 0.2s ease;
-}
-
-/* 题目列表 */
-.qs-list {
+.qs-question-wrap {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* 单题卡片 */
-.qs-qcard {
-  background: #fff;
+.qs-question-box {
   border-radius: 14px;
-  padding: 18px 20px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  background: #fff;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
 }
 
-.qs-qhead {
+.qs-question-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.qs-qhead-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
-.qs-qindex {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: #2563eb;
+.qs-qindex-pill {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3268e6;
   color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
   font-size: 14px;
 }
 
-/* 难度标签 */
 .qs-diff-tag {
+  min-height: 26px;
+  padding: 0 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 8px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .qs-tag-easy {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #d8f0db;
+  color: #19a34a;
 }
 
 .qs-tag-mid {
@@ -130,57 +94,52 @@
   color: #dc2626;
 }
 
-.qs-qtag {
-  font-size: 13px;
-  color: #6b7280;
+.qs-qmeta-text {
+  font-size: 14px;
+  color: #64748b;
 }
 
-.qs-status {
-  font-size: 13px;
+.qs-question-title {
+  font-size: 14px;
   font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
 }
 
-.qs-status.ok {
-  color: #16a34a;
-}
-
-.qs-status.bad {
-  color: #dc2626;
-}
-
-/* 题干 */
 .qs-stem {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-  margin: 10px 0 14px;
+  font-size: 14px;
+  line-height: 1;
+  color: #243b63;
+  font-weight: 500;
 }
 
-/* 选项 */
-.qs-options {
+.qs-options-block {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .qs-option {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-
-  padding: 16px 18px;
-  border-radius: 12px;
-
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  gap: 14px;
+  min-height: 38px;
+  padding: 0 22px;
+  border-radius: 10px;
+  border: 1px solid #d7dbe4;
   background: #fff;
-
   cursor: pointer;
   transition:
-    border-color 0.16s ease,
-    box-shadow 0.16s ease,
-    background 0.16s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
     transform 0.06s ease;
+}
+
+.qs-option:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .qs-option:active {
@@ -194,300 +153,378 @@
 }
 
 .qs-radio {
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  border: 2px solid rgba(15, 23, 42, 0.18);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #c7c9cf;
   background: #fff;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  flex: 0 0 22px;
 }
 
 .qs-radio-icon {
   font-size: 14px;
   color: #fff;
   opacity: 0;
-  transform: rotate(-10deg);
+}
+
+.qs-op-key {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f2d63;
+}
+
+.qs-op-text {
+  font-size: 14px;
+  color: #25364f;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.qs-option.is-checked {
+  border-color: #3268e6;
+  background: #e5f0ff;
 }
 
 .qs-option.is-checked .qs-radio {
-  border-color: #2563eb;
-  background: #2563eb;
+  border-color: #3268e6;
+  background: #3268e6;
 }
+
 .qs-option.is-checked .qs-radio-icon {
   opacity: 1;
+}
+
+.qs-option.is-correct {
+  background: #e8f4ee;
+  border-color: #57c27a;
+  box-shadow: none;
 }
 
 .qs-option.is-correct .qs-radio {
   border-color: #16a34a;
   background: #16a34a;
 }
+
 .qs-option.is-correct .qs-radio-icon {
   opacity: 1;
+}
+
+.qs-option.is-wrong {
+  background: #fff0f0;
+  border-color: #f16f6f;
+  box-shadow: none;
 }
 
 .qs-option.is-wrong .qs-radio {
   border-color: #dc2626;
   background: #dc2626;
 }
+
 .qs-option.is-wrong .qs-radio-icon {
   opacity: 1;
 }
 
-.qs-qcard.is-review .qs-option:not(.is-correct):not(.is-wrong) .qs-radio {
-  border-color: rgba(15, 23, 42, 0.16);
-  background: #fff;
-}
-.qs-qcard.is-review .qs-option:not(.is-correct):not(.is-wrong) .qs-radio-icon {
-  opacity: 0;
-}
-
-.qs-option:hover {
-  border-color: rgba(37, 99, 235, 0.35);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-}
-
-.qs-option.is-checked {
-  border: 1px solid #2563eb;
-  background: #eff6ff;
-}
-
-.qs-qcard.is-review .qs-option {
-  cursor: default;
-}
-.qs-qcard.is-review .qs-option:hover {
-  box-shadow: none;
-}
-
-.qs-option:has(.qs-option-input:focus-visible) {
-  box-shadow:
-    0 0 0 4px rgba(37, 99, 235, 0.22),
-    0 12px 26px rgba(15, 23, 42, 0.06);
-  border-color: #2563eb;
-}
-
-.qs-op-key {
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.qs-op-text {
-  color: rgba(15, 23, 42, 0.82);
-}
-
 .qs-op-badge {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  font-size: 12px;
-  padding: 4px 10px;
+  margin-left: auto;
+  padding: 5px 10px;
   border-radius: 999px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .qs-op-badge.correct {
-  background: #dcfce7;
+  background: #d7f3df;
   color: #16a34a;
 }
 
 .qs-op-badge.wrong {
-  background: #fee2e2;
+  background: #ffe0e0;
   color: #dc2626;
 }
 
-/* 解析区域 */
-.qs-review {
-  margin-top: 28px;
-  padding: 12px 0;
-  border-top: 1px solid rgba(37, 99, 235, 0.12);
+.qs-nav-row {
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  margin-top: 2px;
+}
+
+.qs-nav-btn {
+  min-width: 96px;
+  height: 38px;
+  border-radius: 18px;
+  border: 1px solid #d7dbe4;
+  background: #fff;
+  color: #2d486d;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.qs-nav-btn.primary {
+  border: none;
+  background: #3268e6;
+  color: #fff;
+}
+
+.qs-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.qs-review-block {
+  border-top: 1px solid #d9e0ee;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .qs-answer-pill {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  align-self: flex-start;
+  min-height: 46px;
+  padding: 0 20px;
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.12);
-  color: #2b3cb8;
-  font-size: 13px;
-  font-weight: 600;
+  background: #dfe7f7;
+  color: #1749d1;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .qs-explain {
-  margin-top: 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: rgba(37, 99, 235, 0.06);
-  border: 1px solid rgba(37, 99, 235, 0.12);
+  border-radius: 18px;
+  background: #eef2f8;
+  border: 1px solid #c7d7f7;
+  padding: 18px 22px;
 }
 
 .qs-explain-title {
+  font-size: 14px;
   font-weight: 500;
-  color: #2b3cb8;
-  margin-bottom: 8px;
+  color: #1749d1;
+  margin-bottom: 10px;
 }
 
 .qs-explain-body {
-  color: #2b3cb8;
-  font-weight: 400;
-  line-height: 1.7;
-}
-
-/* 底部提交栏 */
-.qs-submitbar {
-  background: transparent;
-  padding: 0;
-}
-
-.qs-footerbar {
-  margin: 18px 0 28px;
-}
-
-.qs-submitbtn {
-  width: min(960px, calc(100% - 48px));
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  height: 56px;
-  border-radius: 14px;
-  border: none;
-  background: #2563eb;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 900;
-  cursor: pointer;
-  gap: 10px;
-}
-
-.qs-submitbtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.qs-submiticon {
-  font-size: 18px;
-}
-
-/* 结果大卡（QuestionResultSummary 用） */
-.qs-result {
-  border-radius: 18px;
-  padding: 34px 24px;
-  margin: 18px 0 32px;
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
-  color: #fff;
-  text-align: center;
-}
-
-.qs-result.bad {
-  background: #d40000;
-}
-.qs-result.mid {
-  background: #2563eb;
-}
-.qs-result.good {
-  background: #16a34a;
-}
-
-.qs-result-percent {
-  font-size: 56px;
-  line-height: 1;
-  font-weight: 1000;
-  letter-spacing: -1px;
-}
-
-.qs-result-title {
-  margin-top: 10px;
-  font-size: 18px;
-  font-weight: 900;
-  opacity: 0.95;
-}
-
-.qs-result-stats {
-  margin-top: 18px;
-  display: flex;
-  justify-content: center;
-  gap: 38px;
-}
-
-.qs-result-stat-label {
   font-size: 14px;
-  font-weight: 800;
-  opacity: 0.95;
-}
-
-.qs-result-stat-value {
-  margin-top: 6px;
-  font-size: 26px;
-  font-weight: 1000;
-}
-
-/* 题卡：错误红框 / 正确绿框 */
-.qs-qcard.is-wrong-card {
-  border: 2px solid rgba(220, 38, 38, 0.35);
-}
-
-.qs-qcard.is-right-card {
-  border: 2px solid rgba(22, 163, 74, 0.28);
-}
-
-/* 选项：错误红底 / 正确绿底 */
-.qs-option.is-correct {
-  background: rgba(22, 163, 74, 0.08);
-  border-color: rgba(22, 163, 74, 0.55);
-  box-shadow: none;
-}
-
-.qs-option.is-wrong {
-  background: rgba(220, 38, 38, 0.08);
-  border-color: rgba(220, 38, 38, 0.55);
-  box-shadow: none;
-}
-
-/* 结果页底部两按钮（QuestionSheet 用） */
-.qs-result-actions {
-  display: flex;
-  padding-bottom: 20px;
-  gap: 16px;
-}
-
-.qs-resultbtn {
-  flex: 1;
-  height: 56px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: 950;
-  cursor: pointer;
-}
-
-.qs-resultbtn.danger {
-  background: #fff;
-  border: 2px solid rgba(220, 38, 38, 0.65);
-  color: #dc2626;
-}
-
-.qs-resultbtn.primary {
-  background: #2563eb;
-  border: none;
-  color: #fff;
+  line-height: 1.8;
+  color: #243b63;
 }
 
 .qs-askai {
-  margin-top: 10px;
   padding: 0;
   border: none;
   background: transparent;
-  cursor: pointer;
   color: #2563eb;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
   text-align: left;
 }
 
 .qs-askai:hover {
   text-decoration: underline;
+}
+
+.qs-side {
+  position: sticky;
+  top: 10px;
+  height: calc(100vh - 142px);
+}
+
+.qs-side-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-left: 1px solid #eceef3;
+  border-radius: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  padding: 18px 16px;
+  overflow-y: auto;
+}
+
+.qs-side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.qs-side-head-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #444;
+}
+
+.qs-side-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.qs-side-no {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #e4e7ea;
+  color: #444;
+  font-size: 14px;
+  cursor: pointer;
+  justify-self: center;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.qs-side-no:hover {
+  transform: translateY(-1px);
+}
+
+.qs-side-no.is-answered {
+  background: #e5f0ff;
+  border: 1px solid #3268e6;
+  color: #3268e6;
+}
+
+.qs-side-no.is-current {
+  font-weight: 700;
+  background: #3268e6;
+  border: 1px solid #3268e6;
+  color: #fff;
+}
+
+.qs-side-no.is-correct {
+  background: #e8f4ee;
+  border: 1px solid #16a34a;
+  color: #16a34a;
+}
+
+.qs-side-no.is-wrong {
+  background: #fff0f0;
+  border: 1px solid #f16f6f;
+  color: #dc2626;
+}
+
+.qs-side-actions {
+  display: flex;
+  flex-direction: row;
+  margin-top: auto;
+  gap: 10px;
+}
+
+.qs-side-btn {
+  width: 100%;
+  height: 36px;
+  border-radius: 12px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.qs-side-btn.primary {
+  background: #3268e6;
+  color: #fff;
+}
+
+.qs-side-btn.danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.qs-side-btn.ghost {
+  background: #fff;
+  border: 1px solid #d7dbe4;
+  color: #334155;
+}
+
+.qs-side-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.qs-empty {
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.qs-images {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qs-image {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+@media (max-width: 1100px) {
+  .qs-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .qs-side {
+    position: static;
+  }
+
+  .qs-side-card {
+    display: flex;
+    flex-direction: column;
+    border-left: none;
+    border-top: 1px solid #eceef3;
+    background: #fff;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .qs-shell {
+    padding: 10px;
+  }
+
+  .qs-main-card {
+    padding: 12px;
+  }
+
+  .qs-stem {
+    font-size: 20px;
+  }
+
+  .qs-op-key,
+  .qs-op-text,
+  .qs-explain-title,
+  .qs-explain-body,
+  .qs-askai,
+  .qs-answer-pill {
+    font-size: 16px;
+  }
+
+  .qs-nav-btn {
+    min-width: 120px;
+    height: 50px;
+    font-size: 18px;
+  }
 }

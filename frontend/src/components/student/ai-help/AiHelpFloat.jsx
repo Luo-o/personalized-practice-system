@@ -1,230 +1,454 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Input, Button } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { Input, Button, Empty, Spin } from "antd";
+import {
+  CloseOutlined,
+  SendOutlined,
+  PictureOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import "./ai-help-float.css";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+const { TextArea } = Input;
+const DRAWER_ANIMATION_MS = 280;
+
+function fileToPreview(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url: reader.result,
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function buildInitialMessages(question) {
+  const stem = question?.stem ? `当前题目：${question.stem}` : "";
+  const subject = question?.subject_name || question?.subjectName || "";
+  const difficulty = question?.difficulty || "";
+  const chapter = question?.chapter_name || question?.chapterName || "";
+  const contextLine = [subject, chapter, difficulty]
+    .filter(Boolean)
+    .join(" · ");
+
+  return [
+    ...(contextLine
+      ? [
+          {
+            id: "a1",
+            role: "assistant",
+            text: `已关联当前上下文：${contextLine}`,
+          },
+        ]
+      : []),
+    ...(stem
+      ? [
+          {
+            id: "a2",
+            role: "assistant",
+            text: stem,
+          },
+        ]
+      : []),
+  ];
+}
+
+function serializeMessages(messages) {
+  return messages.map((m) => ({
+    id: m.id,
+    role: m.role,
+    text: m.text,
+    images: Array.isArray(m.images)
+      ? m.images.map((img) => ({
+          id: img.id,
+          name: img.name,
+          size: img.size,
+          type: img.type,
+          url: img.url,
+        }))
+      : [],
+  }));
+}
 
 export default function AiHelpFloat({ open, onClose, question, onAskAI }) {
-  // ✅ 默认就是悬浮球（更一致）
-  const [minimized, setMinimized] = useState(true);
+  const [mounted, setMounted] = useState(open);
+  const [visible, setVisible] = useState(false);
+
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [images, setImages] = useState([]);
+  const [dragOver, setDragOver] = useState(false);
+  const [messages, setMessages] = useState(() =>
+    buildInitialMessages(question),
+  );
 
-  // 悬浮球的垂直位置（px）
-  const [ballY, setBallY] = useState(() => {
-    const h = typeof window !== "undefined" ? window.innerHeight : 800;
-    return Math.max(90, Math.min(h - 140, h * 0.65));
-  });
+  const bodyRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  const dragRef = useRef({
-    dragging: false,
-    startClientY: 0,
-    startBallY: 0,
-  });
+  const quickActions = [
+    "解释这道题的考点和正确思路",
+    "只给我提示，不要直接告诉答案",
+    "分析我为什么容易做错",
+    "根据这道题总结相关知识点",
+  ];
 
-  const clampY = (y) => {
-    const h = typeof window !== "undefined" ? window.innerHeight : 800;
-    const minY = 80;
-    const maxY = h - 80;
-    return Math.max(minY, Math.min(maxY, y));
-  };
-
-  // ✅ useMemo 依赖改成稳定字段，避免每次 render 都重置
-  const initialMessages = useMemo(() => {
-    const stem = question?.stem ? `题干：${question.stem}` : "";
-    return [
-      {
-        id: "a0",
-        role: "assistant",
-        text: "把你的疑问发给我。我会结合题目给你解释。",
-      },
-      ...(stem ? [{ id: "a1", role: "assistant", text: stem }] : []),
-    ];
-  }, [question?.id, question?.stem]);
-
-  // ✅ lazy initializer：更稳
-  const [messages, setMessages] = useState(() => initialMessages);
-
-  const prevOpenRef = useRef(false);
-
-  // ✅ 第一次打开：如果你希望第一次出现是悬浮球，就保持 minimized=true
   useEffect(() => {
-    if (open && !prevOpenRef.current) {
-      setMinimized(true);
+    let timer = null;
+
+    if (open) {
+      setMounted(true);
+      timer = window.setTimeout(() => {
+        setVisible(true);
+      }, 16);
+    } else if (mounted) {
+      setVisible(false);
+      timer = window.setTimeout(() => {
+        setMounted(false);
+      }, DRAWER_ANIMATION_MS);
     }
-    prevOpenRef.current = open;
-  }, [open]);
 
-  // ✅ 切题/打开时重置内容，但不改变 minimized（展开就保持展开）
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [open, mounted]);
+
   useEffect(() => {
-    if (!open) return;
-    setMessages(initialMessages);
+    if (!mounted) return;
+    setMessages(buildInitialMessages(question));
     setInput("");
-  }, [initialMessages, open]);
+    setImages([]);
+    setSending(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [mounted, question]);
 
-  // 处理窗口尺寸变化，避免球跑出屏幕
   useEffect(() => {
-    const onResize = () => setBallY((y) => clampY(y));
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const listRef = useRef(null);
-  useEffect(() => {
-    if (!open || minimized) return;
-    const el = listRef.current;
+    if (!visible) return;
+    const el = bodyRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [open, minimized, messages]);
+  }, [visible, messages, images, sending]);
+
+  const handleFiles = async (fileList) => {
+    if (sending) return;
+
+    const picked = Array.from(fileList || []).filter((file) =>
+      file.type?.startsWith("image/"),
+    );
+    if (!picked.length) return;
+
+    const previews = await Promise.all(picked.map(fileToPreview));
+    setImages((prev) => [...prev, ...previews].slice(0, 6));
+  };
+
+  const removeImage = (id) => {
+    if (sending) return;
+    setImages((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const clearImages = () => {
+    if (sending) return;
+    setImages([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const clearConversation = () => {
+    if (sending) return;
+    setMessages(buildInitialMessages(question));
+    setInput("");
+    setImages([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const appendQuickPrompt = (text) => {
+    if (sending) return;
+    setInput((prev) => (prev ? `${prev}\n${text}` : text));
+  };
 
   const send = async () => {
     const text = input.trim();
-    if (!text || sending) return;
+    if ((!text && images.length === 0) || sending) return;
 
-    const userMsg = { id: `u_${Date.now()}`, role: "user", text };
-    setMessages((prev) => [...prev, userMsg]);
+    const currentImages = [...images];
+
+    const userMsg = {
+      id: `u_${Date.now()}`,
+      role: "user",
+      text: text || "请结合我上传的图片进行分析。",
+      images: currentImages,
+    };
+
+    const nextMessages = [...messages, userMsg];
+
+    setMessages(nextMessages);
     setInput("");
+    setImages([]);
     setSending(true);
 
     try {
       let reply = "";
+
       if (typeof onAskAI === "function") {
-        reply = await onAskAI(text, question);
+        reply = await onAskAI(
+          text || "请结合我上传的图片进行分析。",
+          question,
+          currentImages.map((item) => item.file).filter(Boolean),
+          serializeMessages(nextMessages),
+        );
       } else {
-        reply =
-          "示例回复：你可以问我为什么正确答案成立、其他选项错在哪，或让我要点总结相关知识点。";
+        reply = "我已经收到你的问题。";
       }
-      const aiMsg = { id: `a_${Date.now()}`, role: "assistant", text: reply };
+
+      const aiMsg = {
+        id: `a_${Date.now()}`,
+        role: "assistant",
+        text: reply,
+      };
+
       setMessages((prev) => [...prev, aiMsg]);
+    } catch (error) {
+      const errorMsg = {
+        id: `e_${Date.now()}`,
+        role: "assistant",
+        text: error?.message || "请求失败，请稍后重试。",
+        isError: true,
+      };
+      setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setSending(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
-  // 拖动逻辑（只允许垂直）
-  const startDrag = (clientY) => {
-    dragRef.current.dragging = true;
-    dragRef.current.startClientY = clientY;
-    dragRef.current.startBallY = ballY;
+  if (!mounted) return null;
 
-    const onMove = (e) => {
-      if (!dragRef.current.dragging) return;
-      const nowY = "touches" in e ? e.touches[0].clientY : e.clientY;
-      const dy = nowY - dragRef.current.startClientY;
-      setBallY(clampY(dragRef.current.startBallY + dy));
-    };
-
-    const onUp = () => {
-      dragRef.current.dragging = false;
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      window.removeEventListener("touchmove", onMove);
-      window.removeEventListener("touchend", onUp);
-    };
-
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    window.addEventListener("touchmove", onMove, { passive: false });
-    window.addEventListener("touchend", onUp);
-  };
-
-  if (!open) return null;
-
-  // 最小化：右侧可拖动悬浮球（叉在右上角）
-  if (minimized) {
-    return (
-      <div className="ai-float-ball-wrap" style={{ top: ballY }}>
-        <div
-          className="ai-float-ball"
-          role="button"
-          tabIndex={0}
-          title="展开 AI 助手"
-          onClick={() => setMinimized(false)}
-          onMouseDown={(e) => {
-            if (e.button !== 0) return;
-            startDrag(e.clientY);
-          }}
-          onTouchStart={(e) => {
-            const y = e.touches[0]?.clientY;
-            if (typeof y === "number") startDrag(y);
-          }}
-        >
-          <span className="ai-float-ball-text">AI</span>
-
-          <button
-            type="button"
-            className="ai-float-ball-close"
-            title="关闭"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose?.();
-            }}
-          >
-            ×
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // 展开态：浮窗面板
   return (
-    <div className="ai-float-panel">
-      <div className="ai-float-head">
-        <div className="ai-float-title">AI 助手</div>
-        <div className="ai-float-actions">
-          <button
-            type="button"
-            className="ai-float-iconbtn"
-            onClick={() => setMinimized(true)}
-            title="收起"
-          >
-            —
-          </button>
-          <button
-            type="button"
-            className="ai-float-iconbtn"
-            onClick={onClose}
-            title="关闭"
-          >
-            ×
-          </button>
-        </div>
-      </div>
+    <>
+      <div
+        className={`ai-help-overlay ${visible ? "is-show" : ""}`}
+        onClick={sending ? undefined : onClose}
+      />
 
-      <div className="ai-float-body" ref={listRef}>
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={[
-              "ai-float-row",
-              m.role === "user" ? "is-user" : "is-ai",
-            ].join(" ")}
-          >
-            <div className="ai-float-bubble">{m.text}</div>
+      <aside className={`ai-help-drawer ${visible ? "is-open" : ""}`}>
+        <div className="ai-help-drawer__shell">
+          <div className="ai-help-drawer__header">
+            <div className="ai-help-drawer__brand">
+              <div className="ai-help-drawer__logo">✦</div>
+              <div>
+                <div className="ai-help-drawer__title">AI 学习助手</div>
+              </div>
+            </div>
+
+            <div className="ai-help-drawer__actions">
+              <button
+                type="button"
+                className="ai-help-drawer__iconbtn"
+                onClick={clearConversation}
+                title="清空当前对话"
+                disabled={sending}
+              >
+                清空
+              </button>
+              <button
+                type="button"
+                className="ai-help-drawer__iconbtn"
+                onClick={onClose}
+                title="关闭"
+                disabled={sending}
+              >
+                <CloseOutlined />
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="ai-float-foot">
-        <Input.TextArea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="输入你的问题..."
-          autoSize={{ minRows: 2, maxRows: 4 }}
-          onPressEnter={(e) => {
-            if (e.shiftKey) return;
-            e.preventDefault();
-            send();
-          }}
-        />
-        <div className="ai-float-btns">
-          <Button onClick={() => setInput("")} disabled={sending}>
-            清空
-          </Button>
-          <Button type="primary" onClick={send} loading={sending}>
-            发送
-          </Button>
+          <div className="ai-help-drawer__quick">
+            {quickActions.map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="ai-help-drawer__quickbtn"
+                onClick={() => appendQuickPrompt(item)}
+                disabled={sending}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <div className="ai-help-drawer__body" ref={bodyRef}>
+            {messages.length ? (
+              <>
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`ai-help-msg ${
+                      m.role === "user" ? "is-user" : "is-ai"
+                    }`}
+                  >
+                    <div
+                      className={`ai-help-msg__bubble ${
+                        m.isError ? "is-error" : ""
+                      }`}
+                    >
+                      <div className="ai-help-msg__text">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {m.text}
+                        </ReactMarkdown>
+                      </div>
+
+                      {Array.isArray(m.images) && m.images.length > 0 ? (
+                        <div className="ai-help-msg__images">
+                          {m.images.map((img) => (
+                            <div
+                              key={img.id}
+                              className="ai-help-msg__image-item"
+                            >
+                              <img src={img.url} alt={img.name || "uploaded"} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+
+                {sending ? (
+                  <div className="ai-help-msg is-ai">
+                    <div className="ai-help-msg__bubble ai-help-msg__bubble--loading">
+                      <div className="ai-help-msg__loading">
+                        <Spin size="small" />
+                        <span>AI 正在思考...</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="ai-help-drawer__empty">
+                <Empty description="暂无消息" />
+              </div>
+            )}
+          </div>
+
+          <div className="ai-help-drawer__footer">
+            {images.length > 0 ? (
+              <div className="ai-help-upload__preview">
+                <div className="ai-help-upload__preview-head">
+                  <span>已选择图片</span>
+                  <button
+                    type="button"
+                    className="ai-help-upload__clear"
+                    onClick={clearImages}
+                    disabled={sending}
+                  >
+                    清空
+                  </button>
+                </div>
+
+                <div className="ai-help-upload__preview-list">
+                  {images.map((img) => (
+                    <div key={img.id} className="ai-help-upload__preview-item">
+                      <img src={img.url} alt={img.name} />
+                      <button
+                        type="button"
+                        className="ai-help-upload__remove"
+                        onClick={() => removeImage(img.id)}
+                        title="移除"
+                        disabled={sending}
+                      >
+                        <DeleteOutlined />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div
+              className={`ai-help-upload ai-help-upload--compact ${
+                dragOver ? "is-dragover" : ""
+              } ${sending ? "is-disabled" : ""}`}
+              onDragOver={(e) => {
+                if (sending) return;
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                if (sending) return;
+                e.preventDefault();
+                setDragOver(false);
+                handleFiles(e.dataTransfer.files);
+              }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="ai-help-upload__input"
+                onChange={(e) => handleFiles(e.target.files)}
+                disabled={sending}
+              />
+
+              <button
+                type="button"
+                className="ai-help-upload__trigger"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={sending}
+              >
+                <PictureOutlined />
+                <span>上传图片</span>
+              </button>
+            </div>
+
+            <div className="ai-help-compose">
+              <TextArea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="输入你的问题..."
+                autoSize={{ minRows: 3, maxRows: 6 }}
+                disabled={sending}
+                onPressEnter={(e) => {
+                  if (e.shiftKey) return;
+                  e.preventDefault();
+                  send();
+                }}
+              />
+            </div>
+
+            <div className="ai-help-drawer__footer-actions">
+              <Button onClick={() => setInput("")} disabled={sending}>
+                清空文本
+              </Button>
+              <Button
+                type="primary"
+                icon={<SendOutlined />}
+                onClick={send}
+                loading={sending}
+                disabled={sending}
+              >
+                发送
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </aside>
+    </>
   );
 }

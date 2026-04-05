@@ -12,19 +12,10 @@ import {
   message,
 } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { useSubjectStore } from "../../../store";
 import "./teacher-add-question-drawer.css";
 
-import { useSubjectStore } from "../../../store/modules/subjectStore";
-
 const DIFFS = ["简单", "中等", "困难"];
-
-const KP_POOL_BY_SUBJECT = {
-  Python: ["Python基础", "变量", "数据结构", "函数", "异常处理"],
-  数据库: ["数据库设计", "SQL", "事务", "索引", "范式"],
-  数据结构: ["数组", "链表", "栈", "队列", "树", "图"],
-  Java: ["基础语法", "面向对象", "集合", "并发"],
-  计算机网络: ["TCP", "UDP", "IP", "HTTP", "路由"],
-};
 
 function emptyOptions() {
   return [
@@ -33,6 +24,15 @@ function emptyOptions() {
     { key: "C", text: "" },
     { key: "D", text: "" },
   ];
+}
+
+function toUploadFileList(images = []) {
+  return images.map((img, index) => ({
+    uid: `existing-${index}`,
+    name: `image-${index + 1}`,
+    status: "done",
+    url: img.imageUrl || img.url || "",
+  }));
 }
 
 export default function TeacherAddQuestionDrawer({
@@ -44,43 +44,87 @@ export default function TeacherAddQuestionDrawer({
   const [form] = Form.useForm();
 
   const subjects = useSubjectStore((state) => state.subjects);
+  const chapters = useSubjectStore((state) => state.chapters);
+  const chapterTree = useSubjectStore((state) => state.chapterTree);
+  const fetchSubjects = useSubjectStore((state) => state.fetchSubjects);
+  const fetchSubjectDetail = useSubjectStore(
+    (state) => state.fetchSubjectDetail,
+  );
 
-  const defaultSubject = subjects[0]?.subject || "";
-  const defaultChapters =
-    subjects.find((item) => item.subject === defaultSubject)?.chapters || [];
-  const defaultChapter = defaultChapters[0] || "";
+  const defaultSubjectId = subjects[0]?.id;
+  const defaultChapterId = chapters[0]?.id;
 
-  const [subject, setSubject] = useState(defaultSubject);
+  const [subjectId, setSubjectId] = useState(defaultSubjectId);
   const [kpSelected, setKpSelected] = useState([]);
   const [kpInput, setKpInput] = useState("");
   const [options, setOptions] = useState(emptyOptions());
   const [correct, setCorrect] = useState("A");
   const [fileList, setFileList] = useState([]);
 
+  useEffect(() => {
+    if (open && !subjects.length) {
+      fetchSubjects().catch((error) => {
+        console.error("获取科目失败：", error);
+      });
+    }
+  }, [open, subjects.length, fetchSubjects]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (!subjectId && defaultSubjectId) {
+      setSubjectId(defaultSubjectId);
+    }
+  }, [open, subjectId, defaultSubjectId]);
+
+  useEffect(() => {
+    if (!open || !subjectId) return;
+
+    fetchSubjectDetail(subjectId).catch((error) => {
+      console.error("获取科目详情失败：", error);
+    });
+  }, [open, subjectId, fetchSubjectDetail]);
+
   const subjectOptions = useMemo(() => {
     return subjects.map((item) => ({
-      label: item.subject,
-      value: item.subject,
+      label: item.name,
+      value: item.id,
     }));
   }, [subjects]);
 
-  const chapters = useMemo(() => {
-    return subjects.find((item) => item.subject === subject)?.chapters || [];
-  }, [subjects, subject]);
+  const chapterOptions = useMemo(() => {
+    return chapters.map((c) => ({
+      label: c.name,
+      value: c.id,
+    }));
+  }, [chapters]);
 
   const kpPool = useMemo(() => {
-    return KP_POOL_BY_SUBJECT[subject] || [];
-  }, [subject]);
+    return chapterTree.flatMap((chapter) => chapter.knowledgePoints || []);
+  }, [chapterTree]);
 
   const addKpFromInput = () => {
     const v = kpInput.trim();
-    if (!v || kpSelected.includes(v)) return;
-    setKpSelected((prev) => [...prev, v]);
+    if (!v) return;
+
+    const exists = kpPool.some((kp) => kp.name === v);
+    if (exists) {
+      const matched = kpPool.find((kp) => kp.name === v);
+      if (matched && !kpSelected.some((item) => item.id === matched.id)) {
+        setKpSelected((prev) => [...prev, matched]);
+      }
+    } else {
+      const temp = {
+        id: `temp-${Date.now()}`,
+        name: v,
+      };
+      setKpSelected((prev) => [...prev, temp]);
+    }
+
     setKpInput("");
   };
 
-  const removeKp = (v) => {
-    setKpSelected((prev) => prev.filter((x) => x !== v));
+  const removeKp = (id) => {
+    setKpSelected((prev) => prev.filter((x) => String(x.id) !== String(id)));
   };
 
   const setOptionText = (key, text) => {
@@ -96,17 +140,30 @@ export default function TeacherAddQuestionDrawer({
       return;
     }
 
+    const hasNewUpload = fileList.some((f) => !!f.originFileObj && !f.url);
+    if (hasNewUpload) {
+      message.warning("当前后端暂未支持图片文件直传，新上传图片将被忽略");
+    }
+
     const payload = {
       title: values.stem,
-      subject: values.subject,
+      subjectId: values.subjectId,
       difficulty: values.difficulty,
-      chapter: values.chapter,
-      kps: kpSelected,
+      chapterId: values.chapterId,
+      knowledgePointIds: kpSelected
+        .filter((kp) => !String(kp.id).startsWith("temp-"))
+        .map((kp) => kp.id),
       source: values.source,
-      images: fileList.map((f) => f.originFileObj || f),
+      images: fileList
+        .filter((f) => f.url)
+        .map((f, index) => ({
+          url: f.url,
+          sortOrder: index + 1,
+        })),
       options,
       correct,
       analysis: values.analysis || "",
+      isReal: values.isReal,
     };
 
     await onSubmit?.(payload);
@@ -116,23 +173,33 @@ export default function TeacherAddQuestionDrawer({
     if (!open) return;
 
     if (editingQuestion) {
+      const nextSubjectId = editingQuestion.subjectId || defaultSubjectId;
+      setSubjectId(nextSubjectId);
+
       form.setFieldsValue({
-        subject: editingQuestion.subject,
+        subjectId: nextSubjectId,
         difficulty: editingQuestion.difficulty,
         stem: editingQuestion.title,
         source: editingQuestion.source,
-        chapter: editingQuestion.chapter,
+        chapterId: editingQuestion.chapterId,
         analysis: editingQuestion.analysis,
+        isReal: editingQuestion.isReal ?? false,
       });
 
-      setSubject(editingQuestion.subject || defaultSubject);
-      setKpSelected(editingQuestion.kps || []);
+      setKpSelected(editingQuestion.knowledgePoints || []);
       setKpInput("");
       setCorrect(editingQuestion.correct || "A");
-      setOptions(editingQuestion.options || emptyOptions());
-      setFileList(editingQuestion.images || []);
+      setOptions(
+        editingQuestion.options?.length
+          ? editingQuestion.options.map((item) => ({
+              key: item.key,
+              text: item.text,
+            }))
+          : emptyOptions(),
+      );
+      setFileList(toUploadFileList(editingQuestion.images || []));
     } else {
-      setSubject(defaultSubject);
+      setSubjectId(defaultSubjectId);
       setKpSelected([]);
       setKpInput("");
       setCorrect("A");
@@ -140,15 +207,16 @@ export default function TeacherAddQuestionDrawer({
       setFileList([]);
 
       form.setFieldsValue({
-        subject: defaultSubject,
+        subjectId: defaultSubjectId,
         difficulty: "简单",
         stem: "",
-        source: "",
-        chapter: defaultChapter,
+        source: "教师录入",
+        chapterId: defaultChapterId,
         analysis: "",
+        isReal: false,
       });
     }
-  }, [open, editingQuestion, form, defaultSubject, defaultChapter]);
+  }, [open, editingQuestion, form, defaultSubjectId, defaultChapterId]);
 
   return (
     <Drawer
@@ -169,29 +237,36 @@ export default function TeacherAddQuestionDrawer({
         form={form}
         layout="vertical"
         initialValues={{
-          subject: defaultSubject,
+          subjectId: defaultSubjectId,
           difficulty: "简单",
-          chapter: defaultChapter,
+          chapterId: defaultChapterId,
+          source: "教师录入",
         }}
       >
         <div className="td-form-row">
-          <Form.Item label="科目" name="subject" className="td-form-col">
+          <Form.Item
+            label="科目"
+            name="subjectId"
+            className="td-form-col"
+            rules={[{ required: true, message: "请选择科目" }]}
+          >
             <Select
               options={subjectOptions}
               placeholder="请选择科目"
               onChange={(v) => {
-                setSubject(v);
+                setSubjectId(v);
                 setKpSelected([]);
-
-                const nextChapters =
-                  subjects.find((item) => item.subject === v)?.chapters || [];
-
-                form.setFieldValue("chapter", nextChapters[0] || "");
+                form.setFieldValue("chapterId", undefined);
               }}
             />
           </Form.Item>
 
-          <Form.Item label="难度" name="difficulty" className="td-form-col">
+          <Form.Item
+            label="难度"
+            name="difficulty"
+            className="td-form-col"
+            rules={[{ required: true, message: "请选择难度" }]}
+          >
             <Select
               options={DIFFS.map((d) => ({ label: d, value: d }))}
               placeholder="请选择难度"
@@ -216,6 +291,13 @@ export default function TeacherAddQuestionDrawer({
           rules={[{ required: true, message: "请输入题目来源" }]}
         >
           <Input placeholder="请输入题目来源，例如：期末试卷 / 课堂练习 / 历年真题" />
+        </Form.Item>
+
+        <Form.Item label="真题标注" name="isReal" initialValue={false}>
+          <Radio.Group>
+            <Radio value={true}>真题</Radio>
+            <Radio value={false}>非真题</Radio>
+          </Radio.Group>
         </Form.Item>
 
         <Form.Item label="题目解析" name="analysis">
@@ -262,61 +344,68 @@ export default function TeacherAddQuestionDrawer({
         </div>
 
         <div className="td-form-row">
-          <Form.Item label="章节" name="chapter" className="td-form-col">
-            <Select
-              options={chapters.map((c) => ({ label: c, value: c }))}
-              placeholder="请选择章节"
-            />
+          <Form.Item
+            label="章节"
+            name="chapterId"
+            className="td-form-col"
+            rules={[{ required: true, message: "请选择章节" }]}
+          >
+            <Select options={chapterOptions} placeholder="请选择章节" />
           </Form.Item>
 
           <Form.Item label="知识点" className="td-form-col">
+            <div className="td-kp-add">
+              <Input
+                value={kpInput}
+                onChange={(e) => setKpInput(e.target.value)}
+                placeholder="输入新知识点，回车或点击新增"
+                onPressEnter={(e) => {
+                  e.preventDefault();
+                  addKpFromInput();
+                }}
+              />
+              <Button icon={<PlusOutlined />} onClick={addKpFromInput}>
+                新增
+              </Button>
+            </div>
+
+            <div className="td-kp-selected">
+              {kpSelected.length ? (
+                <Space size={6} wrap>
+                  {kpSelected.map((k) => (
+                    <Tag key={k.id} closable onClose={() => removeKp(k.id)}>
+                      {k.name}
+                    </Tag>
+                  ))}
+                </Space>
+              ) : (
+                <div className="td-muted">可从当前科目知识点中选择</div>
+              )}
+            </div>
             <div className="td-kp-box">
               <div className="td-kp-pool">
-                {kpPool.map((k) => (
-                  <button
-                    key={k}
-                    type="button"
-                    className={`td-kp-chip ${kpSelected.includes(k) ? "is-active" : ""}`}
-                    onClick={() => {
-                      if (kpSelected.includes(k)) {
-                        removeKp(k);
-                      } else {
-                        setKpSelected((prev) => [...prev, k]);
-                      }
-                    }}
-                  >
-                    {k}
-                  </button>
-                ))}
-              </div>
+                {kpPool.map((k) => {
+                  const active = kpSelected.some(
+                    (item) => String(item.id) === String(k.id),
+                  );
 
-              <div className="td-kp-add">
-                <Input
-                  value={kpInput}
-                  onChange={(e) => setKpInput(e.target.value)}
-                  placeholder="输入新知识点，回车或点击新增"
-                  onPressEnter={(e) => {
-                    e.preventDefault();
-                    addKpFromInput();
-                  }}
-                />
-                <Button icon={<PlusOutlined />} onClick={addKpFromInput}>
-                  新增
-                </Button>
-              </div>
-
-              <div className="td-kp-selected">
-                {kpSelected.length ? (
-                  <Space size={6} wrap>
-                    {kpSelected.map((k) => (
-                      <Tag key={k} closable onClose={() => removeKp(k)}>
-                        {k}
-                      </Tag>
-                    ))}
-                  </Space>
-                ) : (
-                  <div className="td-muted">可从题库筛选或新增知识点</div>
-                )}
+                  return (
+                    <button
+                      key={k.id}
+                      type="button"
+                      className={`td-kp-chip ${active ? "is-active" : ""}`}
+                      onClick={() => {
+                        if (active) {
+                          removeKp(k.id);
+                        } else {
+                          setKpSelected((prev) => [...prev, k]);
+                        }
+                      }}
+                    >
+                      {k.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </Form.Item>

@@ -1,83 +1,47 @@
-// import React, { useMemo } from "react";
-// import { useNavigate, useParams } from "react-router-dom";
-// import PageHeader from "../../components/PageHeader";
-// import QuestionSheet from "../../components/student/question-sheet/QuestionSheet";
-// import {
-//   useSubmissionStore,
-//   useAnswerRecordStore,
-//   useQuestionStore,
-// } from "../../store";
-// import "./practice-records.css";
-
-// export default function PracticeRecordDetail() {
-//   const navigate = useNavigate();
-//   const { recordId } = useParams();
-
-//   const submissions = useSubmissionStore((s) => s.submissions);
-//   const answerRecords = useAnswerRecordStore((s) => s.answerRecords);
-//   const questions = useQuestionStore((s) => s.questions);
-
-//   const record = useMemo(() => {
-//     return submissions.find((x) => String(x.id) === String(recordId)) || null;
-//   }, [submissions, recordId]);
-
-//   const recordAnswers = useMemo(() => {
-//     if (!record) return [];
-//     return answerRecords.filter((x) => x.submissionId === record.id);
-//   }, [answerRecords, record]);
-
-//   const detailQuestions = useMemo(() => {
-//     return recordAnswers
-//       .map((ans) => questions.find((q) => q.id === ans.questionId))
-//       .filter(Boolean)
-//       .map((q) => ({
-//         id: q.id,
-//         tag: `${q.subject} · ${q.chapter}`,
-//         difficulty: q.difficulty,
-//         stem: q.title,
-//         options: q.options,
-//         correct: q.correct,
-//         explanation: q.analysis,
-//       }));
-//   }, [recordAnswers, questions]);
-
-//   const initialAnswers = useMemo(() => {
-//     const map = {};
-//     recordAnswers.forEach((ans) => {
-//       map[String(ans.questionId)] = ans.selectedAnswer;
-//     });
-//     return map;
-//   }, [recordAnswers]);
-
-//   return (
-//     <div className="pr-detail-page">
-//       <PageHeader
-//         title={record ? record.title : "记录详情"}
-//         subtitle={
-//           record ? `完成时间：${record.finishedAt} · 得分 ${record.score}` : ""
-//         }
-//         onBack={() => navigate(-1)}
-//       />
-
-//       <QuestionSheet
-//         questions={detailQuestions}
-//         initialAnswers={initialAnswers}
-//         mode="review"
-//         showTimer={false}
-//         onSubmit={async () => ({})}
-//         onViewWrong={() => navigate("/student/wrong-book")}
-//         onBackHome={() => navigate("/student/dashboard")}
-//       />
-//     </div>
-//   );
-// }
-
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import PageHeader from "../../components/PageHeader";
+import { message } from "antd";
 import QuestionSheet from "../../components/student/question-sheet/QuestionSheet";
 import { useSubmissionStore, useQuestionStore } from "../../store";
 import "./practice-records.css";
+
+function normalizeQuestionFull(raw) {
+  if (!raw) return null;
+
+  return {
+    ...raw,
+    id: raw.id,
+    tag:
+      raw.tag ||
+      [
+        raw.subjectName || raw.subject_name || raw.subject || "",
+        raw.chapterName || raw.chapter_name || raw.chapter || "",
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    difficulty: raw.difficulty || "未设置",
+    stem: raw.stem || raw.title || "",
+    title: raw.title || raw.stem || "",
+    options: (raw.options || []).map((item, index) => ({
+      key:
+        item.key ||
+        item.option_key ||
+        item.label ||
+        String.fromCharCode(65 + index),
+      text: item.text || item.option_text || item.content || "",
+    })),
+    correct: raw.correct || raw.correct_answer || raw.answer || "",
+    explanation: raw.explanation || raw.analysis || "",
+    images: (raw.images || []).map((img, index) => ({
+      id: img.id || index,
+      imageUrl: img.imageUrl || img.image_url || img.url || "",
+      sortOrder: img.sortOrder || img.sort_order || index + 1,
+    })),
+    subjectId: raw.subjectId || raw.subject_id,
+    subjectName: raw.subjectName || raw.subject_name || raw.subject || "",
+    chapterName: raw.chapterName || raw.chapter_name || raw.chapter || "",
+  };
+}
 
 export default function PracticeRecordDetail() {
   const navigate = useNavigate();
@@ -87,53 +51,84 @@ export default function PracticeRecordDetail() {
   const currentSubmission = useSubmissionStore((s) => s.currentSubmission);
   const fetchSubmissionById = useSubmissionStore((s) => s.fetchSubmissionById);
 
-  const questions = useQuestionStore((s) => s.questions);
-  const fetchQuestions = useQuestionStore((s) => s.fetchQuestions);
+  const fetchQuestionById = useQuestionStore((s) => s.fetchQuestionById);
 
   const practiceReview = location.state?.practiceReview || null;
   const isPracticeReview = !!practiceReview;
 
+  const [detailQuestions, setDetailQuestions] = useState([]);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
   useEffect(() => {
     if (isPracticeReview) return;
-
-    fetchSubmissionById(recordId);
-    fetchQuestions();
-  }, [recordId, isPracticeReview, fetchSubmissionById, fetchQuestions]);
-
-  const record = useMemo(() => {
-    if (isPracticeReview) return practiceReview.record;
-    return currentSubmission?.submission || null;
-  }, [isPracticeReview, practiceReview, currentSubmission]);
+    fetchSubmissionById(recordId).catch((error) => {
+      message.error(error?.message || "加载记录失败");
+    });
+  }, [recordId, isPracticeReview, fetchSubmissionById]);
 
   const recordAnswers = useMemo(() => {
     if (isPracticeReview) return practiceReview.answerRecords || [];
     return currentSubmission?.answerRecords || [];
   }, [isPracticeReview, practiceReview, currentSubmission]);
 
-  const detailQuestions = useMemo(() => {
+  const practiceTitle = useMemo(() => {
+    if (isPracticeReview) return practiceReview.title || "练习回顾";
+    return currentSubmission?.submission.title || "作业回顾";
+  }, [isPracticeReview, practiceReview, currentSubmission]);
+
+  useEffect(() => {
     if (isPracticeReview) {
-      return practiceReview.questions || [];
+      const normalized = (practiceReview?.questions || []).map(
+        normalizeQuestionFull,
+      );
+      setDetailQuestions(normalized);
+      return;
     }
 
-    return recordAnswers
-      .map((ans) => {
-        const q = (questions || []).find(
-          (item) => Number(item.id) === Number(ans.question_id),
-        );
-        if (!q) return null;
+    if (!recordAnswers.length) {
+      setDetailQuestions([]);
+      return;
+    }
 
-        return {
-          id: q.id,
-          tag: `${q.subjectName || ""} · ${q.chapterName || ""}`,
-          difficulty: q.difficulty,
-          stem: q.title,
-          options: q.options || [],
-          correct: q.correct,
-          explanation: q.analysis,
-        };
-      })
-      .filter(Boolean);
-  }, [isPracticeReview, practiceReview, recordAnswers, questions]);
+    let cancelled = false;
+
+    const loadQuestions = async () => {
+      setLoadingDetail(true);
+
+      try {
+        const questionIds = recordAnswers.map(
+          (ans) => ans.question_id || ans.questionId,
+        );
+
+        const results = await Promise.all(
+          questionIds.map((id) => fetchQuestionById(id)),
+        );
+
+        if (cancelled) return;
+
+        const normalizedList = results
+          .map(normalizeQuestionFull)
+          .filter(Boolean);
+
+        setDetailQuestions(normalizedList);
+      } catch (error) {
+        if (cancelled) return;
+        console.error("加载题目详情失败:", error);
+        message.error(error?.message || "题目详情加载失败");
+        setDetailQuestions([]);
+      } finally {
+        if (!cancelled) {
+          setLoadingDetail(false);
+        }
+      }
+    };
+
+    loadQuestions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isPracticeReview, practiceReview, recordAnswers, fetchQuestionById]);
 
   const initialAnswers = useMemo(() => {
     const map = {};
@@ -146,17 +141,8 @@ export default function PracticeRecordDetail() {
 
   return (
     <div className="pr-detail-page">
-      <PageHeader
-        title={record ? record.title : "记录详情"}
-        subtitle={
-          record
-            ? `完成时间：${record.submitted_at || record.finishedAt || ""} · 得分 ${record.score ?? 0}`
-            : ""
-        }
-        onBack={() => navigate(-1)}
-      />
-
       <QuestionSheet
+        title={loadingDetail ? `${practiceTitle}（加载中...）` : practiceTitle}
         questions={detailQuestions}
         initialAnswers={initialAnswers}
         mode="review"

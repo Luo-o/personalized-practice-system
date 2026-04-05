@@ -83,6 +83,110 @@ function getExamById(examId) {
   });
 }
 
+// function getExamQuestions(examId) {
+//   return new Promise((resolve, reject) => {
+//     const sql = `
+//       SELECT
+//         eq.id AS exam_question_id,
+//         eq.exam_id,
+//         eq.question_id,
+//         eq.score,
+//         eq.sort_order,
+//         q.title,
+//         q.owner_type,
+//         q.teacher_id,
+//         q.subject_id,
+//         q.chapter_id,
+//         q.difficulty,
+//         q.source,
+//         q.is_real,
+//         q.analysis,
+//         q.correct_answer,
+//         s.name AS subject_name,
+//         c.name AS chapter_name
+//       FROM exam_questions eq
+//       INNER JOIN questions q ON eq.question_id = q.id
+//       LEFT JOIN subjects s ON q.subject_id = s.id
+//       LEFT JOIN chapters c ON q.chapter_id = c.id
+//       WHERE eq.exam_id = ?
+//       ORDER BY eq.sort_order ASC, eq.id ASC
+//     `;
+
+//     db.all(sql, [examId], async (err, rows) => {
+//       if (err) {
+//         reject(err);
+//         return;
+//       }
+
+//       const questions = rows || [];
+
+//       try {
+//         for (const q of questions) {
+//           // 查询选项
+//           q.options = await new Promise((res, rej) => {
+//             db.all(
+//               `
+//               SELECT
+//                 option_key,
+//                 option_text,
+//                 sort_order
+//               FROM question_options
+//               WHERE question_id = ?
+//               ORDER BY sort_order ASC
+//               `,
+//               [q.question_id],
+//               (err, rows) => {
+//                 if (err) rej(err);
+//                 else res(rows || []);
+//               },
+//             );
+//           });
+
+//           // 查询知识点
+//           q.knowledgePoints = await new Promise((res, rej) => {
+//             db.all(
+//               `
+//               SELECT kp.id, kp.name
+//               FROM question_knowledge_points qkp
+//               INNER JOIN knowledge_points kp
+//                 ON kp.id = qkp.knowledge_point_id
+//               WHERE qkp.question_id = ?
+//               `,
+//               [q.question_id],
+//               (err, rows) => {
+//                 if (err) rej(err);
+//                 else res(rows || []);
+//               },
+//             );
+//           });
+
+//           // 查询图片
+//           const images = await new Promise((res, rej) => {
+//             db.all(
+//               `
+//               SELECT image_url
+//               FROM question_images
+//               WHERE question_id = ?
+//               `,
+//               [q.question_id],
+//               (err, rows) => {
+//                 if (err) rej(err);
+//                 else res(rows || []);
+//               },
+//             );
+//           });
+
+//           q.images = images.map((i) => i.image_url);
+//         }
+
+//         resolve(questions);
+//       } catch (error) {
+//         reject(error);
+//       }
+//     });
+//   });
+// }
+
 function getExamQuestions(examId) {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -92,6 +196,8 @@ function getExamQuestions(examId) {
         eq.question_id,
         eq.score,
         eq.sort_order,
+
+        q.id AS id,
         q.title,
         q.owner_type,
         q.teacher_id,
@@ -102,22 +208,88 @@ function getExamQuestions(examId) {
         q.is_real,
         q.analysis,
         q.correct_answer,
+        q.created_at,
+        q.updated_at,
+
+        t.name AS teacher_name,
         s.name AS subject_name,
         c.name AS chapter_name
       FROM exam_questions eq
       INNER JOIN questions q ON eq.question_id = q.id
+      LEFT JOIN teachers t ON q.teacher_id = t.id
       LEFT JOIN subjects s ON q.subject_id = s.id
       LEFT JOIN chapters c ON q.chapter_id = c.id
       WHERE eq.exam_id = ?
       ORDER BY eq.sort_order ASC, eq.id ASC
     `;
 
-    db.all(sql, [examId], (err, rows) => {
+    db.all(sql, [examId], async (err, rows) => {
       if (err) {
         reject(err);
         return;
       }
-      resolve(rows || []);
+
+      const questions = rows || [];
+
+      try {
+        for (const q of questions) {
+          q.options = await new Promise((res, rej) => {
+            db.all(
+              `
+              SELECT
+                option_key,
+                option_text,
+                sort_order
+              FROM question_options
+              WHERE question_id = ?
+              ORDER BY sort_order ASC
+              `,
+              [q.question_id],
+              (err, rows) => {
+                if (err) rej(err);
+                else res(rows || []);
+              },
+            );
+          });
+
+          q.knowledgePoints = await new Promise((res, rej) => {
+            db.all(
+              `
+              SELECT kp.id, kp.name
+              FROM question_knowledge_points qkp
+              INNER JOIN knowledge_points kp
+                ON kp.id = qkp.knowledge_point_id
+              WHERE qkp.question_id = ?
+              `,
+              [q.question_id],
+              (err, rows) => {
+                if (err) rej(err);
+                else res(rows || []);
+              },
+            );
+          });
+
+          q.images = await new Promise((res, rej) => {
+            db.all(
+              `
+              SELECT image_url, sort_order
+              FROM question_images
+              WHERE question_id = ?
+              ORDER BY sort_order ASC
+              `,
+              [q.question_id],
+              (err, rows) => {
+                if (err) rej(err);
+                else res(rows || []);
+              },
+            );
+          });
+        }
+
+        resolve(questions);
+      } catch (error) {
+        reject(error);
+      }
     });
   });
 }

@@ -1,25 +1,3 @@
-// import { create } from "zustand";
-
-// export const useAuthStore = create((set, get) => ({
-//   currentUser: null,
-
-//   login: (user) => set({ currentUser: user }),
-
-//   logout: () => set({ currentUser: null }),
-
-//   updateCurrentUser: (patch) =>
-//     set((state) => ({
-//       currentUser: state.currentUser
-//         ? { ...state.currentUser, ...patch }
-//         : null,
-//     })),
-
-//   isLoggedIn: () => !!get().currentUser,
-
-//   getRole: () => get().currentUser?.role || null,
-
-//   getUserId: () => get().currentUser?.id || null,
-// }));
 import { create } from "zustand";
 import { http } from "../../api/http";
 
@@ -118,4 +96,31 @@ export const useAuthStore = create((set, get) => ({
   getRole: () => get().currentUser?.role || null,
   getUserId: () => get().currentUser?.id || null,
   getProfileId: () => get().currentUser?.profileId || null,
+  updateProfile: async (data) => {
+    const currentUser = get().currentUser;
+    if (!currentUser?.username) {
+      throw new Error("当前未登录");
+    }
+
+    const res = await http.put("/auth/update-profile", {
+      username: currentUser.username,
+      ...data,
+    });
+
+    await get().refreshMe();
+    return res;
+  },
+
+  changePassword: async ({ oldPassword, newPassword }) => {
+    const currentUser = get().currentUser;
+    if (!currentUser?.username) {
+      throw new Error("当前未登录");
+    }
+
+    return await http.put("/auth/change-password", {
+      username: currentUser.username,
+      oldPassword,
+      newPassword,
+    });
+  },
 }));

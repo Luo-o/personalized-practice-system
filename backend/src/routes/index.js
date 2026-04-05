@@ -11,6 +11,8 @@ const examsRoutes = require("./exams.routes");
 const submissionsRoutes = require("./submissions.routes");
 const studentExamsRoutes = require("./student-exams.routes");
 const analyticsRoutes = require("./analytics.routes");
+const aiRoutes = require("./ai.routes");
+const practiceRoutes = require("./practice.routes");
 
 router.use("/auth", authRoutes);
 router.use("/classes", classesRoutes);
@@ -20,7 +22,9 @@ router.use("/questions", questionsRoutes);
 router.use("/subjects", subjectsRoutes);
 router.use("/exams", examsRoutes);
 router.use("/submissions", submissionsRoutes);
+router.use("/practice", practiceRoutes);
 router.use("/", studentExamsRoutes);
 router.use("/", analyticsRoutes);
+router.use("/ai", aiRoutes);
 
 module.exports = router;

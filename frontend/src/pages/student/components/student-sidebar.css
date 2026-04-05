@@ -1,0 +1,38 @@
+.student-sidebar {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+}
+
+.student-sidebar-menu {
+  border-inline-end: none !important;
+  background: transparent !important;
+}
+
+.student-sidebar-menu .ant-menu-item {
+  height: 46px;
+  line-height: 46px;
+  border-radius: 12px;
+  margin-inline: 0;
+  margin-block: 6px;
+  color: #334155;
+  font-size: 15px;
+}
+
+.student-sidebar-menu .ant-menu-item .anticon {
+  font-size: 16px;
+}
+
+.student-sidebar-menu .ant-menu-item-selected {
+  background: #eaf2ff !important;
+  color: #1677ff !important;
+  font-weight: 600;
+}
+
+.student-sidebar-menu .ant-menu-item:hover {
+  color: #1677ff !important;
+}

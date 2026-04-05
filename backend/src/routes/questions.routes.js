@@ -4,11 +4,13 @@ const router = express.Router();
 const {
   listQuestions,
   getQuestionDetail,
+  getQuestionSubjectSummary,
   createQuestion,
   updateQuestion,
   removeQuestion,
 } = require("../controllers/question.controller");
 
+router.get("/summary/by-subject", getQuestionSubjectSummary);
 router.get("/", listQuestions);
 router.get("/:id", getQuestionDetail);
 router.post("/", createQuestion);

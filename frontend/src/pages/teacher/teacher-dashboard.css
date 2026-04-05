@@ -5,6 +5,8 @@
   --bg: #f7f9fc;
   --text: #0f172a;
   --muted: #64748b;
+
+  box-sizing: border-box;
 }
 
 .td-page {
@@ -89,7 +91,7 @@
 }
 
 .td-body {
-  max-width: 1200px;
-  margin: 18px auto 50px;
+  max-width: 1080px;
+  margin: 0 auto;
   padding: 0 18px;
 }

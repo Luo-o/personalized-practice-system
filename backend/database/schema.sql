@@ -177,10 +177,11 @@ CREATE TABLE exam_questions (
 
 CREATE TABLE submissions (
   id INTEGER PRIMARY KEY,
-  exam_id INTEGER NOT NULL,
+  type TEXT NOT NULL DEFAULT 'exam' CHECK (type IN ('exam', 'practice')),
+  exam_id INTEGER,
   student_id INTEGER NOT NULL,
-  class_id INTEGER NOT NULL,
-  title TEXT NOT NULL,
+  class_id INTEGER,
+  title TEXT,
   subject_id INTEGER NOT NULL,
   total_count INTEGER NOT NULL DEFAULT 0,
   score REAL NOT NULL DEFAULT 0,
@@ -197,7 +198,7 @@ CREATE TABLE submissions (
 CREATE TABLE answer_records (
   id INTEGER PRIMARY KEY,
   submission_id INTEGER NOT NULL,
-  exam_id INTEGER NOT NULL,
+  exam_id INTEGER,
   student_id INTEGER NOT NULL,
   question_id INTEGER NOT NULL,
   selected_answer TEXT,
@@ -208,4 +209,40 @@ CREATE TABLE answer_records (
   FOREIGN KEY (exam_id) REFERENCES exams(id),
   FOREIGN KEY (student_id) REFERENCES students(id),
   FOREIGN KEY (question_id) REFERENCES questions(id)
+);
+
+CREATE TABLE IF NOT EXISTS wrong_book (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  question_id INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  wrong_count INTEGER NOT NULL DEFAULT 1,
+  last_wrong_at DATETIME,
+  last_practice_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(student_id, question_id)
+);
+
+CREATE TABLE practice_sessions (
+  id INTEGER PRIMARY KEY,
+  student_id INTEGER NOT NULL,
+  subject_id INTEGER NOT NULL,
+  strategy TEXT,
+  total_count INTEGER NOT NULL DEFAULT 0,
+  config_json TEXT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(id),
+  FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+
+CREATE TABLE practice_session_questions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  practice_id INTEGER NOT NULL,
+  question_id INTEGER NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  score_snapshot REAL,
+  FOREIGN KEY (practice_id) REFERENCES practice_sessions(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id),
+  UNIQUE (practice_id, question_id)
 );

@@ -7,3 +7,4 @@ export * from "./modules/subjectStore";
 export * from "./modules/submissionStore";
 export * from "./modules/answerRecordStore";
 export * from "./modules/authStore";
+export * from "./modules/practiceStore";

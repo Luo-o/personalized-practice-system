@@ -5,7 +5,9 @@
   margin: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
   background-color: #f7f9fc;
@@ -25,12 +27,16 @@ a:hover {
 }
 
 /* 按钮默认圆角统一 */
-button, .ant-btn {
+button,
+.ant-btn {
   border-radius: 6px;
 }
 
 /* 表单元素基本对齐 */
-input, textarea, button, select {
+input,
+textarea,
+button,
+select {
   font-family: inherit;
   font-size: 14px;
 }
@@ -42,4 +48,39 @@ input, textarea, button, select {
 ::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
+}
+
+/* 更细、更弱化的滚动条 */
+.class-table-wrap,
+.pem-picked,
+.pem-bank-list {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+/* Chrome / Edge / Safari */
+.class-table-wrap::-webkit-scrollbar,
+.pem-picked::-webkit-scrollbar,
+.pem-bank-list::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.class-table-wrap::-webkit-scrollbar-track,
+.pem-picked::-webkit-scrollbar-track,
+.pem-bank-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.class-table-wrap::-webkit-scrollbar-thumb,
+.pem-picked::-webkit-scrollbar-thumb,
+.pem-bank-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+}
+
+.class-table-wrap::-webkit-scrollbar-thumb:hover,
+.pem-picked::-webkit-scrollbar-thumb:hover,
+.pem-bank-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.42);
 }

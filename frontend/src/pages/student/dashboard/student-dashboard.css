@@ -1,0 +1,64 @@
+.student-dashboard-shell {
+  min-height: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  background: #f5f7fb;
+}
+
+.student-dashboard-main {
+  min-width: 0;
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #f5f7fb;
+}
+
+.student-dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+  min-width: 0;
+}
+
+.student-dashboard-primary {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.student-dashboard-aside {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-dashboard-card {
+  background: #ffffff;
+  border: 1px solid #edf0f5;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.student-dashboard-section-title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+@media (max-width: 1200px) {
+  .student-dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .student-dashboard-main {
+    padding: 18px 16px 22px;
+  }
+}

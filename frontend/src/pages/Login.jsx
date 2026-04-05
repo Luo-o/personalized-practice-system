@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Checkbox, Typography, message } from "antd";
-import { UserOutlined, LockOutlined, BookOutlined } from "@ant-design/icons";
+import { Form, Input, Button, Typography, message } from "antd";
+import {
+  UserOutlined,
+  LockOutlined,
+  BookOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import "./login.css";
 import { APP_NAME } from "../constants";
 import { useAuthStore } from "../store";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -14,6 +19,21 @@ export default function Login() {
   const navigate = useNavigate();
 
   const login = useAuthStore((s) => s.login);
+
+  const currentRoleText = useMemo(
+    () => (isStudent ? "学生端登录" : "教师端登录"),
+    [isStudent],
+  );
+
+  const switchRoleText = useMemo(
+    () => (isStudent ? "切换教师端" : "切换学生端"),
+    [isStudent],
+  );
+
+  const usernamePlaceholder = useMemo(
+    () => (isStudent ? "请输入学生用户名" : "请输入教师用户名"),
+    [isStudent],
+  );
 
   const onFinish = async (values) => {
     const { username, password } = values;
@@ -30,7 +50,7 @@ export default function Login() {
 
       if (user.role === "teacher") {
         message.success("教师登录成功");
-        navigate("/teacher/dashboard");
+        navigate("/teacher");
         return;
       }
 
@@ -44,86 +64,83 @@ export default function Login() {
 
   return (
     <div className="login-wrapper">
-      <div
-        style={{
-          fontSize: 40,
-          width: 64,
-          height: 64,
-          lineHeight: "64px",
-          textAlign: "center",
-          borderRadius: 8,
-          color: "#fff",
-          marginBottom: 8,
-          background: "#2c87ff",
-        }}
-      >
-        <BookOutlined />
-      </div>
+      <div className="login-panel">
+        <div className="login-brand">
+          <div className="login-brand-title">{APP_NAME}</div>
+          <div className="login-brand-subtitle">
+            Personalized Practice System
+          </div>
+        </div>
 
-      <div className="login-title">{APP_NAME}</div>
-      <div className="login-subtitle">
-        {isStudent ? "学生登录" : "教师登录"}
-      </div>
+        <div className="login-divider">
+          <span>{currentRoleText}</span>
+        </div>
 
-      <div className="login-box">
         <Form
           layout="vertical"
           onFinish={onFinish}
-          initialValues={{ remember: true }}
+          className="login-form"
+          autoComplete="off"
         >
           <Form.Item
+            label="账号"
             name="username"
             rules={[{ required: true, message: "请输入用户名" }]}
           >
             <Input
+              size="large"
               prefix={<UserOutlined />}
-              placeholder={isStudent ? "请输入学生用户名" : "请输入教师用户名"}
+              placeholder={usernamePlaceholder}
             />
           </Form.Item>
 
           <Form.Item
+            label="密码"
             name="password"
             rules={[{ required: true, message: "请输入密码" }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="请输入密码"
+            />
           </Form.Item>
 
-          <Form.Item>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Checkbox defaultChecked>记住我</Checkbox>
-              <Link>忘记密码？</Link>
-            </div>
-          </Form.Item>
+          <div className="login-forgot-row">
+            <button
+              type="button"
+              className="login-text-button"
+              onClick={() => message.info("暂未开放找回密码功能")}
+            >
+              忘记密码？
+            </button>
+          </div>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={loading}>
+          <Form.Item className="login-submit-item">
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={loading}
+              className="login-submit-btn"
+            >
               登录
             </Button>
           </Form.Item>
-
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Text type="secondary">
-              {isStudent ? "教师登录？" : "学生登录？"}
-              <Link
-                onClick={() => setIsStudent(!isStudent)}
-                style={{ marginLeft: 4 }}
-              >
-                点击切换
-              </Link>
-            </Text>
-          </Form.Item>
-
-          <Form.Item style={{ marginTop: 12, marginBottom: 0 }}>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              当前后端登录请使用用户名，例如：student1 / teacher1
-            </Text>
-          </Form.Item>
         </Form>
-      </div>
 
-      <Text type="secondary" style={{ marginTop: 48, fontSize: 12 }}>
-        © 2026 {APP_NAME}
-      </Text>
+        <div className="login-switch-row">
+          <Text className="login-switch-tip">当前为{currentRoleText}</Text>
+          <button
+            type="button"
+            className="login-switch-link"
+            onClick={() => setIsStudent((prev) => !prev)}
+          >
+            {switchRoleText}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -2,14 +2,16 @@ import React, { useEffect } from "react";
 import { Modal, Tag, Empty } from "antd";
 import "./question-preview-modal.css";
 
+const BASE_FILE_URL = "http://localhost:3001";
+
 export default function QuestionPreviewModal({ open, question, onClose }) {
   useEffect(() => {
     if (open && question) {
       console.log("预览弹窗收到的 question:", question);
-      console.log("预览弹窗收到的 options:", question.options);
-      console.log("第一个 option:", question.options?.[0]);
+      console.log("预览弹窗收到的 images:", question.images);
     }
   }, [open, question]);
+
   return (
     <Modal
       open={open}
@@ -23,26 +25,33 @@ export default function QuestionPreviewModal({ open, question, onClose }) {
       ) : (
         <div className="qpm-body">
           <div className="qpm-head">
-            <div className="qpm-title">
-              {question.id} {question.title || question.stem}
-            </div>
+            <div className="qpm-title">Q：{question.title}</div>
+
             <div className="qpm-tags">
-              <Tag>{question.subject}</Tag>
-              <Tag>{question.difficulty}</Tag>
+              {question.subjectName ? <Tag>{question.subjectName}</Tag> : null}
+              {question.difficulty ? <Tag>{question.difficulty}</Tag> : null}
               {question.source ? <Tag>{question.source}</Tag> : null}
-              {question.chapter ? <Tag>{question.chapter}</Tag> : null}
-              {question.kps.map((k) => (
-                <Tag key={k}>{k}</Tag>
+              {question.chapterName ? <Tag>{question.chapterName}</Tag> : null}
+              {(question.knowledgePoints || []).map((kp) => (
+                <Tag key={kp.id || kp.name}>{kp.name}</Tag>
               ))}
             </div>
           </div>
 
           {question.images?.length ? (
             <div className="qpm-block">
-              <div className="qpm-label">题目图片</div>
               <div className="qpm-images">
                 {question.images.map((img, i) => (
-                  <img key={i} src={img} alt="" className="qpm-image" />
+                  <img
+                    key={i}
+                    src={
+                      img.imageUrl?.startsWith("http")
+                        ? img.imageUrl
+                        : `${BASE_FILE_URL}/${img.imageUrl}`
+                    }
+                    alt={`题目图片-${i + 1}`}
+                    className="qpm-image"
+                  />
                 ))}
               </div>
             </div>
@@ -50,7 +59,6 @@ export default function QuestionPreviewModal({ open, question, onClose }) {
 
           {question.options?.length ? (
             <div className="qpm-block">
-              <div className="qpm-label">选项</div>
               <div className="qpm-options">
                 {question.options.map((o) => (
                   <div

@@ -1,254 +1,346 @@
-/* src/pages/student/wrong-book.css */
-/* 也给 components/student/wrong-book/ 引用同一份即可 */
-
 .wb-page {
   min-height: 100%;
-  background: #f7f9fc;
-}
-
-.wb-ph-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #fde8e8;
-  color: #ef4444;
-  font-size: 18px;
+  background: #f6f8fb;
 }
 
 .wb-wrap {
-  max-width: 900px;
   margin: 0 auto;
-  padding: 16px 18px 28px;
+  padding: 16px 0 36px;
 }
 
-/* 统计卡（只保留 2 个） */
-.wb-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 6px;
-  margin-bottom: 18px;
+.wb-wrap--wide {
+  max-width: 840px;
 }
 
-.wb-stat {
-  background: #fff;
-  border-radius: 14px;
-  padding: 18px 20px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-}
-
-.wb-stat.wrong-total {
-  background: #fde8e8;
-}
-
-.wb-stat.wrong-total .wb-stat-label {
-  color: #b91c1c;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.wb-stat.mastered-count {
-  background: #f6ffed;
-}
-
-.wb-stat.mastered-count .wb-stat-label {
-  color: #166534;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.wb-stat-label {
-  color: #111827;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.wb-stat-value {
-  margin-top: 10px;
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-}
-
-.wb-stat-value.is-red {
-  color: #dc2626;
-}
-
-.wb-stat-value.is-green {
-  color: #16a34a;
-}
-
-/* 筛选区 */
-.wb-filter-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 16px 18px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  margin-bottom: 18px;
-}
-
-.wb-filter-head {
+.wb-content-top {
+  height: 48px;
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.wr-breadcrumb-current {
+  color: #1677ff !important;
+}
+
+.wb-board {
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.wb-board-top {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.wb-filter-title {
-  display: inline-flex;
-  align-items: center;
-  height: 40px;
-  line-height: 40px;
-  gap: 10px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.wb-kp-search {
-  width: min(320px, 100%);
-}
-
-.wb-kp-tabs {
-  margin-top: 12px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.wb-kp-tab {
-  border: none;
-  cursor: pointer;
-
-  padding: 8px 14px;
-  border-radius: 999px;
-
-  background: #e7f0fe;
-
-  color: #2563eb;
-  font-weight: 600;
-  font-size: 13px;
-
-  transition:
-    background 0.15s ease,
-    transform 0.06s ease;
-}
-
-.wb-kp-tab:active {
-  transform: translateY(1px);
-}
-
-.wb-kp-tab.is-active {
-  background: #2563eb;
-  color: #fff;
-}
-
-/* 列表 */
-.wb-list {
-  display: flex;
-  flex-direction: column;
   gap: 16px;
-}
-
-.wb-item {
-  background: #fff;
-  border-radius: 14px;
   padding: 18px 20px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-}
-
-.wb-item-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.wb-item-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  border-bottom: 1px solid #d8dee4;
   flex-wrap: wrap;
 }
 
-.wb-item-index {
-  font-weight: 600;
-  color: rgba(15, 23, 42, 0.7);
-}
-
-.wb-item-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.wb-item-sub {
-  margin-top: 10px;
-  color: rgba(15, 23, 42, 0.6);
-  font-weight: 500;
+.wb-count-tabs {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.wb-dot {
-  opacity: 0.6;
-}
-
-.wb-item-actions {
-  margin-top: 16px;
-  display: flex;
   gap: 12px;
 }
 
-.wb-btn {
-  height: 46px;
-  border-radius: 12px;
-  padding: 0 18px;
-  font-weight: 600;
+.wb-count-tab {
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #57606a;
   cursor: pointer;
-  border: none;
   transition:
-    transform 0.06s ease,
-    box-shadow 0.15s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
-.wb-btn:active {
-  transform: translateY(1px);
+.wb-count-tab:hover {
+  border-color: #8c959f;
 }
 
-.wb-btn.primary {
-  color: #fff;
-  background: #2563eb;
+.wb-count-tab.is-active {
+  border-color: #2da44e;
+  color: #2da44e;
+  box-shadow: inset 0 0 0 1px rgba(45, 164, 78, 0.15);
+}
+
+.wb-count-tab.is-active .wb-count-tab-number {
+  color: #2da44e;
+}
+
+.wb-count-tab-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.wb-count-tab-dot.pending {
+  border: 2px solid #8c959f;
+}
+
+.wb-count-tab-dot.pending::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 999px;
+  background: #8c959f;
+}
+
+.wb-count-tab-dot.mastered {
+  border: 2px solid #8c959f;
+}
+
+.wb-count-tab-dot.mastered::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  font-size: 11px;
+  color: #8c959f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.wb-count-tab.is-active .wb-count-tab-dot.pending,
+.wb-count-tab.is-active .wb-count-tab-dot.mastered {
+  border-color: #2da44e;
+}
+
+.wb-count-tab.is-active .wb-count-tab-dot.pending::after {
+  background: #2da44e;
+}
+
+.wb-count-tab.is-active .wb-count-tab-dot.mastered::after {
+  color: #2da44e;
+}
+
+.wb-count-tab-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: #24292f;
+}
+
+.wb-count-tab-text {
+  font-size: 14px;
+}
+
+.wb-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wb-filter-dropdown-btn.ant-btn {
+  height: 40px;
+  border-radius: 8px;
+  border-color: transparent;
+  background: transparent;
+  color: #24292f;
+  box-shadow: none;
+  font-weight: 500;
+  padding-inline: 10px;
+}
+
+.wb-filter-dropdown-btn.ant-btn:hover,
+.wb-filter-dropdown-btn.ant-btn:focus {
+  background: #f3f4f6;
+  border-color: transparent;
+  color: #111827;
+}
+
+.wb-dropdown-item {
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wb-reset-btn {
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.wb-reset-btn:hover {
+  color: #1d4ed8;
+}
+
+.wb-issue-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.wb-issue-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  border-top: 1px dashed #d8dee4;
+}
+
+.wb-issue-row:first-child {
+  border-top: none;
+}
+
+.wb-issue-main {
+  min-width: 0;
   flex: 1;
 }
 
-.wb-btn.ghost {
+.wb-issue-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.wb-issue-title-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #24292f;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.5;
+  /* 单行显示 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-issue-title-btn:hover {
+  color: #0969da;
+}
+
+.wb-issue-tags {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wb-mastered-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #2da44e;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.wb-label-tag.ant-tag {
+  margin-inline-end: 0;
+  border-radius: 10px;
+  padding: 4px 10px;
+  border: none;
+  font-weight: 500;
+}
+
+.wb-label-tag-subject {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.wb-label-tag-chapter {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.wb-label-tag-kp {
+  background: #ecfeff;
+  color: #0f766e;
+}
+
+.wb-label-tag-difficulty {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.wb-label-tag-times {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.wb-issue-meta {
+  margin-top: 12px;
+  color: #656d76;
+  font-size: 14px;
+}
+
+.wb-issue-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.wb-action-btn {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
   background: #fff;
-  color: #16a34a;
-  border: 2px solid rgba(22, 163, 74, 0.55);
-  width: 170px;
+  color: #24292f;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
-/* tags */
-.wb-tag-wrong {
-  font-weight: 600;
+.wb-action-btn:hover {
+  background: #f6f8fa;
 }
 
-.wb-tag-mastered,
-.wb-tag-pending {
-  font-weight: 600;
+.wb-action-btn-primary {
+  border-color: #2563eb;
+  background: #dbeafe;
+  color: #2563eb;
 }
 
-/* ====== Sheet Drawer（底部弹窗） ====== */
+.wb-action-btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+.wb-empty-panel {
+  padding: 36px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* ===== Drawer ===== */
 .wb-sheet .ant-drawer-content {
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
@@ -273,7 +365,7 @@
 }
 
 .wb-sheet-title {
-  font-weight: 600;
+  font-weight: 500;
   color: #111827;
 }
 
@@ -300,10 +392,9 @@
   cursor: pointer;
   padding: 10px 14px;
   border-radius: 12px;
-
   background: rgba(15, 23, 42, 0.06);
   color: rgba(15, 23, 42, 0.76);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .wb-sheet-tab.is-active {
@@ -322,7 +413,6 @@
   left: 0;
   right: 0;
   bottom: 0;
-
   padding: 14px 18px 18px;
   background: rgba(247, 249, 252, 0.92);
   backdrop-filter: blur(8px);
@@ -333,14 +423,13 @@
   width: min(960px, calc(100% - 0px));
   margin: 0 auto;
   display: block;
-
   height: 56px;
   border-radius: 14px;
   border: none;
   background: #2563eb;
   color: #fff;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -354,14 +443,11 @@
   height: 56px;
   border-radius: 14px;
   border: none;
-
   background: #16a34a;
   color: #ffffff;
-
   font-size: 16px;
   font-weight: 900;
   cursor: pointer;
-
   transition:
     transform 0.06s ease,
     box-shadow 0.15s ease;
@@ -371,80 +457,32 @@
   transform: translateY(1px);
 }
 
-.wb-filter-bar {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(15, 23, 42, 0.03);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.wb-filter-bar-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(15, 23, 42, 0.75);
-}
-
-.wb-filter-clear {
-  border: none;
-  background: transparent;
-  color: rgba(37, 99, 235, 0.9);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.wb-filter-clear:focus,
-.wb-filter-clear:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
 .wb-empty {
   padding: 18px 6px;
   color: rgba(15, 23, 42, 0.62);
   font-weight: 500;
 }
 
-.wb-empty-clear {
-  margin-left: 10px;
-  border: none;
-  background: transparent;
-  color: rgba(37, 99, 235, 0.9);
-  font-weight: 500;
-  cursor: pointer;
-}
+@media (max-width: 960px) {
+  .wb-board-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 
-.wb-empty-clear:focus,
-.wb-empty-clear:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
+  .wb-toolbar {
+    width: 100%;
+  }
 
-.wb-filter-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 0 1 auto;
-  width: auto;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-}
+  .wb-issue-row {
+    flex-direction: column;
+  }
 
-.wb-subject-select {
-  width: 160px;
-}
+  .wb-issue-actions {
+    width: 100%;
+  }
 
-.wb-subject-select .ant-select-selector {
-  border-radius: 12px !important;
-  height: 40px !important;
-  align-items: center !important;
-}
-
-.wb-subject-select .ant-select-selection-item {
-  font-weight: 700;
+  .wb-action-btn,
+  .wb-action-btn-primary {
+    flex: 1;
+  }
 }

@@ -1,64 +1,83 @@
-import React, { useMemo, useState } from "react";
-import QuestionProgress from "./QuestionProgress";
+import React, { useEffect, useMemo, useState } from "react";
 import QuestionItem from "./QuestionItem";
-import QuestionSubmitBar from "./QuestionSubmitBar";
-import QuestionResultSummary from "./QuestionResultSummary";
-import AiHelpFloat from "../ai-help/AiHelpFloat"; // ✅新增
+import AiHelpFloat from "../ai-help/AiHelpFloat";
 import "./qs-sheet.css";
+import { askAI } from "../../../api/ai";
 
 export default function QuestionSheet({
+  title = "Quiz Title",
   questions = [],
   initialAnswers,
   onSubmit,
-  showTimer = true,
-  timerText = "0:00",
   mode: controlledMode,
   onModeChange,
   onViewWrong,
   onBackHome,
-
-  // ✅可选：如果你在更外层已经有 ai 接口回调，也可以透传进来
-  onAskAI,
+  onBackList,
 }) {
   const [answers, setAnswers] = useState(initialAnswers || {});
   const [submitting, setSubmitting] = useState(false);
   const [innerMode, setInnerMode] = useState("answer");
   const [solutions, setSolutions] = useState({});
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const mode = controlledMode || innerMode;
-
-  const total = questions.length;
-  const answeredCount = useMemo(() => {
-    let c = 0;
-    for (const q of questions) {
-      if (answers[q.id]) c++;
-    }
-    return c;
-  }, [questions, answers]);
-
-  const progressPercent = total ? Math.round((answeredCount / total) * 100) : 0;
-
-  const updateAnswer = (qid, val) => {
-    setAnswers((prev) => ({ ...prev, [qid]: val }));
-  };
-
-  // ✅全局唯一浮窗：open + 当前题目
   const [aiOpen, setAiOpen] = useState(false);
   const [activeQuestion, setActiveQuestion] = useState(null);
 
-  const openAiForQuestion = (q) => {
-    setActiveQuestion(q);
+  const mode = controlledMode || innerMode;
+  const total = questions.length;
+  const currentQuestion = questions[currentIndex] || null;
+
+  useEffect(() => {
+    setAnswers(initialAnswers || {});
+  }, [initialAnswers]);
+
+  useEffect(() => {
+    if (currentIndex > total - 1) {
+      setCurrentIndex(Math.max(total - 1, 0));
+    }
+  }, [currentIndex, total]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    if (!activeQuestion && aiOpen) {
+      setActiveQuestion(currentQuestion);
+    }
+  }, [currentQuestion, activeQuestion, aiOpen]);
+
+  const answeredCount = useMemo(() => {
+    let count = 0;
+    for (const q of questions) {
+      if ((answers[q.id] || "").toString().trim()) {
+        count += 1;
+      }
+    }
+    return count;
+  }, [questions, answers]);
+
+  const updateAnswer = (qid, val) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [qid]: val,
+    }));
+  };
+
+  const openAiForQuestion = (question) => {
+    setActiveQuestion(question || currentQuestion || null);
     setAiOpen(true);
   };
 
-  const closeAi = () => setAiOpen(false);
+  const closeAi = () => {
+    setAiOpen(false);
+  };
 
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
-      const res = (await onSubmit?.({ answers, questions })) || null;
 
+      const res = (await onSubmit?.({ answers, questions })) || null;
       const sol = res?.solutions || null;
+
       let finalSolutions = {};
 
       if (sol && typeof sol === "object") {
@@ -79,119 +98,179 @@ export default function QuestionSheet({
       setSolutions(finalSolutions);
       setInnerMode("review");
 
-      if (onModeChange) {
-        let ok = 0;
-        let bad = 0;
-        for (const q of questions) {
-          const chosen = answers[q.id];
-          if (!chosen) continue;
-          const corr = (finalSolutions[q.id]?.correct || q.correct || "")
-            .toString()
-            .trim();
-          if (corr && chosen === corr) ok++;
-          else bad++;
-        }
-        const percent = total ? Math.round((ok / total) * 100) : 0;
-        onModeChange({
-          mode: "review",
-          total,
-          answeredCount,
-          correctCount: ok,
-          wrongCount: bad,
-          percent,
-        });
+      let ok = 0;
+      let bad = 0;
+
+      for (const q of questions) {
+        const chosen = (answers[q.id] || "").toString().trim();
+        if (!chosen) continue;
+
+        const corr = (finalSolutions[q.id]?.correct || q.correct || "")
+          .toString()
+          .trim();
+
+        if (corr && chosen === corr) ok += 1;
+        else bad += 1;
       }
+
+      const percent = total ? Math.round((ok / total) * 100) : 0;
+
+      onModeChange?.({
+        mode: "review",
+        total,
+        answeredCount,
+        correctCount: ok,
+        wrongCount: bad,
+        percent,
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const { correctCount, wrongCount, percent } = useMemo(() => {
-    let ok = 0;
-    let bad = 0;
-    for (const q of questions) {
-      const chosen = answers[q.id];
-      if (!chosen) continue;
-      const corr = (solutions[q.id]?.correct || q.correct || "")
-        .toString()
-        .trim();
-      if (corr && chosen === corr) ok++;
-      else bad++;
-    }
-    const p = total ? Math.round((ok / total) * 100) : 0;
-    return { correctCount: ok, wrongCount: bad, percent: p };
-  }, [questions, answers, solutions, total]);
+  const goPrev = () => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const goNext = () => {
+    setCurrentIndex((prev) => Math.min(prev + 1, total - 1));
+  };
+
+  const goToQuestion = (index) => {
+    if (index < 0 || index >= total) return;
+    setCurrentIndex(index);
+  };
 
   return (
     <div className="qs-page">
-      <div className="qs-wrap">
-        {mode !== "review" ? (
-          <QuestionProgress
-            answered={answeredCount}
-            total={total}
-            percent={progressPercent}
-            showTimer={showTimer}
-            timerText={timerText}
-          />
-        ) : (
-          <QuestionResultSummary
-            total={total}
-            correctCount={correctCount}
-            wrongCount={wrongCount}
-            percent={percent}
-          />
-        )}
-
-        <div className="qs-list">
-          {questions.map((q, idx) => (
-            <QuestionItem
-              key={q.id}
-              index={idx + 1}
-              question={q}
-              value={answers[q.id] || ""}
-              mode={mode}
-              solution={solutions[q.id]}
-              onChange={(val) => updateAnswer(q.id, val)}
-              onOpenAI={(payload) => openAiForQuestion(payload)} // ✅新增
-            />
-          ))}
-        </div>
-
-        <div className="qs-footerbar">
-          {mode === "review" ? (
-            <div className="qs-result-actions">
-              <button
-                className="qs-resultbtn danger"
-                type="button"
-                onClick={onViewWrong}
-              >
-                查看错题
-              </button>
-              <button
-                className="qs-resultbtn primary"
-                type="button"
-                onClick={onBackHome}
-              >
-                返回首页
-              </button>
+      <div className="qs-shell">
+        <div className="qs-title">{title}</div>
+        <div className="qs-layout">
+          <section className="qs-main">
+            <div className="qs-main-card">
+              {currentQuestion ? (
+                <QuestionItem
+                  index={currentIndex + 1}
+                  question={currentQuestion}
+                  value={answers[currentQuestion.id] || ""}
+                  mode={mode}
+                  solution={solutions[currentQuestion.id]}
+                  onChange={(val) => updateAnswer(currentQuestion.id, val)}
+                  onPrev={goPrev}
+                  onNext={goNext}
+                  onSubmit={handleSubmit}
+                  onOpenAI={openAiForQuestion}
+                  isFirst={currentIndex === 0}
+                  isLast={currentIndex === total - 1}
+                  submitting={submitting}
+                />
+              ) : (
+                <div className="qs-empty">暂无题目</div>
+              )}
             </div>
-          ) : (
-            <QuestionSubmitBar
-              disabled={submitting || total === 0}
-              loading={submitting}
-              text="提交答卷"
-              onClick={handleSubmit}
-            />
-          )}
+          </section>
+
+          <aside className="qs-side">
+            <div className="qs-side-card">
+              <div className="qs-side-head">
+                <span className="qs-side-head-title">
+                  问题 {total ? currentIndex + 1 : 0}/{total}
+                </span>
+              </div>
+
+              <div className="qs-side-grid">
+                {questions.map((q, idx) => {
+                  const selected = (answers[q.id] || "").toString().trim();
+                  const answered = !!selected;
+                  const active = idx === currentIndex;
+
+                  const correctAnswer = (
+                    solutions[q.id]?.correct ||
+                    q.correct ||
+                    ""
+                  )
+                    .toString()
+                    .trim();
+
+                  const isCorrect =
+                    mode === "review" &&
+                    answered &&
+                    correctAnswer &&
+                    selected === correctAnswer;
+
+                  const isWrong =
+                    mode === "review" &&
+                    answered &&
+                    correctAnswer &&
+                    selected !== correctAnswer;
+
+                  return (
+                    <button
+                      key={q.id}
+                      type="button"
+                      className={[
+                        "qs-side-no",
+                        active ? "is-current" : "",
+                        answered && mode !== "review" ? "is-answered" : "",
+                        isCorrect ? "is-correct" : "",
+                        isWrong ? "is-wrong" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onClick={() => goToQuestion(idx)}
+                    >
+                      {idx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {mode === "review" ? (
+                <div className="qs-side-actions">
+                  <button
+                    type="button"
+                    className="qs-side-btn danger"
+                    onClick={onViewWrong}
+                  >
+                    查看错题
+                  </button>
+                  <button
+                    type="button"
+                    className="qs-side-btn primary"
+                    onClick={onBackHome}
+                  >
+                    返回首页
+                  </button>
+                </div>
+              ) : (
+                <div className="qs-side-actions">
+                  <button
+                    type="button"
+                    className="qs-side-btn ghost"
+                    onClick={onBackList}
+                  >
+                    返回列表
+                  </button>
+                  <button
+                    type="button"
+                    className="qs-side-btn primary"
+                    disabled={submitting || total === 0}
+                    onClick={handleSubmit}
+                  >
+                    {submitting ? "提交中..." : "提交"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
 
-      {/* ✅全局唯一 AI 浮窗：只渲染一次，避免叠加 */}
       <AiHelpFloat
         open={aiOpen}
         onClose={closeAi}
-        question={activeQuestion}
-        onAskAI={onAskAI}
+        question={activeQuestion || currentQuestion}
+        onAskAI={askAI}
       />
     </div>
   );

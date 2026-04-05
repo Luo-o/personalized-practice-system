@@ -1,99 +1,179 @@
-.teacher-header {
-  background: #fff;
-  border-bottom: 1px solid #eef2f7;
-  padding: 0;
-  height: 72px;
-  line-height: 72px;
+.teacher-topbar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.88);
 }
 
-/* 参考 student-header 的 header-content：统一左右边距、控制宽度 */
-.teacher-header-content {
-  max-width: 1200px;
+.teacher-topbar-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 52px;
+  max-width: 1080px;
+  padding: 0 30px;
   margin: 0 auto;
-  padding: 0 22px;
-  height: 72px;
+  background: transparent;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #edf0f5;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
-.teacher-header-left {
+.teacher-sidebar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 0;
+  padding: 8px 10px 8px 0;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
 }
 
-.teacher-header-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: #2c87ff;
+.teacher-sidebar-brand-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2f80ff, #5ea8ff);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  flex: 0 0 auto;
+  font-size: 16px;
 }
 
-.teacher-header-info {
+.teacher-sidebar-brand-text {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  line-height: 1.15;
+  align-items: center;
+}
+
+.teacher-sidebar-brand-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.teacher-topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 28px;
+  flex: 1;
   min-width: 0;
 }
 
-.teacher-system-name {
-  margin: 0 !important;
-  font-weight: 800 !important;
-  color: #0f172a !important;
-}
-
-.teacher-welcome-text {
+.teacher-topbar-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 14px;
+  font-size: 15px;
   color: #64748b;
-  font-size: 12px;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-/* 右侧 tabs：不挤，必要时横向滚动 */
-.teacher-header-tabs {
+.teacher-topbar-nav-link:hover {
+  color: #1677ff;
+}
+
+.teacher-topbar-nav-link.active {
+  color: #1677ff;
+}
+
+.teacher-topbar-nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: #1677ff;
+}
+
+.teacher-topbar-right {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.teacher-user-dropdown {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow-x: auto;
-  padding: 2px 0;
-}
-
-.teacher-header-tabs::-webkit-scrollbar {
-  height: 6px;
-}
-
-.teacher-header-tabs::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.12);
-  border-radius: 999px;
-}
-
-.teacher-tab {
-  height: 38px;
+  padding: 6px 10px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  padding: 0 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   cursor: pointer;
-  color: #0f172a;
-  white-space: nowrap;
-  flex: 0 0 auto;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.teacher-tab.is-active {
-  border-color: #cfe5ff;
-  background: #e8f3ff;
-  color: #2c87ff;
+.teacher-user-dropdown:hover {
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.teacher-user-avatar {
+  background: #eaf2ff;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.teacher-user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  padding-right: 6px;
+}
+
+.teacher-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.teacher-user-role {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.teacher-user-arrow {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .teacher-topbar {
+    height: 50px;
+    padding: 0 14px;
+  }
+
+  .teacher-topbar-container {
+    padding: 0 14px;
+  }
+
+  .teacher-topbar-nav {
+    margin-left: 12px;
+    gap: 2px;
+  }
+
+  .teacher-topbar-nav-link {
+    height: 50px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .teacher-user-meta {
+    display: none;
+  }
+
+  .teacher-user-dropdown {
+    gap: 6px;
+    padding: 4px 6px;
+  }
 }

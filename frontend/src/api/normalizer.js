@@ -1,32 +1,3 @@
-// export function normalizeQuestion(q) {
-//   return {
-//     id: q.id,
-//     title: q.title,
-//     difficulty: q.difficulty,
-//     subjectId: q.subject_id,
-//     chapterId: q.chapter_id,
-//     correct: q.correct_answer,
-//     analysis: q.analysis,
-//     options: q.options || [],
-//   };
-// }
-
-// export function normalizeExam(e) {
-//   return {
-//     id: e.id,
-//     title: e.title,
-//     classId: e.class_id,
-//     subjectId: e.subject_id,
-//     teacherId: e.teacher_id,
-//     publishAt: e.publish_at,
-//     deadlineAt: e.deadline_at,
-//     status: e.status,
-//     duration: e.duration_minutes,
-//     totalScore: e.total_score,
-//     questionCount: e.question_count,
-//   };
-// }
-
 export function normalizeExam(e) {
   return {
     id: e.id,
@@ -56,6 +27,7 @@ export function normalizeClass(c) {
     teacherName: c.teacher_name,
     subjectName: c.subject_name,
     studentCount: c.student_count,
+    description: c.description,
   };
 }
 
@@ -83,15 +55,20 @@ export function normalizeQuestion(q) {
     ownerType: q.owner_type,
     teacherId: q.teacher_id,
     teacherName: q.teacher_name,
+
     title: q.title,
+
     subjectId: q.subject_id,
     subjectName: q.subject_name,
+
     chapterId: q.chapter_id,
     chapterName: q.chapter_name,
+
     difficulty: q.difficulty,
     source: q.source,
-    isReal: Number(q.is_real || 0),
+    isReal: Number(q.is_real),
     analysis: q.analysis,
+
     correct: q.correct_answer,
     createdAt: q.created_at,
     updatedAt: q.updated_at,

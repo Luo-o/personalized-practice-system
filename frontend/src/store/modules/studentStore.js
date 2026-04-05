@@ -1,50 +1,9 @@
-// import { create } from "zustand";
-
-// const initialStudents = [
-//   {
-//     id: 1,
-//     name: "张三",
-//     password: "123456",
-//   },
-//   {
-//     id: 2,
-//     name: "李四",
-//     password: "123456",
-//   },
-//   {
-//     id: 3,
-//     name: "王五",
-//     password: "123456",
-//   },
-// ];
-
-// export const useStudentStore = create((set) => ({
-//   students: initialStudents,
-
-//   addStudent: (student) =>
-//     set((state) => ({
-//       students: [...state.students, student],
-//     })),
-
-//   deleteStudent: (id) =>
-//     set((state) => ({
-//       students: state.students.filter((s) => s.id !== id),
-//     })),
-
-//   updateStudent: (id, data) =>
-//     set((state) => ({
-//       students: state.students.map((s) =>
-//         s.id === id ? { ...s, ...data } : s,
-//       ),
-//     })),
-// }));
 import { create } from "zustand";
 import { useAuthStore } from "./authStore";
 
-export const useStudentStore = create((set, get) => ({
+export const useStudentStore = create(() => ({
   students: [],
 
-  // 当前登录学生资料
   getCurrentStudent: () => {
     const currentUser = useAuthStore.getState().currentUser;
     if (!currentUser || currentUser.role !== "student") return null;
@@ -62,6 +21,7 @@ export const useStudentStore = create((set, get) => ({
       major: profile.major,
       grade: profile.grade,
       className: profile.class_name,
+      avatar: profile.avatar || "/avatars/default-student-avatar.svg",
     };
   },
 
@@ -79,7 +39,6 @@ export const useStudentStore = create((set, get) => ({
     return nextUser?.profile || null;
   },
 
-  // 下面这些先保留壳子，避免页面直接报错
   addStudent: () => {
     throw new Error("当前后端未提供学生新增接口");
   },

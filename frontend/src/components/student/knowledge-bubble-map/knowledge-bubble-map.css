@@ -100,8 +100,21 @@
   width: 100%;
   height: 100%;
   background: radial-gradient(circle at 35% 25%, #262626, #262626);
-  cursor: default;
+  cursor: grab;
   user-select: none;
+}
+
+.kbm-svg.is-panning {
+  cursor: grabbing;
+}
+
+.kbm-links {
+  pointer-events: none;
+}
+
+.kbm-link {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1.5px;
 }
 
 .kbm-svg.is-dragging .kbm-bubble {
@@ -124,6 +137,14 @@
 
 .kbm-svg.is-dragging .kbm-bubble {
   cursor: grabbing;
+}
+
+.kbm-bubble.is-chapter .kbm-circle-stroke {
+  stroke-width: 2.6;
+}
+
+.kbm-bubble.is-knowledge {
+  opacity: 0.96;
 }
 
 .kbm-base--good {
@@ -173,7 +194,13 @@
 }
 
 .kbm-text {
-  fill: rgba(255, 255, 255, 0.88);
+  fill: rgba(255, 255, 255, 0.92);
   font-weight: 600;
+  user-select: none;
+}
+
+.kbm-percent {
+  fill: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
   user-select: none;
 }

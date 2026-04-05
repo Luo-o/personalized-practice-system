@@ -1,85 +1,214 @@
-import React, { useState } from "react";
-import { ArrowLeftOutlined, DotChartOutlined } from "@ant-design/icons";
+import React, { useEffect, useMemo, useState } from "react";
+import { Breadcrumb, Button, message } from "antd";
+import {
+  HomeOutlined,
+  TeamOutlined,
+  FileTextOutlined,
+  DotChartOutlined,
+} from "@ant-design/icons";
 import StudentsPanel from "./student-panel/StudentsPanel";
 import ExamsPanel from "./exam-panel/ExamsPanel";
 import KnowledgeBubbleMap from "../../student/knowledge-bubble-map/KnowledgeBubbleMap";
+import { http } from "../../../api/http";
 import "./class-detail.css";
 
-const MOCK_KNOWLEDGE_DATA = {
-  计算机网络: [
-    { id: "k1", name: "OSI模型", accuracy: 0.82, size: 26 },
-    { id: "k2", name: "物理层", accuracy: 0.63, size: 34 },
-    { id: "k3", name: "数据链路层", accuracy: 0.58, size: 30 },
-    { id: "k4", name: "网络层", accuracy: 0.76, size: 22 },
-    { id: "k5", name: "传输层", accuracy: 0.47, size: 40 },
-    { id: "k6", name: "应用层", accuracy: 0.72, size: 24 },
-  ],
-  数据结构: [
-    { id: "d1", name: "线性表", accuracy: 0.74, size: 24 },
-    { id: "d2", name: "栈", accuracy: 0.68, size: 28 },
-    { id: "d3", name: "队列", accuracy: 0.61, size: 22 },
-    { id: "d4", name: "树", accuracy: 0.56, size: 36 },
-    { id: "d5", name: "图", accuracy: 0.49, size: 40 },
-  ],
-};
+const MENU_ITEMS = [
+  {
+    key: "students",
+    label: "学生管理",
+    icon: <TeamOutlined />,
+  },
+  {
+    key: "exams",
+    label: "测验管理",
+    icon: <FileTextOutlined />,
+  },
+];
+
+function resolveBubblePayload(res) {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.data)) return res.data;
+  if (Array.isArray(res?.data?.data)) return res.data.data;
+  return [];
+}
 
 export default function ClassDetail({ klass, onBack }) {
-  const [tab, setTab] = useState("students");
+  const [activeMenu, setActiveMenu] = useState("students");
   const [bubbleOpen, setBubbleOpen] = useState(false);
+  const [bubbleData, setBubbleData] = useState([]);
+  const [loadingBubble, setLoadingBubble] = useState(false);
 
-  const subject = klass.subject || "计算机网络";
+  const subjectOptions = useMemo(() => {
+    if (!klass?.subjectId || !klass?.subject) return [];
+    return [{ value: String(klass.subjectId), label: klass.subject }];
+  }, [klass]);
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState(
+    klass?.subjectId ? String(klass.subjectId) : "",
+  );
+
+  useEffect(() => {
+    if (klass?.subjectId) {
+      setSelectedSubjectId(String(klass.subjectId));
+    }
+  }, [klass]);
+
+  const fetchBubbleData = async (subjectId = selectedSubjectId) => {
+    if (!klass?.id) return;
+
+    setLoadingBubble(true);
+    try {
+      const res = await http.get(
+        `/analytics/classes/${klass.id}/knowledge-mastery`,
+        {
+          params: subjectId ? { subjectId } : {},
+        },
+      );
+
+      setBubbleData(resolveBubblePayload(res));
+    } catch (error) {
+      console.error(error);
+      message.error("获取掌握情况失败");
+      setBubbleData([]);
+    } finally {
+      setLoadingBubble(false);
+    }
+  };
+
+  const handleOpenBubble = async () => {
+    setBubbleOpen(true);
+    await fetchBubbleData(selectedSubjectId);
+  };
+
+  const handleChangeSubject = async (value) => {
+    setSelectedSubjectId(value);
+    await fetchBubbleData(value);
+  };
+
+  const panelTitle = useMemo(() => {
+    if (activeMenu === "students") {
+      return {
+        title: "学生管理",
+        sub: `当前班级共 ${klass?.studentsCount || 0} 名学生`,
+      };
+    }
+
+    return {
+      title: "测验管理",
+      sub: `当前班级已发布 ${klass?.examsCount || 0} 项测验`,
+    };
+  }, [activeMenu, klass]);
 
   return (
-    <div className="cd-page">
-      <div className="cd-head">
-        <button type="button" className="cd-back" onClick={onBack}>
-          <ArrowLeftOutlined />
-        </button>
+    <div className="tcd-page">
+      <div className="tcd-shell">
+        <aside className="tcd-sidebar">
+          <div className="tcd-sidebar-offset" />
 
-        <div className="cd-titlebox">
-          <div className="cd-title">{klass.name}</div>
-          <div className="cd-sub">{klass.studentsCount || 0}名学生</div>
-        </div>
+          <div className="tcd-sidebar-card">
+            <div className="tcd-course-cover">
+              <div className="tcd-course-cover-title">{klass?.name}</div>
+              <div className="tcd-course-cover-sub">
+                {klass?.subject || "未设置科目"} · {klass?.studentsCount || 0}{" "}
+                人
+              </div>
+            </div>
+
+            <div className="tcd-menu">
+              {MENU_ITEMS.map((item) => {
+                const active = activeMenu === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    className={`tcd-menu-item ${active ? "active" : ""}`}
+                    onClick={() => setActiveMenu(item.key)}
+                  >
+                    <span className="tcd-menu-icon">{item.icon}</span>
+                    <span className="tcd-menu-text">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
+
+        <section className="tcd-content">
+          <div className="tcd-content-top">
+            <Breadcrumb
+              items={[
+                {
+                  title: (
+                    <button
+                      type="button"
+                      className="tcd-breadcrumb-back"
+                      onClick={onBack}
+                    >
+                      <HomeOutlined />
+                    </button>
+                  ),
+                },
+                {
+                  title: (
+                    <button
+                      type="button"
+                      className="tcd-breadcrumb-link"
+                      onClick={onBack}
+                    >
+                      班级列表
+                    </button>
+                  ),
+                },
+                {
+                  title: (
+                    <span className="tcd-breadcrumb-current">
+                      {klass?.name}
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          </div>
+
+          <div className="tcd-content-body">
+            <div className="tcd-panel tcd-panel--fill">
+              <div className="tcd-panel-header">
+                <div>
+                  <div className="tcd-panel-title">{panelTitle.title}</div>
+                  <div className="tcd-panel-sub">{panelTitle.sub}</div>
+                </div>
+
+                <Button
+                  className="tcd-analysis-btn"
+                  icon={<DotChartOutlined />}
+                  onClick={handleOpenBubble}
+                  loading={loadingBubble}
+                >
+                  掌握情况分析
+                </Button>
+              </div>
+
+              <div className="tcd-panel-body">
+                {activeMenu === "students" ? (
+                  <StudentsPanel klass={klass} />
+                ) : null}
+                {activeMenu === "exams" ? <ExamsPanel klass={klass} /> : null}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-
-      <div className="cd-tabs">
-        <button
-          className={`cd-tab ${tab === "students" ? "is-active" : ""}`}
-          onClick={() => setTab("students")}
-        >
-          学生管理
-        </button>
-
-        <button
-          className={`cd-tab ${tab === "exams" ? "is-active" : ""}`}
-          onClick={() => setTab("exams")}
-        >
-          测验管理
-        </button>
-
-        <button
-          type="button"
-          className="cd-analysis-btn"
-          onClick={() => setBubbleOpen(true)}
-        >
-          <DotChartOutlined />
-          掌握情况分析
-        </button>
-      </div>
-
-      {tab === "students" ? <StudentsPanel klass={klass} /> : null}
-      {tab === "exams" ? <ExamsPanel klass={klass} /> : null}
 
       <KnowledgeBubbleMap
         open={bubbleOpen}
         onClose={() => setBubbleOpen(false)}
-        data={MOCK_KNOWLEDGE_DATA[subject] || []}
+        data={bubbleData}
         width={1200}
         height={760}
-        title={`${subject} 知识点掌握情况`}
-        subjects={[{ value: subject, label: subject }]}
-        subject={subject}
-        onChangeSubject={() => {}}
+        title={`${klass?.subject || "当前科目"} 知识点掌握情况`}
+        subjects={subjectOptions}
+        subject={selectedSubjectId}
+        onChangeSubject={handleChangeSubject}
         overlay
       />
     </div>

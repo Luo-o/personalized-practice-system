@@ -1,0 +1,653 @@
+[
+  {
+    "code": "1.1.1",
+    "name": "计算机网络的概念",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 1
+  },
+  {
+    "code": "1.1.2",
+    "name": "计算机网络的组成",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 2
+  },
+  {
+    "code": "1.1.3",
+    "name": "计算机网络的功能",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 3
+  },
+  {
+    "code": "1.1.4",
+    "name": "电路交换、报文交换与分组交换",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 4
+  },
+  {
+    "code": "1.1.5",
+    "name": "计算机网络的分类",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 5
+  },
+  {
+    "code": "1.1.6",
+    "name": "计算机网络的性能指标",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 6
+  },
+  {
+    "code": "1.2.1",
+    "name": "计算机网络分层结构",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 7
+  },
+  {
+    "code": "1.2.2",
+    "name": "计算机网络协议、接口、服务的概念",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 8
+  },
+  {
+    "code": "1.2.3",
+    "name": "ISO/OSI参考模型和TCP/IP 模 型",
+    "chapter_id": "1-1",
+    "subject_id": 1,
+    "sort_order": 9
+  },
+  {
+    "code": "2.1.1",
+    "name": "基本概念",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 10
+  },
+  {
+    "code": "2.1.2",
+    "name": "信道的极限容量",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 11
+  },
+  {
+    "code": "2.1.3",
+    "name": "编码与调制",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 12
+  },
+  {
+    "code": "2.2.1",
+    "name": "双绞线、同轴电缆、光纤与无线传输介质",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 13
+  },
+  {
+    "code": "2.2.2",
+    "name": "物理层接口的特性",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 14
+  },
+  {
+    "code": "2.3.1",
+    "name": "中继器",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 15
+  },
+  {
+    "code": "2.3.2",
+    "name": "集线器",
+    "chapter_id": "1-2",
+    "subject_id": 1,
+    "sort_order": 16
+  },
+  {
+    "code": "3.1.1",
+    "name": "数据链路层所处的地位",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 17
+  },
+  {
+    "code": "3.1.2",
+    "name": "为网络层提供服务",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 18
+  },
+  {
+    "code": "3.1.3",
+    "name": "链路管理",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 19
+  },
+  {
+    "code": "3.1.4",
+    "name": "封装成帧与透明传输",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 20
+  },
+  {
+    "code": "3.1.5",
+    "name": "流量控制",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 21
+  },
+  {
+    "code": "3.1.6",
+    "name": "差错检测",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 22
+  },
+  {
+    "code": "3.2.1",
+    "name": "字符计数法",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 23
+  },
+  {
+    "code": "3.2.2",
+    "name": "字节填充法",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 24
+  },
+  {
+    "code": "3.2.3",
+    "name": "零比特填充法",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 25
+  },
+  {
+    "code": "3.2.4",
+    "name": "违规编码法",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 26
+  },
+  {
+    "code": "3.3.1",
+    "name": "检错编码",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 27
+  },
+  {
+    "code": "3.3.2",
+    "name": "纠错编码",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 28
+  },
+  {
+    "code": "3.4.1",
+    "name": "流量控制与滑动窗口机制",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 29
+  },
+  {
+    "code": "3.4.2",
+    "name": "可靠传输机制",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 30
+  },
+  {
+    "code": "3.5.1",
+    "name": "信道划分介质访问控制",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 31
+  },
+  {
+    "code": "3.5.2",
+    "name": "随机访问介质访问控制",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 32
+  },
+  {
+    "code": "3.5.3",
+    "name": "轮询访问：令牌传递协议",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 33
+  },
+  {
+    "code": "3.6.1",
+    "name": "局域网的基本概念和体系结构",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 34
+  },
+  {
+    "code": "3.6.2",
+    "name": "以太网与IEEE 802.3",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 35
+  },
+  {
+    "code": "3.6.3",
+    "name": "IEEE 802.11无 线 局 域 网",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 36
+  },
+  {
+    "code": "3.6.4",
+    "name": "VLAN 基本概念与基本原理",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 37
+  },
+  {
+    "code": "3.7.1",
+    "name": "广 域 网 的 基 本 概 念",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 38
+  },
+  {
+    "code": "3.7.2",
+    "name": "PPP协议",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 39
+  },
+  {
+    "code": "3.8.2",
+    "name": "以太网交换机",
+    "chapter_id": "1-3",
+    "subject_id": 1,
+    "sort_order": 40
+  },
+  {
+    "code": "4.1.1",
+    "name": "异构网络互连",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 41
+  },
+  {
+    "code": "4.1.2",
+    "name": "路由与转发",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 42
+  },
+  {
+    "code": "4.1.3",
+    "name": "网络层提供的两种服务",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 43
+  },
+  {
+    "code": "4.1.4",
+    "name": "SDN 的基本概念",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 44
+  },
+  {
+    "code": "4.1.5",
+    "name": "拥塞控制",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 45
+  },
+  {
+    "code": "4.2.1",
+    "name": "IPv4分 组",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 46
+  },
+  {
+    "code": "4.2.2",
+    "name": "IPv4地址与NAT",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 47
+  },
+  {
+    "code": "4.2.3",
+    "name": "划分子网与路由聚合",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 48
+  },
+  {
+    "code": "4.2.4",
+    "name": "网络层转发分组的过程",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 49
+  },
+  {
+    "code": "4.2.5",
+    "name": "地址解析协议 (ARP)",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 50
+  },
+  {
+    "code": "4.2.6",
+    "name": "动态主机配置协议 (DHCP)",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 51
+  },
+  {
+    "code": "4.2.7",
+    "name": "网际控制报文协议 (ICMP)",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 52
+  },
+  {
+    "code": "4.3.1",
+    "name": "IPv6的特点",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 53
+  },
+  {
+    "code": "4.3.2",
+    "name": "IPv6 数据报的基本首部",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 54
+  },
+  {
+    "code": "4.3.3",
+    "name": "IPv6地址",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 55
+  },
+  {
+    "code": "4.3.4",
+    "name": "从IPv4 向 IPv6 过渡",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 56
+  },
+  {
+    "code": "4.4.1",
+    "name": "路由算法",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 57
+  },
+  {
+    "code": "4.4.2",
+    "name": "分层次的路由选择协议",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 58
+  },
+  {
+    "code": "4.4.3",
+    "name": "路由信息协议(RIP)",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 59
+  },
+  {
+    "code": "4.4.4",
+    "name": "开放最短路径优先 (OSPF) 协议",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 60
+  },
+  {
+    "code": "4.4.5",
+    "name": "边界网关协议 (BGP)",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 61
+  },
+  {
+    "code": "4.5.1",
+    "name": "多播的概念",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 62
+  },
+  {
+    "code": "4.5.2",
+    "name": "IP 多播地址",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 63
+  },
+  {
+    "code": "4.5.3",
+    "name": "在局域网上进行硬件多播",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 64
+  },
+  {
+    "code": "4.5.4",
+    "name": "IGMP与多播路由协议",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 65
+  },
+  {
+    "code": "4.6.1",
+    "name": "移动IP 的概念",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 66
+  },
+  {
+    "code": "4.6.2",
+    "name": "移动IP 通信过程",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 67
+  },
+  {
+    "code": "4.7.1",
+    "name": "冲 突 域 和 广 播 域",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 68
+  },
+  {
+    "code": "4.7.2",
+    "name": "路由器的组成和功能",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 69
+  },
+  {
+    "code": "4.7.3",
+    "name": "路由表与分组转发",
+    "chapter_id": "1-4",
+    "subject_id": 1,
+    "sort_order": 70
+  },
+  {
+    "code": "5.1.1",
+    "name": "传输层的功能",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 71
+  },
+  {
+    "code": "5.1.2",
+    "name": "传输层的寻址与端口",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 72
+  },
+  {
+    "code": "5.1.3",
+    "name": "无连接服务与面向连接服务",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 73
+  },
+  {
+    "code": "5.2.1",
+    "name": "UDP 数据报",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 74
+  },
+  {
+    "code": "5.2.2",
+    "name": "UDP检验",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 75
+  },
+  {
+    "code": "5.3.1",
+    "name": "TCP协议的特点",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 76
+  },
+  {
+    "code": "5.3.2",
+    "name": "TCP报文段",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 77
+  },
+  {
+    "code": "5.3.3",
+    "name": "TCP 连接管理",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 78
+  },
+  {
+    "code": "5.3.4",
+    "name": "TCP可 靠 传 输",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 79
+  },
+  {
+    "code": "5.3.5",
+    "name": "TCP 流量控制",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 80
+  },
+  {
+    "code": "5.3.6",
+    "name": "TCP拥塞控制",
+    "chapter_id": "1-5",
+    "subject_id": 1,
+    "sort_order": 81
+  },
+  {
+    "code": "6.1.1",
+    "name": "客户/服务器模型",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 82
+  },
+  {
+    "code": "6.1.2",
+    "name": "P2P 模 型",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 83
+  },
+  {
+    "code": "6.2.1",
+    "name": "层次域名空间",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 84
+  },
+  {
+    "code": "6.2.2",
+    "name": "域名服务器",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 85
+  },
+  {
+    "code": "6.2.3",
+    "name": "域名解析过程",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 86
+  },
+  {
+    "code": "6.3.1",
+    "name": "FTP的工作原理",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 87
+  },
+  {
+    "code": "6.3.2",
+    "name": "控制连接与数据连接",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 88
+  },
+  {
+    "code": "6.4.1",
+    "name": "电子邮件系统的组成结构",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 89
+  },
+  {
+    "code": "6.4.2",
+    "name": "电子邮件格式与MIME",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 90
+  },
+  {
+    "code": "6.4.3",
+    "name": "SMTP和POP3",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 91
+  },
+  {
+    "code": "6.5.1",
+    "name": "WWW的概念与组成结构",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 92
+  },
+  {
+    "code": "6.5.2",
+    "name": "超文本传输协议 (HTTP)",
+    "chapter_id": "1-6",
+    "subject_id": 1,
+    "sort_order": 93
+  }
+]

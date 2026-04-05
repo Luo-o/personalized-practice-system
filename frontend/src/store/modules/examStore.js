@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { http } from "../../api/http";
-import { normalizeExam } from "../../api/normalizer";
+import { normalizeExam, normalizeQuestion } from "../../api/normalizer";
 import { useStudentStore } from "./studentStore";
 import { useTeacherStore } from "./teacherStore";
 
@@ -136,7 +136,7 @@ export const useExamStore = create((set, get) => ({
     try {
       const res = await http.get(`/exams/${examId}/questions`);
       const exam = res?.exam ? normalizeExam(res.exam) : null;
-      const questions = res?.questions || [];
+      const questions = (res?.questions || []).map(normalizeQuestion);
 
       set({
         currentExam: exam || get().currentExam,

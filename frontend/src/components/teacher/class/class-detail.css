@@ -1,121 +1,269 @@
-.cd-page {
+.tcd-page {
   min-height: 100%;
   background: var(--bg);
 }
 
-.cd-head {
-  height: 74px;
-  background: #fff;
-  border-bottom: 1px solid var(--border);
+.tcd-shell {
+  width: min(100%, 1360px);
+  min-height: calc(100vh - var(--teacher-header-height, 72px));
+  margin: 0 auto;
+  padding: 16px 20px 18px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0 18px;
+  gap: 18px;
 }
 
-.cd-back {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: #fff;
-  cursor: pointer;
+/* 左侧菜单区域 */
+.tcd-sidebar {
+  width: 220px;
+  flex: 0 0 220px;
   display: flex;
+  flex-direction: column;
+}
+
+.tcd-sidebar-offset {
+  height: 48px;
+  flex: 0 0 48px;
+}
+
+.tcd-sidebar-card {
+  flex: 1;
+  min-height: 0;
+  background: #f7f9fc;
+  border-right: 1px solid #edf1f5;
+  display: flex;
+  flex-direction: column;
+  padding: 0 14px 12px;
+  box-sizing: border-box;
+}
+
+.tcd-course-cover {
+  height: 104px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2c87ff 0%, #76a9ff 100%);
+  color: #ffffff;
+  padding: 12px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.tcd-course-cover-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.tcd-course-cover-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.92;
+  line-height: 1.4;
+}
+
+.tcd-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.tcd-menu-item {
+  width: 100%;
+  height: 52px;
+  padding: 0 12px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  color: #1f2937;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.tcd-menu-item:hover {
+  color: #589bff;
+  background: rgba(22, 119, 255, 0.04);
+}
+
+.tcd-menu-item.active {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.08);
+}
+
+.tcd-menu-icon {
+  width: 20px;
+  font-size: 16px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.cd-titlebox {
+.tcd-menu-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 右侧内容 */
+.tcd-content {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+  min-height: 0;
 }
 
-.cd-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--text);
-}
-
-.cd-sub {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.cd-link {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
+.tcd-content-top {
+  height: 48px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 800;
-  color: var(--text);
+  padding: 0 8px;
 }
 
-.cd-tabs {
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 0 18px;
-}
-
-.cd-tab {
-  height: 56px;
-  border: 0;
+.tcd-breadcrumb-back,
+.tcd-breadcrumb-link {
+  border: none;
   background: transparent;
+  padding: 0;
   cursor: pointer;
-  font-weight: 900;
-  color: #334155;
-  position: relative;
-}
-
-.cd-tab.is-active {
-  color: var(--primary);
-}
-
-.cd-tab.is-active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: var(--primary);
-  border-radius: 999px;
-}
-
-.cd-analysis-btn {
-  margin-left: auto;
-
-  height: 40px;
-  padding: 0 16px;
-
-  border-radius: 10px;
-  border: 1px solid var(--border);
-
-  background: #fff;
-  color: var(--text);
-
-  font-weight: 800;
+  color: #94a3b8;
   font-size: 14px;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  cursor: pointer;
-
-  transition: all 0.15s ease;
 }
 
-.cd-analysis-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: #f5f9ff;
+.tcd-breadcrumb-back:hover,
+.tcd-breadcrumb-link:hover {
+  color: #1677ff;
+}
+
+.tcd-breadcrumb-current {
+  color: #1677ff;
+  font-size: 14px;
+}
+
+.tcd-content-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.tcd-panel {
+  width: 100%;
+}
+
+.tcd-panel--fill {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tcd-panel-header {
+  padding: 2px 8px 0;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tcd-panel-title {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.tcd-panel-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.tcd-analysis-btn {
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+  background: #fff !important;
+  color: var(--text) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tcd-analysis-btn:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: #f5f9ff !important;
+}
+
+.tcd-panel-body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 让原来的 panel 内容贴到新布局里 */
+.tcd-panel-body .sp-wrap,
+.tcd-panel-body .ep-wrap {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0 8px 24px;
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+  .tcd-shell {
+    width: min(100%, 1180px);
+    gap: 14px;
+  }
+
+  .tcd-sidebar {
+    width: 200px;
+    flex-basis: 200px;
+  }
+}
+
+@media (max-width: 992px) {
+  .tcd-shell {
+    flex-direction: column;
+  }
+
+  .tcd-sidebar {
+    width: 100%;
+    flex: none;
+  }
+
+  .tcd-sidebar-offset {
+    display: none;
+  }
+
+  .tcd-sidebar-card {
+    border-right: none;
+    border-bottom: 1px solid #edf1f5;
+  }
+
+  .tcd-content-top {
+    height: auto;
+    padding: 10px 8px 12px;
+  }
+
+  .tcd-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tcd-analysis-btn {
+    align-self: flex-start;
+  }
 }

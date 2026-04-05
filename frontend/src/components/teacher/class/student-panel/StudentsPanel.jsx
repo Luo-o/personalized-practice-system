@@ -1,24 +1,20 @@
 import React, { useMemo, useState } from "react";
-import { Button, Table, Modal, Input, message } from "antd";
+import { Button, Modal, Input, Progress, message } from "antd";
 import { UserAddOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useClassStore } from "../../../../store";
 import "./students-panel.css";
-import { useStudentStore, useClassStore } from "../../../../store";
 
 export default function StudentsPanel({ klass }) {
-  const allStudents = useStudentStore((s) => s.students);
-  const addStudentToClass = useClassStore((s) => s.addStudentToClass);
-  const removeStudentFromClass = useClassStore((s) => s.removeStudentFromClass);
-
   const [addOpen, setAddOpen] = useState(false);
   const [studentIdInput, setStudentIdInput] = useState("");
 
-  const students = useMemo(() => {
-    return allStudents.filter((s) => (klass.studentIds || []).includes(s.id));
-  }, [allStudents, klass.studentIds]);
+  const addStudentToClass = useClassStore((s) => s.addStudentToClass);
+  const removeStudentFromClass = useClassStore((s) => s.removeStudentFromClass);
+  const loading = useClassStore((s) => s.loading);
 
-  const totalDone = useMemo(() => {
-    return students.length > 0 ? "100%" : "0%";
-  }, [students]);
+  const students = useMemo(() => {
+    return Array.isArray(klass?.students) ? klass.students : [];
+  }, [klass]);
 
   const removeStudent = (record) => {
     Modal.confirm({
@@ -27,15 +23,21 @@ export default function StudentsPanel({ klass }) {
       okText: "移除",
       okButtonProps: { danger: true },
       cancelText: "取消",
-      onOk: () => {
-        removeStudentFromClass(klass.id, record.id);
-        message.success("已移除");
+      onOk: async () => {
+        try {
+          await removeStudentFromClass(klass.id, record.id);
+          message.success("已移除学生");
+        } catch (error) {
+          console.error("移除学生失败：", error);
+          message.error(error?.message || "移除学生失败");
+        }
       },
     });
   };
 
-  const handleAddStudent = () => {
+  const handleAddStudent = async () => {
     const raw = studentIdInput.trim();
+
     if (!raw) {
       message.warning("请输入学生ID");
       return;
@@ -47,88 +49,122 @@ export default function StudentsPanel({ klass }) {
       return;
     }
 
-    const targetStudent = allStudents.find((s) => s.id === studentId);
-    if (!targetStudent) {
-      message.warning("未找到该学生");
-      return;
+    try {
+      await addStudentToClass(klass.id, studentId);
+      message.success("添加学生成功");
+      setStudentIdInput("");
+      setAddOpen(false);
+    } catch (error) {
+      console.error("添加学生失败：", error);
+      message.error(error?.message || "添加学生失败");
     }
-
-    const existed = (klass.studentIds || []).includes(studentId);
-    if (existed) {
-      message.warning("该学生已在班级中");
-      return;
-    }
-
-    addStudentToClass(klass.id, studentId);
-    message.success("添加成功");
-    setStudentIdInput("");
-    setAddOpen(false);
   };
 
-  const columns = [
-    { title: "ID", dataIndex: "id", width: 100 },
-    { title: "姓名", dataIndex: "name", width: 160 },
-    {
-      title: "测验完成率",
-      dataIndex: "done",
-      width: 140,
-      render: () => "—",
-    },
-    {
-      title: "操作",
-      width: 90,
-      render: (_, record) => (
-        <Button
-          type="text"
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => removeStudent(record)}
-        />
-      ),
-    },
-  ];
-
   return (
-    <div className="sp-wrap">
-      <div className="sp-stat-grid">
-        <div className="sp-stat-card">
-          <div className="sp-stat-label">班级总人数</div>
-          <div className="sp-stat-value">{students.length}</div>
-        </div>
-
-        <div className="sp-stat-card">
-          <div className="sp-stat-label">测验总数</div>
-          <div className="sp-stat-value">{klass?.examsCount ?? 0}</div>
-        </div>
-
-        <div className="sp-stat-card">
-          <div className="sp-stat-label">测验完成率</div>
-          <div className="sp-stat-value">{totalDone}</div>
-        </div>
+    <div className="class-panel class-panel--fill">
+      <div className="class-panel-header sp-panel-header">
+        <Button
+          type="primary"
+          className="sp-primary"
+          icon={<UserAddOutlined />}
+          onClick={() => setAddOpen(true)}
+        >
+          添加学生
+        </Button>
       </div>
 
-      <Button
-        type="primary"
-        className="sp-primary"
-        icon={<UserAddOutlined />}
-        onClick={() => setAddOpen(true)}
-      >
-        添加学生
-      </Button>
+      <div className="class-line-tabs">
+        <button type="button" className="class-line-tab active">
+          学生列表
+        </button>
+      </div>
 
-      <div className="sp-card">
-        <div className="sp-card-title">学生列表</div>
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={students}
-          pagination={false}
-        />
+      <div className="class-table-panel class-table-panel--fill">
+        <div className="class-table-wrap">
+          <table className="class-table sp-table">
+            <thead>
+              <tr>
+                <th style={{ width: 40 }}>ID</th>
+                <th style={{ width: 100 }}>学号</th>
+                <th style={{ width: 80 }}>姓名</th>
+                <th style={{ width: 130 }}>专业</th>
+                <th style={{ width: 80 }}>完成情况</th>
+                <th style={{ width: 200 }}>测验完成率</th>
+                <th style={{ width: 100 }}>操作</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {students.length > 0 ? (
+                students.map((record) => {
+                  const percent = Number(record.completion_rate || 0);
+
+                  return (
+                    <tr key={record.id}>
+                      <td>{record.id}</td>
+                      <td>{record.student_no || "—"}</td>
+                      <td className="class-table-cell-title">
+                        {record.name || "—"}
+                      </td>
+                      <td>{record.major || "—"}</td>
+                      <td>
+                        {record.finished_exam_count || 0}/
+                        {record.total_exam_count || 0}
+                      </td>
+                      <td>
+                        <div className="sp-progress-cell">
+                          <Progress
+                            percent={percent}
+                            showInfo={false}
+                            strokeColor="#1677ff"
+                          />
+                          <div className="sp-progress-text">{percent}%</div>
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="sp-action-btn sp-action-btn-danger"
+                          onClick={() => removeStudent(record)}
+                          title="移除学生"
+                        >
+                          <DeleteOutlined />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="class-table-empty">当前暂无学生数据</div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="class-table-footer">
+          <span>共 {students.length} 条</span>
+          <div className="class-table-pagination">
+            <button type="button" className="page-btn" disabled>
+              ‹
+            </button>
+            <button type="button" className="page-btn active">
+              1
+            </button>
+            <button type="button" className="page-btn" disabled>
+              ›
+            </button>
+          </div>
+        </div>
       </div>
 
       <Modal
         title="添加学生"
         open={addOpen}
+        confirmLoading={loading}
         onCancel={() => {
           setAddOpen(false);
           setStudentIdInput("");

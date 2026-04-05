@@ -1,76 +1,107 @@
 import React, { useMemo, useState } from "react";
-import { Button, Modal, Tag, Progress, message } from "antd";
-import { PlusOutlined, BarChartOutlined } from "@ant-design/icons";
+import { Button, Modal, Tag, message } from "antd";
+import {
+  PlusOutlined,
+  BarChartOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import PublishExamModal from "./PublishExamModal";
 import ExamAnalysisModal from "../../exam-analysis/ExamAnalysisModal";
 import "./exams-panel.css";
-import { useExamStore } from "../../../../store";
+import {
+  useExamStore,
+  useAuthStore,
+  useAnswerRecordStore,
+} from "../../../../store";
 
-const MOCK_QUESTION_STATS = [
-  {
-    id: "Q1",
-    no: 1,
-    stem: "以下关于 TCP 协议的说法正确的是？",
-    subject: "计算机网络",
-    difficulty: "简单",
-    chapter: "第5章 传输层",
-    source: "系统题库",
-    kps: ["TCP", "传输层"],
-    options: [
-      { key: "A", text: "TCP是不可靠传输协议" },
-      { key: "B", text: "TCP提供面向连接服务" },
-      { key: "C", text: "TCP属于应用层" },
-      { key: "D", text: "TCP不做流量控制" },
-    ],
-    correct: "B",
-    accuracy: 78,
-    easiestWrongOption: "A",
-    easiestWrongText: "TCP是不可靠传输协议",
-  },
-];
+function buildKnowledgePointStats(questionStats = []) {
+  const kpMap = new Map();
 
-const MOCK_ANALYSIS_MAP = {};
+  questionStats.forEach((q) => {
+    const names = Array.isArray(q.kps) ? q.kps : [];
+    names.forEach((name) => {
+      if (!name) return;
+
+      const prev = kpMap.get(name) || {
+        name,
+        totalAccuracy: 0,
+        count: 0,
+      };
+
+      prev.totalAccuracy += Number(q.accuracy || 0);
+      prev.count += 1;
+
+      kpMap.set(name, prev);
+    });
+  });
+
+  return Array.from(kpMap.values()).map((item) => ({
+    name: item.name,
+    accuracy: item.count ? Math.round(item.totalAccuracy / item.count) : 0,
+  }));
+}
+
+function isExpired(deadlineAt) {
+  if (!deadlineAt) return false;
+  const time = new Date(deadlineAt).getTime();
+  if (Number.isNaN(time)) return false;
+  return Date.now() > time;
+}
+
+function getStatusLabel(exam) {
+  if (exam.status !== "published") return "未发布";
+  if (isExpired(exam.deadlineAt)) return "已截止";
+  return "进行中";
+}
+
+function StatusTag({ value }) {
+  if (value === "进行中") return <Tag color="success">进行中</Tag>;
+  if (value === "已截止") return <Tag>已截止</Tag>;
+  return <Tag>未发布</Tag>;
+}
 
 export default function ExamsPanel({ klass }) {
   const allExams = useExamStore((s) => s.exams);
   const addExam = useExamStore((s) => s.addExam);
   const deleteExam = useExamStore((s) => s.deleteExam);
+  const fetchExamQuestions = useExamStore((s) => s.fetchExamQuestions);
+
+  const fetchExamAnalytics = useAnswerRecordStore((s) => s.fetchExamAnalytics);
+
+  const currentUser = useAuthStore((s) => s.currentUser);
 
   const [publishOpen, setPublishOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
   const [currentExam, setCurrentExam] = useState(null);
+  const [analysisData, setAnalysisData] = useState({
+    examStats: {
+      submitRate: 0,
+      avgAccuracy: 0,
+      minAccuracy: 0,
+    },
+    questionStats: [],
+    knowledgePointStats: [],
+  });
+
+  const currentTeacherId =
+    currentUser?.role === "teacher" ? currentUser.profileId : null;
 
   const exams = useMemo(() => {
-    const list = allExams.filter((e) => e.classId === klass.id);
+    const list = allExams.filter((e) => Number(e.classId) === Number(klass.id));
 
     return list.map((e) => ({
       ...e,
-      status: e.status === "published" ? "进行中" : "已结束",
-      start: e.publishDate,
-      end: e.deadline || "-",
-      count: e.questionIds?.length || 0,
-      done: e.doneCount || 0,
+      statusLabel: getStatusLabel(e),
+      start: e.publishAt || "-",
+      end: e.deadlineAt || "-",
+      count: e.questionCount || e.questionIds?.length || 0,
+      done: e.submissionCount || 0,
       total: klass?.studentsCount || 0,
     }));
   }, [allExams, klass]);
 
-  const currentAnalysis = currentExam
-    ? MOCK_ANALYSIS_MAP[currentExam.id] || {
-        examStats: {
-          submitRate: currentExam.total
-            ? Math.round(((currentExam.done || 0) / currentExam.total) * 100)
-            : 0,
-          avgAccuracy: 72,
-          minAccuracy: 35,
-        },
-        questionStats: MOCK_QUESTION_STATS,
-        knowledgePointStats: [
-          { name: "TCP", accuracy: 48 },
-          { name: "IP", accuracy: 82 },
-          { name: "HTTP", accuracy: 61 },
-        ],
-      }
-    : null;
+  const totalStudents = klass?.studentsCount ?? 0;
 
   const removeExam = (exam) => {
     Modal.confirm({
@@ -79,24 +110,106 @@ export default function ExamsPanel({ klass }) {
       okText: "删除",
       okButtonProps: { danger: true },
       cancelText: "取消",
-      onOk: () => {
-        deleteExam(exam.id);
-        message.success("已删除测验");
+      onOk: async () => {
+        try {
+          await deleteExam(exam.id);
+          message.success("已删除测验");
+        } catch (error) {
+          console.error("删除测验失败：", error);
+          message.error(error?.message || "删除测验失败");
+        }
       },
     });
   };
 
-  const totalStudents = klass?.studentsCount ?? 0;
+  const handleOpenAnalysis = async (exam) => {
+    try {
+      setAnalysisLoading(true);
+      setCurrentExam(exam);
+      setAnalysisOpen(true);
 
-  const StatusTag = ({ v }) => {
-    if (v === "进行中") return <Tag color="success">进行中</Tag>;
-    return <Tag>已结束</Tag>;
+      const [{ questions }, analytics] = await Promise.all([
+        fetchExamQuestions(exam.id),
+        fetchExamAnalytics(exam.id),
+      ]);
+
+      const analyticsMap = new Map(
+        (analytics || []).map((item) => [Number(item.questionId), item]),
+      );
+
+      const questionStats = (questions || []).map((q, index) => {
+        const matched = analyticsMap.get(Number(q.id));
+
+        return {
+          id: q.id,
+          no: index + 1,
+          stem: q.title,
+          title: q.title,
+          subject: q.subjectName,
+          difficulty: q.difficulty,
+          chapter: q.chapterName,
+          source: q.source,
+          kps: (q.knowledgePoints || []).map((kp) => kp.name),
+          options: q.options || [],
+          correct: q.correct,
+          accuracy: Number(matched?.accuracy || 0),
+          answered: Number(matched?.answered || 0),
+          correctCount: Number(matched?.correct || 0),
+          easiestWrongOption: matched?.wrongOption || "",
+          easiestWrongText: matched?.wrongText || "",
+        };
+      });
+
+      const avgAccuracy = questionStats.length
+        ? Math.round(
+            questionStats.reduce(
+              (sum, item) => sum + Number(item.accuracy || 0),
+              0,
+            ) / questionStats.length,
+          )
+        : 0;
+
+      const minAccuracy = questionStats.length
+        ? Math.min(...questionStats.map((item) => Number(item.accuracy || 0)))
+        : 0;
+
+      const examStats = {
+        submitRate: exam.total
+          ? Math.round(((exam.done || 0) / exam.total) * 100)
+          : 0,
+        avgAccuracy,
+        minAccuracy,
+      };
+
+      const knowledgePointStats = buildKnowledgePointStats(questionStats);
+
+      setAnalysisData({
+        examStats,
+        questionStats,
+        knowledgePointStats,
+      });
+    } catch (error) {
+      console.error("获取测验分析失败：", error);
+      message.error(error?.message || "获取测验分析失败");
+      setAnalysisData({
+        examStats: {
+          submitRate: exam?.total
+            ? Math.round(((exam?.done || 0) / exam.total) * 100)
+            : 0,
+          avgAccuracy: 0,
+          minAccuracy: 0,
+        },
+        questionStats: [],
+        knowledgePointStats: [],
+      });
+    } finally {
+      setAnalysisLoading(false);
+    }
   };
 
   return (
-    <div className="ep-wrap">
-      <div className="ep-head">
-        <div className="ep-title">班级测验</div>
+    <div className="class-panel class-panel--fill">
+      <div className="class-panel-header ep-panel-header">
         <Button
           type="primary"
           className="ep-primary"
@@ -107,86 +220,126 @@ export default function ExamsPanel({ klass }) {
         </Button>
       </div>
 
-      <div className="ep-list">
-        {exams.map((e) => {
-          const percent = e.total ? Math.round((e.done / e.total) * 100) : 0;
+      <div className="class-line-tabs">
+        <button type="button" className="class-line-tab active">
+          班级测验
+        </button>
+      </div>
 
-          return (
-            <div key={e.id} className="ep-card">
-              <div className="ep-top">
-                <div className="ep-name">{e.title}</div>
-                <div className="ep-tags">
-                  <StatusTag v={e.status} />
-                </div>
-              </div>
+      <div className="class-table-panel class-table-panel--fill">
+        <div className="class-table-wrap">
+          <table className="class-table ep-table">
+            <thead>
+              <tr>
+                <th style={{ width: 180 }}>测验名称</th>
+                <th style={{ width: 100 }}>状态</th>
+                <th style={{ width: 100 }}>发布时间</th>
+                <th style={{ width: 100 }}>截止时间</th>
+                <th style={{ width: 80 }}>题目数</th>
+                <th style={{ width: 80 }}>提交情况</th>
+                <th style={{ width: 120 }}>操作</th>
+              </tr>
+            </thead>
 
-              <div className="ep-meta">
-                <span>发布：{e.start}</span>
-                <span>截止：{e.end}</span>
-                <span>{e.count}题</span>
-              </div>
+            <tbody>
+              {exams.length > 0 ? (
+                exams.map((e) => (
+                  <tr key={e.id}>
+                    <td className="class-table-cell-title">{e.title}</td>
+                    <td>
+                      <StatusTag value={e.statusLabel} />
+                    </td>
+                    <td>{e.start}</td>
+                    <td>{e.end}</td>
+                    <td>{e.count}</td>
+                    <td>
+                      {e.done}/{e.total}
+                    </td>
+                    <td>
+                      <div className="ep-action-group">
+                        <button
+                          type="button"
+                          className="ep-action-btn ep-action-btn-primary"
+                          onClick={() => handleOpenAnalysis(e)}
+                          disabled={analysisLoading && currentExam?.id === e.id}
+                        >
+                          <BarChartOutlined />
+                        </button>
 
-              <div className="ep-progress">
-                <div className="ep-progress-label">完成情况</div>
-                <div className="ep-progress-row">
-                  <Progress
-                    className="ep-bar"
-                    percent={percent}
-                    showInfo={false}
-                  />
-                  <div className="ep-progress-num">
-                    {e.done}/{e.total} ({percent}%)
-                  </div>
-                </div>
-              </div>
+                        <button
+                          type="button"
+                          className="ep-action-btn ep-action-btn-danger"
+                          onClick={() => removeExam(e)}
+                        >
+                          <DeleteOutlined />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="class-table-empty">当前暂无测验数据</div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-              <div className="ep-actions">
-                <Button
-                  className="ep-ghost"
-                  icon={<BarChartOutlined />}
-                  onClick={() => {
-                    setCurrentExam(e);
-                    setAnalysisOpen(true);
-                  }}
-                >
-                  查看分析
-                </Button>
-
-                <Button
-                  danger
-                  className="ep-danger"
-                  onClick={() => removeExam(e)}
-                >
-                  删除测验
-                </Button>
-              </div>
-            </div>
-          );
-        })}
+        <div className="class-table-footer">
+          <span>共 {exams.length} 条</span>
+          <div className="class-table-pagination">
+            <button type="button" className="page-btn" disabled>
+              ‹
+            </button>
+            <button type="button" className="page-btn active">
+              1
+            </button>
+            <button type="button" className="page-btn" disabled>
+              ›
+            </button>
+          </div>
+        </div>
       </div>
 
       <PublishExamModal
         open={publishOpen}
         onClose={() => setPublishOpen(false)}
-        defaultSubject={klass?.subject || "计算机网络"}
+        defaultSubject={klass?.subject || klass?.subjectName || "计算机网络"}
         totalStudents={totalStudents}
         classId={klass.id}
-        onPublish={(payload) => {
-          addExam({
-            id: Date.now(),
-            title: payload.title,
-            subject: payload.subject,
-            teacherId: 101,
-            classId: klass.id,
-            publishDate: new Date().toISOString().slice(0, 10),
-            deadline: payload.deadline,
-            status: "published",
-            questionIds: payload.questions.map((q) => q.id),
-            doneCount: 0,
-          });
+        onPublish={async (payload) => {
+          try {
+            if (!currentTeacherId) {
+              message.warning("教师未登录");
+              return;
+            }
 
-          setPublishOpen(false);
-          message.success("已发布测验");
+            await addExam({
+              id: Date.now(),
+              title: payload.title,
+              classId: klass.id,
+              teacherId: currentTeacherId,
+              subjectId: payload.subjectId,
+              publishAt: new Date()
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " "),
+              deadlineAt: payload.deadline,
+              status: "published",
+              duration: payload.duration ?? null,
+              totalScore: payload.questions.length,
+              questionIds: payload.questions.map((q) => q.id),
+            });
+
+            setPublishOpen(false);
+            message.success("已发布测验");
+          } catch (error) {
+            console.error("发布测验失败：", error);
+            message.error(error?.message || "发布测验失败");
+          }
         }}
       />
 
@@ -195,11 +348,20 @@ export default function ExamsPanel({ klass }) {
         onClose={() => {
           setAnalysisOpen(false);
           setCurrentExam(null);
+          setAnalysisData({
+            examStats: {
+              submitRate: 0,
+              avgAccuracy: 0,
+              minAccuracy: 0,
+            },
+            questionStats: [],
+            knowledgePointStats: [],
+          });
         }}
         exam={currentExam}
-        examStats={currentAnalysis?.examStats}
-        questionStats={currentAnalysis?.questionStats || []}
-        knowledgePointStats={currentAnalysis?.knowledgePointStats || []}
+        examStats={analysisData.examStats}
+        questionStats={analysisData.questionStats}
+        knowledgePointStats={analysisData.knowledgePointStats}
       />
     </div>
   );

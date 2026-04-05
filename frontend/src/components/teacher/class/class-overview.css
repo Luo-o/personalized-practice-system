@@ -1,174 +1,358 @@
-.cm-wrap {
-  max-width: 1200px;
-  margin: 18px auto 50px;
-  padding: 0 18px;
+.tcl-page {
+  width: 100%;
+  padding: 0;
 }
 
-.cm-stat-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 16px;
+.tcl-container {
+  width: 840px;
+  margin: 0 auto;
+  padding: 16px 0 30px;
 }
-.cm-stat-card {
+
+/* 顶部个人卡片 */
+.tcl-profile-card {
+  height: 160px;
+  border-radius: 5px;
   background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+  padding: 0 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
 }
-.cm-stat-label {
-  color: var(--muted);
-  font-size: 13px;
+
+.tcl-profile-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
-.cm-stat-value {
-  font-size: 34px;
-  font-weight: 900;
-  color: var(--text);
-  margin-top: 6px;
+
+.tcl-profile-avatar {
+  flex: 0 0 auto;
+  background: #e7f0fe;
+  color: #fff;
+  font-size: 36px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
 }
-.cm-stat-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
-  background: var(--primary-weak);
+
+.tcl-profile-user {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tcl-profile-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.1;
+}
+
+.tcl-profile-title {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+.tcl-profile-grade,
+.tcl-profile-major {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+.tcl-profile-right {
+  display: flex;
+  align-items: center;
+  gap: 52px;
+}
+
+.tcl-profile-metric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tcl-profile-metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary);
   font-size: 22px;
 }
-.cm-stat-icon.is-purple {
-  background: #efe8ff;
-  color: #7c3aed;
+
+.tcl-profile-metric-icon.is-blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
 }
 
-.cm-head {
+.tcl-profile-metric-icon.is-purple {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+.tcl-profile-metric-icon.is-cyan {
+  background: rgba(6, 182, 212, 0.12);
+  color: #06b6d4;
+}
+
+.tcl-profile-metric-text {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px 0 12px;
-}
-.cm-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--text);
-}
-.cm-primary {
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
-  border-radius: 12px !important;
-  height: 40px !important;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.cm-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.tcl-profile-metric-label {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.1;
+}
+
+.tcl-profile-metric-value {
+  font-size: 34px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1;
+  color: #111827;
+}
+
+/* 主体 */
+.tcl-main-panel {
+  margin-top: 20px;
+}
+
+.tcl-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: 16px;
 }
-.cm-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+
+.tcl-tabs .ant-tabs-nav {
+  margin-bottom: 0;
 }
-.cm-card-top {
-  padding: 18px;
-  color: #fff;
-  background: linear-gradient(180deg, var(--primary) 0%, #1f6fd6 100%);
+
+.tcl-tabs .ant-tabs-tab {
+  padding: 4px 0 12px;
+  font-size: 16px;
 }
-.cm-card-name {
-  font-weight: 900;
-  font-size: 20px;
-  margin-bottom: 8px;
+
+.tcl-tabs .ant-tabs-tab-btn {
+  font-weight: 600;
 }
-.cm-card-meta {
+
+.tcl-toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  opacity: 0.95;
+  gap: 12px;
 }
 
-.cm-card-body {
-  padding: 16px 18px;
+.tcl-search-input {
+  width: 220px;
 }
 
-.cm-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.cm-muted {
-  color: var(--muted);
-}
-.cm-big {
-  font-weight: 900;
-  font-size: 22px;
-  color: var(--text);
+.tcl-search-input .ant-input {
+  font-size: 14px;
 }
 
-.cm-latest-box {
-  background: #f3f6fb;
+.tcl-create-btn {
+  height: 38px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* 教师端卡片网格：沿用学生端布局逻辑 */
+.tcl-card-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 270px);
+  gap: 18px 18px;
+  align-items: start;
+}
+
+/* 下面这整段直接按学生端 card 风格来 */
+.course-card {
+  width: 265px;
+  height: 280px;
   border-radius: 14px;
-  padding: 12px 14px;
-  margin-top: 8px;
-}
-.cm-latest-title {
-  font-weight: 800;
-  color: var(--text);
-}
-.cm-latest-date {
-  color: var(--muted);
-  margin-top: 4px;
-  font-size: 12px;
-}
-
-.cm-enter {
-  width: calc(100% - 36px);
-  margin: 0 18px 18px;
-  height: 42px;
-  border-radius: 12px;
-  border: 0;
-  background: var(--primary-weak);
-  color: var(--primary);
-  font-weight: 800;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   cursor: pointer;
-}
-.cm-enter:hover {
-  filter: brightness(0.98);
-}
-
-@media (max-width: 980px) {
-  .cm-grid {
-    grid-template-columns: 1fr;
-  }
-  .cm-stat-grid {
-    grid-template-columns: 1fr;
-  }
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.18s ease;
 }
 
-.cm-card-head-row {
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.course-card-cover-wrap {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+}
+
+.course-card-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #eef2f7;
+}
+
+.course-card-subject-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.94);
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0),
+    rgba(15, 23, 42, 0.55)
+  );
+  backdrop-filter: blur(2px);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.course-card-body {
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 140px;
+}
+
+.course-card-title-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
 }
 
-.cm-card-subject-tag {
+.course-card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #1f2937;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.course-card-teacher {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+.course-card-subject {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.course-card-footer {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.course-card-students {
   display: inline-flex;
   align-items: center;
-  padding: 8px 14px;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.course-card-badge {
+  padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 12px;
   line-height: 1;
-  white-space: nowrap;
-  flex-shrink: 0;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+}
+
+.tcl-empty-wrap {
+  grid-column: 1 / -1;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 42px 20px;
+}
+
+@media (max-width: 1024px) {
+  .tcl-container {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .tcl-profile-card {
+    height: auto;
+    padding: 22px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .tcl-profile-right {
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .tcl-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  .course-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tcl-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tcl-toolbar-actions {
+    justify-content: space-between;
+  }
+
+  .tcl-search-input {
+    flex: 1;
+    width: auto;
+  }
+
+  .tcl-profile-name {
+    font-size: 24px;
+  }
+
+  .tcl-profile-metric-value {
+    font-size: 28px;
+  }
 }

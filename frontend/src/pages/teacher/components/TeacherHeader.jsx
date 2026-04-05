@@ -1,57 +1,145 @@
-import React from "react";
-import { Layout, Typography } from "antd";
-import { BookOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import React, { useMemo } from "react";
+import { Avatar, Dropdown, message } from "antd";
+import {
+  DownOutlined,
+  LogoutOutlined,
+  ReadOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../store";
 import "./teacher-header.css";
 
-const { Header } = Layout;
-const { Title, Text } = Typography;
+export default function TeacherHeader() {
+  const navigate = useNavigate();
 
-export default function TeacherHeader({ active = "bank", onChange }) {
+  const currentUser = useAuthStore((s) => s.currentUser);
+  const logout = useAuthStore((s) => s.logout);
+
+  const profile = currentUser?.profile || {};
+
+  const teacherName = useMemo(() => {
+    return profile.name || currentUser?.name || "老师";
+  }, [profile.name, currentUser?.name]);
+
+  const teacherInitial = useMemo(() => {
+    return teacherName?.trim()?.charAt(0) || "师";
+  }, [teacherName]);
+
+  const teacherAvatar = useMemo(() => {
+    return profile.avatar || "/avatars/default-teacher-avatar.svg";
+  }, [profile.avatar]);
+
+  const items = [
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: "个人信息",
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "退出登录",
+      danger: true,
+    },
+  ];
+
+  const handleMenuClick = async ({ key }) => {
+    if (key === "profile") {
+      navigate("/teacher/profile");
+      return;
+    }
+
+    if (key === "logout") {
+      try {
+        if (typeof logout === "function") {
+          await logout();
+        }
+        message.success("已退出登录");
+        navigate("/login", { replace: true });
+      } catch (error) {
+        console.error("教师退出登录失败：", error);
+        message.error("退出登录失败，请稍后重试");
+      }
+    }
+  };
+
   return (
-    <Header className="teacher-header">
-      <div className="teacher-header-content">
-        <div className="teacher-header-left">
-          <div className="teacher-header-logo">
-            <BookOutlined />
+    <header className="teacher-topbar">
+      <div className="teacher-topbar-container">
+        <div
+          className="teacher-sidebar-brand"
+          onClick={() => navigate("/teacher/bank")}
+        >
+          <div className="teacher-sidebar-brand-logo">
+            <ReadOutlined />
           </div>
-
-          <div className="teacher-header-info">
-            <Title level={5} className="teacher-system-name">
-              题库管理
-            </Title>
-            <Text className="teacher-welcome-text">王老师</Text>
+          <div className="teacher-sidebar-brand-text">
+            <div className="teacher-sidebar-brand-title">智慧刷题系统</div>
           </div>
         </div>
 
-        <div className="teacher-header-tabs">
-          <button
-            type="button"
-            className={`teacher-tab ${active === "bank" ? "is-active" : ""}`}
-            onClick={() => onChange?.("bank")}
+        <nav className="teacher-topbar-nav">
+          <NavLink
+            to="/teacher/bank"
+            end
+            className={({ isActive }) =>
+              `teacher-topbar-nav-link ${isActive ? "active" : ""}`
+            }
           >
-            <BookOutlined />
             题库
-          </button>
+          </NavLink>
 
-          <button
-            type="button"
-            className={`teacher-tab ${active === "class" ? "is-active" : ""}`}
-            onClick={() => onChange?.("class")}
+          <NavLink
+            to="/teacher/class"
+            className={({ isActive }) =>
+              `teacher-topbar-nav-link ${isActive ? "active" : ""}`
+            }
           >
-            <TeamOutlined />
-            班级管理
-          </button>
+            班级
+          </NavLink>
 
-          <button
-            type="button"
-            className={`teacher-tab ${active === "profile" ? "is-active" : ""}`}
-            onClick={() => onChange?.("profile")}
+          <NavLink
+            to="/teacher/profile"
+            className={({ isActive }) =>
+              `teacher-topbar-nav-link ${isActive ? "active" : ""}`
+            }
           >
-            <UserOutlined />
             个人信息
-          </button>
+          </NavLink>
+        </nav>
+
+        <div className="teacher-topbar-right">
+          <Dropdown
+            menu={{
+              items,
+              onClick: handleMenuClick,
+            }}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <div className="teacher-user-dropdown">
+              <Avatar
+                size={36}
+                className="teacher-user-avatar"
+                src={teacherAvatar}
+              >
+                {teacherInitial}
+              </Avatar>
+
+              <div className="teacher-user-meta">
+                <div className="teacher-user-name">{teacherName}</div>
+                <div className="teacher-user-role">教师</div>
+              </div>
+
+              <DownOutlined className="teacher-user-arrow" />
+            </div>
+          </Dropdown>
         </div>
       </div>
-    </Header>
+    </header>
   );
 }

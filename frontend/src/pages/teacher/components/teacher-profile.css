@@ -1,50 +1,357 @@
-.tp-container {
-  display: flex;
-  justify-content: center;
-  padding-top: 0;
+.teacher-profile-page-v2 {
+  min-height: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-.tp-card {
+.teacher-profile-page-v2__container {
   width: 100%;
-  max-width: 560px;
-
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px;
-
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+  max-width: 1040px;
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
 }
 
-.tp-title {
+.teacher-profile-page-v2__container--list {
+  max-width: 720px;
+}
+
+.teacher-profile-page-v2__hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #edf1f7;
+  border-radius: 22px;
+  box-shadow: 0 8px 24px rgba(31, 42, 68, 0.05);
+}
+
+.teacher-profile-page-v2__avatar-wrap {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #eaf2ff;
+  flex-shrink: 0;
+  background: #f5f9ff;
+}
+
+.teacher-profile-page-v2__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.teacher-profile-page-v2__hero-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.teacher-profile-page-v2__hero-name {
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 20px;
+  color: #1f2a44;
+  line-height: 1.3;
 }
 
-.tp-subtitle {
-  font-size: 16px;
+.teacher-profile-page-v2__hero-meta {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #6f7d90;
+}
+
+.profile-setting-section {
+  display: grid;
+  gap: 14px;
+}
+
+.profile-setting-section__header {
+  display: grid;
+  gap: 4px;
+}
+
+.profile-setting-section__title {
+  font-size: 15px;
+  line-height: 1.25;
   font-weight: 600;
-  margin-top: 16px;
-  margin-bottom: 12px;
+  color: #1f2a44;
 }
 
-.tp-row {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 14px;
-}
-
-.tp-row label {
+.profile-setting-section__subtitle {
   font-size: 13px;
-  color: #64748b;
+  line-height: 1.6;
+  color: #6f7d90;
+}
+
+.profile-setting-section__list {
+  background: #ffffff;
+  border: 1px solid #edf1f7;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(31, 42, 68, 0.05);
+}
+
+.profile-setting-item {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.profile-setting-item + .profile-setting-item {
+  border-top: 1px solid #edf1f7;
+}
+
+.profile-setting-item:hover {
+  background: #f8fbff;
+}
+
+.profile-setting-item__left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.profile-setting-item__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #737373;
+  font-size: 16px;
+}
+
+.profile-setting-item__content {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-setting-item__label {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #1f2a44;
+}
+
+.profile-setting-item__value {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6f7d90;
+  word-break: break-all;
+}
+
+.profile-setting-item__arrow {
+  flex-shrink: 0;
+  color: #7f8a9c;
+  font-size: 18px;
+}
+
+.profile-modal-body {
+  display: grid;
+  gap: 14px;
+  padding-top: 6px;
+}
+
+.profile-modal-form {
+  display: grid;
+  gap: 12px;
+}
+
+.profile-modal-tip {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #6f7d90;
+}
+
+.profile-avatar-preview {
+  display: flex;
+  justify-content: center;
   margin-bottom: 4px;
 }
 
-.tp-btn {
-  margin-top: 10px;
+.profile-avatar-preview img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #eaf2ff;
+  background: #f5f9ff;
 }
 
-.tp-logout {
-  margin-top: 16px;
+.profile-avatar-picker {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-avatar-option {
+  width: 140px;
+  border: 1px solid #edf1f7;
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+  cursor: pointer;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  transition: all 0.2s ease;
+}
+
+.profile-avatar-option:hover {
+  background: #f8fbff;
+  border-color: #cfe0ff;
+}
+
+.profile-avatar-option.is-active {
+  border-color: #2c87ff;
+  box-shadow: 0 0 0 3px rgba(44, 135, 255, 0.12);
+}
+
+.profile-avatar-option img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-avatar-option span {
+  font-size: 13px;
+  color: #4b5a73;
+}
+
+.profile-avatar-upload {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.profile-avatar-upload__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #eef5ff;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-avatar-upload__btn:hover {
+  background: #dbeafe;
+}
+
+.profile-avatar-upload__tip {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.profile-modal-body .ant-input,
+.profile-modal-body .ant-input-password,
+.profile-modal-body .ant-select-selector {
+  min-height: 42px !important;
+  height: 42px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+}
+
+.profile-modal-body .ant-input {
+  padding: 8px 11px !important;
+}
+
+.profile-modal-body .ant-input-prefix,
+.profile-modal-body .ant-input-password-icon,
+.profile-modal-body .ant-select-arrow {
+  color: #9aa6b2;
+}
+
+@media (max-width: 900px) {
+  .teacher-profile-page-v2 {
+    padding: 16px;
+  }
+
+  .teacher-profile-page-v2__container {
+    max-width: 100%;
+    gap: 20px;
+  }
+
+  .teacher-profile-page-v2__hero {
+    padding: 18px;
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .teacher-profile-page-v2__avatar-wrap {
+    width: 72px;
+    height: 72px;
+  }
+
+  .teacher-profile-page-v2__hero-name {
+    font-size: 18px;
+  }
+
+  .profile-setting-section__title {
+    font-size: 24px;
+  }
+
+  .profile-setting-section__subtitle {
+    font-size: 14px;
+  }
+
+  .profile-setting-item {
+    padding: 18px 16px;
+  }
+
+  .profile-setting-item__left {
+    gap: 12px;
+  }
+
+  .profile-setting-item__icon {
+    width: 22px;
+    height: 22px;
+    font-size: 18px;
+  }
+
+  .profile-setting-item__content {
+    gap: 6px;
+  }
+
+  .profile-setting-item__label,
+  .profile-setting-item__value {
+    font-size: 14px;
+  }
+}
+
+.profile-setting-item.is-danger .profile-setting-item__icon,
+.profile-setting-item.is-danger .profile-setting-item__label,
+.profile-setting-item.is-danger .profile-setting-item__value,
+.profile-setting-item.is-danger .profile-setting-item__arrow {
+  color: #e5484d;
+}
+
+.profile-setting-item.is-danger:hover {
+  background: #fff5f5;
 }

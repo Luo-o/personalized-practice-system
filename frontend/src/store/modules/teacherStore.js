@@ -1,46 +1,9 @@
-// import { create } from "zustand";
-
-// const initialTeachers = [
-//   {
-//     id: 101,
-//     name: "王老师",
-//     password: "123456",
-//   },
-//   {
-//     id: 102,
-//     name: "李老师",
-//     password: "123456",
-//   },
-// ];
-
-// export const useTeacherStore = create((set) => ({
-//   teachers: initialTeachers,
-
-//   addTeacher: (teacher) =>
-//     set((state) => ({
-//       teachers: [...state.teachers, teacher],
-//     })),
-
-//   deleteTeacher: (id) =>
-//     set((state) => ({
-//       teachers: state.teachers.filter((t) => t.id !== id),
-//     })),
-
-//   updateTeacher: (id, data) =>
-//     set((state) => ({
-//       teachers: state.teachers.map((t) =>
-//         t.id === id ? { ...t, ...data } : t,
-//       ),
-//     })),
-// }));
-
 import { create } from "zustand";
 import { useAuthStore } from "./authStore";
 
-export const useTeacherStore = create((set, get) => ({
+export const useTeacherStore = create(() => ({
   teachers: [],
 
-  // 当前登录教师资料
   getCurrentTeacher: () => {
     const currentUser = useAuthStore.getState().currentUser;
     if (!currentUser || currentUser.role !== "teacher") return null;
@@ -57,6 +20,7 @@ export const useTeacherStore = create((set, get) => ({
       email: profile.email,
       title: profile.title,
       department: profile.department,
+      avatar: profile.avatar || "/avatars/default-teacher-avatar.svg",
     };
   },
 

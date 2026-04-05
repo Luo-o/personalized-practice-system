@@ -74,12 +74,21 @@ async function getSubmissionDetail(req, res) {
 
 async function createSubmission(req, res) {
   try {
-    const { id, exam_id, student_id, duration_min, submitted_at, answers } =
-      req.body || {};
+    const {
+      id,
+      type = "exam",
+      exam_id,
+      student_id,
+      class_id,
+      title,
+      subject_id,
+      duration_min,
+      submitted_at,
+      answers,
+    } = req.body || {};
 
     if (
       id == null ||
-      exam_id == null ||
       student_id == null ||
       !submitted_at ||
       !Array.isArray(answers)
@@ -89,10 +98,26 @@ async function createSubmission(req, res) {
       });
     }
 
+    if (type === "exam" && exam_id == null) {
+      return res.status(400).json({
+        message: "考试提交缺少 exam_id",
+      });
+    }
+
+    if (type === "practice" && subject_id == null) {
+      return res.status(400).json({
+        message: "自主刷题提交缺少 subject_id",
+      });
+    }
+
     const created = await createSubmissionWithAnswers({
       id,
-      exam_id,
+      type,
+      exam_id: exam_id ?? null,
       student_id,
+      class_id: class_id ?? null,
+      title: title ?? null,
+      subject_id: subject_id ?? null,
       duration_min: duration_min ?? null,
       submitted_at,
       answers,

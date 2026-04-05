@@ -1,18 +1,59 @@
 const {
-  getAllQuestions,
+  countQuestions,
+  getQuestionPage,
   getQuestionById,
   createQuestionWithRelations,
   updateQuestionWithRelations,
   deleteQuestionWithRelations,
+  getQuestionSubjectStats,
 } = require("../models/question.model");
 
 async function listQuestions(req, res) {
   try {
-    const questions = await getAllQuestions();
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const pageSize = Math.min(
+      Math.max(Number(req.query.pageSize) || 20, 1),
+      50,
+    );
+
+    const filters = {
+      teacherId:
+        req.query.teacherId != null && req.query.teacherId !== ""
+          ? Number(req.query.teacherId)
+          : null,
+      subjectId:
+        req.query.subjectId != null && req.query.subjectId !== ""
+          ? Number(req.query.subjectId)
+          : null,
+      chapterId:
+        req.query.chapterId != null && req.query.chapterId !== ""
+          ? req.query.chapterId
+          : null,
+      difficulty: req.query.difficulty || "",
+      source: req.query.source || "",
+      keyword: req.query.keyword || "",
+      knowledgePointName: req.query.knowledgePointName || "",
+      isReal:
+        req.query.isReal != null && req.query.isReal !== ""
+          ? Number(req.query.isReal)
+          : null,
+      ownerType: req.query.ownerSource || "",
+    };
+
+    const [total, questions] = await Promise.all([
+      countQuestions(filters),
+      getQuestionPage({ page, pageSize, filters }),
+    ]);
 
     return res.json({
       message: "获取题目列表成功",
-      data: questions,
+      data: {
+        list: questions,
+        page,
+        pageSize,
+        total,
+        hasMore: page * pageSize < total,
+      },
     });
   } catch (error) {
     console.error("获取题目列表失败:", error);
@@ -202,10 +243,40 @@ async function removeQuestion(req, res) {
   }
 }
 
+async function getQuestionSubjectSummary(req, res) {
+  try {
+    const teacherId =
+      req.query.teacherId != null && req.query.teacherId !== ""
+        ? Number(req.query.teacherId)
+        : null;
+
+    const subjects = await getQuestionSubjectStats({ teacherId });
+    const total = subjects.reduce(
+      (sum, item) => sum + Number(item.count || 0),
+      0,
+    );
+
+    return res.json({
+      message: "获取题目统计成功",
+      data: {
+        total,
+        subjects,
+      },
+    });
+  } catch (error) {
+    console.error("获取题目统计失败:", error);
+    return res.status(500).json({
+      message: "服务器内部错误",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   listQuestions,
   getQuestionDetail,
   createQuestion,
   updateQuestion,
   removeQuestion,
+  getQuestionSubjectSummary,
 };

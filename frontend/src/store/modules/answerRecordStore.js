@@ -1,120 +1,53 @@
-// import { create } from "zustand";
-
-// const initialAnswerRecords = [
-//   {
-//     id: 9001,
-//     submissionId: 5001,
-//     examId: 1001,
-//     studentId: 1,
-//     questionId: 101,
-//     selectedAnswer: "A",
-//     correctAnswer: "B",
-//     isCorrect: false,
-//     answeredAt: "2024-05-01 09:45",
-//   },
-//   {
-//     id: 9002,
-//     submissionId: 5001,
-//     examId: 1001,
-//     studentId: 1,
-//     questionId: 102,
-//     selectedAnswer: "B",
-//     correctAnswer: "B",
-//     isCorrect: true,
-//     answeredAt: "2024-05-01 09:52",
-//   },
-//   {
-//     id: 9003,
-//     submissionId: 5002,
-//     examId: 1002,
-//     studentId: 1,
-//     questionId: 101,
-//     selectedAnswer: "B",
-//     correctAnswer: "B",
-//     isCorrect: true,
-//     answeredAt: "2024-04-20 14:22",
-//   },
-// ];
-
-// function isSameDay(dateStr, targetDate = new Date()) {
-//   const d = new Date(dateStr.replace(" ", "T"));
-//   return (
-//     d.getFullYear() === targetDate.getFullYear() &&
-//     d.getMonth() === targetDate.getMonth() &&
-//     d.getDate() === targetDate.getDate()
-//   );
-// }
-
-// export const useAnswerRecordStore = create((set, get) => ({
-//   answerRecords: initialAnswerRecords,
-
-//   addAnswerRecord: (record) =>
-//     set((state) => ({
-//       answerRecords: [...state.answerRecords, record],
-//     })),
-
-//   addAnswerRecords: (records) =>
-//     set((state) => ({
-//       answerRecords: [...state.answerRecords, ...records],
-//     })),
-
-//   updateAnswerRecord: (id, data) =>
-//     set((state) => ({
-//       answerRecords: state.answerRecords.map((r) =>
-//         r.id === id ? { ...r, ...data } : r,
-//       ),
-//     })),
-
-//   deleteAnswerRecord: (id) =>
-//     set((state) => ({
-//       answerRecords: state.answerRecords.filter((r) => r.id !== id),
-//     })),
-
-//   getRecordsBySubmissionId: (submissionId) =>
-//     get().answerRecords.filter((r) => r.submissionId === submissionId),
-
-//   getRecordsByStudentId: (studentId) =>
-//     get().answerRecords.filter((r) => r.studentId === studentId),
-
-//   getWrongRecordsByStudentId: (studentId) =>
-//     get().answerRecords.filter(
-//       (r) => r.studentId === studentId && !r.isCorrect,
-//     ),
-
-//   getWrongQuestionIdsByStudentId: (studentId) => [
-//     ...new Set(
-//       get()
-//         .answerRecords.filter((r) => r.studentId === studentId && !r.isCorrect)
-//         .map((r) => r.questionId),
-//     ),
-//   ],
-
-//   getTodayAnswerCountByStudentId: (studentId) =>
-//     get().answerRecords.filter(
-//       (r) => r.studentId === studentId && isSameDay(r.answeredAt),
-//     ).length,
-
-//   getAccuracyByStudentId: (studentId) => {
-//     const records = get().answerRecords.filter(
-//       (r) => r.studentId === studentId,
-//     );
-//     if (!records.length) return 0;
-//     const correct = records.filter((r) => r.isCorrect).length;
-//     return Math.round((correct / records.length) * 100);
-//   },
-// }));
-
 import { create } from "zustand";
 import { http } from "../../api/http";
 import { useStudentStore } from "./studentStore";
 
+function normalizeWrongQuestion(item) {
+  return {
+    wrongBookId: item.id ?? null,
+    questionId: Number(item.question_id),
+    title: item.title || "",
+    analysis: item.analysis || "",
+    difficulty: item.difficulty || "未设置",
+    correctAnswer: item.correct_answer || "",
+    selectedAnswer: item.selected_answer || "",
+    examId: item.exam_id ?? null,
+    examTitle: item.exam_title || "",
+    answeredAt: item.answered_at || "",
+    status: item.status || "pending",
+    wrongCount: Number(item.wrong_count || 1),
+    lastPracticeAt: item.last_practice_at || item.answered_at || "",
+    lastWrongAt: item.last_wrong_at || item.answered_at || "",
+    subjectName: item.subject_name || "",
+    chapterName: item.chapter_name || "",
+  };
+}
+
+function normalizeAnswerRecord(item) {
+  return {
+    id: Number(item.id),
+    submissionId: item.submission_id ?? null,
+    examId: item.exam_id ?? null,
+    studentId: item.student_id ?? null,
+    questionId: Number(item.question_id),
+    selectedAnswer: item.selected_answer || "",
+    correctAnswer: item.correct_answer || "",
+    isCorrect: Number(item.is_correct || 0),
+    answeredAt: item.answered_at || "",
+    title: item.title || "",
+    difficulty: item.difficulty || "未设置",
+    subjectName: item.subject_name || "",
+    chapterName: item.chapter_name || "",
+  };
+}
+
 export const useAnswerRecordStore = create((set, get) => ({
   wrongQuestions: [],
+  answerRecords: [],
   studentStats: null,
   examAnalytics: [],
   loading: false,
 
-  // 获取当前学生错题本
   fetchWrongQuestions: async () => {
     const studentId = useStudentStore.getState().getCurrentStudentId();
 
@@ -127,18 +60,7 @@ export const useAnswerRecordStore = create((set, get) => ({
 
     try {
       const res = await http.get(`/students/${studentId}/wrong-questions`);
-
-      const wrongQuestions = (res || []).map((item) => ({
-        questionId: item.question_id,
-        title: item.title,
-        analysis: item.analysis,
-        difficulty: item.difficulty,
-        correctAnswer: item.correct_answer,
-        selectedAnswer: item.selected_answer,
-        examId: item.exam_id,
-        examTitle: item.exam_title,
-        answeredAt: item.answered_at,
-      }));
+      const wrongQuestions = (res || []).map(normalizeWrongQuestion);
 
       set({
         wrongQuestions,
@@ -152,7 +74,88 @@ export const useAnswerRecordStore = create((set, get) => ({
     }
   },
 
-  // 获取当前学生统计
+  fetchStudentAnswerRecords: async () => {
+    const studentId = useStudentStore.getState().getCurrentStudentId();
+
+    if (!studentId) {
+      set({ answerRecords: [] });
+      return [];
+    }
+
+    set({ loading: true });
+
+    try {
+      const res = await http.get(`/students/${studentId}/answer-records`);
+      const answerRecords = (res || []).map(normalizeAnswerRecord);
+
+      set({
+        answerRecords,
+        loading: false,
+      });
+
+      return answerRecords;
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
+  },
+
+  markWrongQuestionMastered: async (questionId) => {
+    const studentId = useStudentStore.getState().getCurrentStudentId();
+
+    if (!studentId || questionId == null) {
+      return false;
+    }
+
+    await http.patch(
+      `/students/${studentId}/wrong-questions/${questionId}/status`,
+      {
+        status: "mastered",
+      },
+    );
+
+    set((state) => ({
+      wrongQuestions: state.wrongQuestions.map((item) =>
+        Number(item.questionId) === Number(questionId)
+          ? {
+              ...item,
+              status: "mastered",
+            }
+          : item,
+      ),
+    }));
+
+    return true;
+  },
+
+  markWrongQuestionPending: async (questionId) => {
+    const studentId = useStudentStore.getState().getCurrentStudentId();
+
+    if (!studentId || questionId == null) {
+      return false;
+    }
+
+    await http.patch(
+      `/students/${studentId}/wrong-questions/${questionId}/status`,
+      {
+        status: "pending",
+      },
+    );
+
+    set((state) => ({
+      wrongQuestions: state.wrongQuestions.map((item) =>
+        Number(item.questionId) === Number(questionId)
+          ? {
+              ...item,
+              status: "pending",
+            }
+          : item,
+      ),
+    }));
+
+    return true;
+  },
+
   fetchStudentStats: async () => {
     const studentId = useStudentStore.getState().getCurrentStudentId();
 
@@ -194,7 +197,6 @@ export const useAnswerRecordStore = create((set, get) => ({
     }
   },
 
-  // 获取某场考试分析（教师端）
   fetchExamAnalytics: async (examId) => {
     set({ loading: true });
 
@@ -208,6 +210,8 @@ export const useAnswerRecordStore = create((set, get) => ({
         answered: Number(item.answered || 0),
         correct: Number(item.correct || 0),
         accuracy: Number(item.accuracy || 0),
+        wrongOption: item.wrongOption || "",
+        wrongText: item.wrongText || "",
       }));
 
       set({
@@ -222,12 +226,13 @@ export const useAnswerRecordStore = create((set, get) => ({
     }
   },
 
-  // 一次性刷新学生端统计数据
   refreshStudentAnalytics: async () => {
     const studentId = useStudentStore.getState().getCurrentStudentId();
+
     if (!studentId) {
       set({
         wrongQuestions: [],
+        answerRecords: [],
         studentStats: {
           examCount: 0,
           totalQuestions: 0,
@@ -236,8 +241,10 @@ export const useAnswerRecordStore = create((set, get) => ({
           avgScore: 0,
         },
       });
+
       return {
         wrongQuestions: [],
+        answerRecords: [],
         studentStats: {
           examCount: 0,
           totalQuestions: 0,
@@ -251,22 +258,14 @@ export const useAnswerRecordStore = create((set, get) => ({
     set({ loading: true });
 
     try {
-      const [wrongRes, statsRes] = await Promise.all([
+      const [wrongRes, answerRes, statsRes] = await Promise.all([
         http.get(`/students/${studentId}/wrong-questions`),
+        http.get(`/students/${studentId}/answer-records`),
         http.get(`/students/${studentId}/stats`),
       ]);
 
-      const wrongQuestions = (wrongRes || []).map((item) => ({
-        questionId: item.question_id,
-        title: item.title,
-        analysis: item.analysis,
-        difficulty: item.difficulty,
-        correctAnswer: item.correct_answer,
-        selectedAnswer: item.selected_answer,
-        examId: item.exam_id,
-        examTitle: item.exam_title,
-        answeredAt: item.answered_at,
-      }));
+      const wrongQuestions = (wrongRes || []).map(normalizeWrongQuestion);
+      const answerRecords = (answerRes || []).map(normalizeAnswerRecord);
 
       const studentStats = {
         examCount: Number(statsRes?.examCount || 0),
@@ -278,12 +277,14 @@ export const useAnswerRecordStore = create((set, get) => ({
 
       set({
         wrongQuestions,
+        answerRecords,
         studentStats,
         loading: false,
       });
 
       return {
         wrongQuestions,
+        answerRecords,
         studentStats,
       };
     } catch (error) {
@@ -292,20 +293,14 @@ export const useAnswerRecordStore = create((set, get) => ({
     }
   },
 
-  // 兼容旧页面方法
   getWrongQuestions: () => get().wrongQuestions,
-
+  getAnswerRecords: () => get().answerRecords,
   getWrongQuestionsCount: () => get().wrongQuestions.length,
-
   getStudentAccuracy: () => Number(get().studentStats?.accuracy || 0),
-
   getStudentAvgScore: () => Number(get().studentStats?.avgScore || 0),
-
   getStudentExamCount: () => Number(get().studentStats?.examCount || 0),
-
   getStudentTotalQuestions: () =>
     Number(get().studentStats?.totalQuestions || 0),
-
   getStudentTotalCorrect: () => Number(get().studentStats?.totalCorrect || 0),
 
   getQuestionAccuracyByExamId: (questionId) =>
@@ -316,6 +311,7 @@ export const useAnswerRecordStore = create((set, get) => ({
   clearStudentAnalytics: () =>
     set({
       wrongQuestions: [],
+      answerRecords: [],
       studentStats: null,
     }),
 
@@ -327,6 +323,7 @@ export const useAnswerRecordStore = create((set, get) => ({
   clearAll: () =>
     set({
       wrongQuestions: [],
+      answerRecords: [],
       studentStats: null,
       examAnalytics: [],
     }),

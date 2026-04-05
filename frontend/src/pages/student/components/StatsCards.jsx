@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo } from "react";
 import { Row, Col } from "antd";
-import { BookOutlined, AimOutlined, BarChartOutlined } from "@ant-design/icons";
+import {
+  EditFilled,
+  CheckCircleFilled,
+  FireFilled,
+  RiseOutlined,
+  FallOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
 import "./stats-card.css";
 
 import {
@@ -13,6 +20,14 @@ function toDateSafe(value) {
   if (!value) return null;
   const d = new Date(String(value).replace(" ", "T"));
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function isSameDay(date, target) {
+  return (
+    date.getFullYear() === target.getFullYear() &&
+    date.getMonth() === target.getMonth() &&
+    date.getDate() === target.getDate()
+  );
 }
 
 function calcStreakDays(submissions = []) {
@@ -71,7 +86,6 @@ export default function StatsCards() {
 
   useEffect(() => {
     if (!studentId) return;
-
     fetchStudentStats();
     fetchSubmissions();
   }, [studentId, fetchStudentStats, fetchSubmissions]);
@@ -80,6 +94,8 @@ export default function StatsCards() {
     if (!studentId) {
       return {
         todayDone: 0,
+        yesterdayDone: 0,
+        todayMastered: 0,
         accuracy: 0,
         streakDays: 0,
       };
@@ -90,52 +106,119 @@ export default function StatsCards() {
     );
 
     const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
 
-    const todayDone = mySubmissions
-      .filter((s) => {
-        const d = toDateSafe(s.submitted_at || s.submittedAt);
-        if (!d) return false;
+    const todayList = mySubmissions.filter((s) => {
+      const d = toDateSafe(s.submitted_at || s.submittedAt);
+      return d && isSameDay(d, today);
+    });
 
-        return (
-          d.getFullYear() === today.getFullYear() &&
-          d.getMonth() === today.getMonth() &&
-          d.getDate() === today.getDate()
-        );
-      })
-      .reduce((sum, s) => sum + Number(s.total_count || s.totalCount || 0), 0);
+    const yesterdayList = mySubmissions.filter((s) => {
+      const d = toDateSafe(s.submitted_at || s.submittedAt);
+      return d && isSameDay(d, yesterday);
+    });
+
+    const todayDone = todayList.reduce(
+      (sum, s) => sum + Number(s.total_count || s.totalCount || 0),
+      0,
+    );
+
+    const yesterdayDone = yesterdayList.reduce(
+      (sum, s) => sum + Number(s.total_count || s.totalCount || 0),
+      0,
+    );
+
+    const todayMastered = todayList.reduce(
+      (sum, s) => sum + Number(s.correct_count || s.correctCount || 0),
+      0,
+    );
 
     const accuracy = Math.round(Number(studentStats?.accuracy || 0) * 100);
-
     const streakDays = calcStreakDays(mySubmissions);
 
     return {
       todayDone,
+      yesterdayDone,
+      todayMastered,
       accuracy,
       streakDays,
     };
   }, [studentId, submissions, studentStats]);
 
+  const todayDelta = data.todayDone - data.yesterdayDone;
+
+  const todayTrend = useMemo(() => {
+    if (todayDelta > 0) {
+      return {
+        icon: <RiseOutlined />,
+        className: "stats-subtext-up",
+        text: `${Math.abs(todayDelta)} 题`,
+        note: "较昨日上升",
+      };
+    }
+    if (todayDelta < 0) {
+      return {
+        icon: <FallOutlined />,
+        className: "stats-subtext-down",
+        text: `${Math.abs(todayDelta)} 题`,
+        note: "较昨日下降",
+      };
+    }
+    return {
+      icon: <MinusOutlined />,
+      className: "stats-subtext-neutral",
+      text: "0 题",
+      note: "与昨日持平",
+    };
+  }, [todayDelta]);
+
   const cards = [
     {
+      key: "today",
       title: "今日已刷题",
       value: String(data.todayDone),
       valueClass: "value-default",
-      icon: <BookOutlined />,
+      icon: <EditFilled />,
       tone: "blue",
+      renderFooter: () => (
+        <div className={`stats-subtext ${todayTrend.className}`}>
+          <span className="stats-trend-icon">{todayTrend.icon}</span>
+          <span>{todayTrend.text}</span>
+          <span className="stats-subtext-note">{todayTrend.note}</span>
+        </div>
+      ),
     },
     {
-      title: "正确率",
+      key: "accuracy",
+      title: "掌握率",
       value: `${data.accuracy}%`,
       valueClass: "value-green",
-      icon: <AimOutlined />,
+      icon: <CheckCircleFilled />,
       tone: "green",
+      badge: "稳步提升",
+      badgeClass: "stats-badge stats-badge-blue",
+      renderFooter: () => (
+        <div className="stats-subtext stats-subtext-neutral">
+          今日已掌握 {data.todayMastered} 题
+        </div>
+      ),
     },
     {
+      key: "streak",
       title: "连续打卡",
-      value: `${data.streakDays}天`,
+      value: `${data.streakDays}`,
+      valueSuffix: "天",
       valueClass: "value-orange",
-      icon: <BarChartOutlined />,
+      icon: <FireFilled />,
       tone: "orange",
+      badge: data.streakDays >= 3 ? "保持节奏" : "继续加油",
+      badgeClass: "stats-badge stats-badge-orange",
+      renderFooter: () => (
+        <div className="stats-subtext stats-subtext-neutral">
+          持续练习 , 形成习惯！
+        </div>
+      ),
     },
   ];
 
@@ -143,15 +226,31 @@ export default function StatsCards() {
     <div className="stats-cards-wrap">
       <Row gutter={[18, 18]}>
         {cards.map((c) => (
-          <Col key={c.title} xs={24} sm={12} lg={8}>
+          <Col key={c.key} xs={24} sm={12} lg={8} className="stats-card-col">
             <div className="stats-card-ui">
-              <div className="stats-left">
+              <div className="stats-card-head">
                 <div className="stats-title">{c.title}</div>
-                <div className={`stats-value ${c.valueClass}`}>{c.value}</div>
+
+                <div className={`stats-icon-box tone-${c.tone}`}>
+                  <span className="stats-icon">{c.icon}</span>
+                </div>
               </div>
 
-              <div className={`stats-icon-box tone-${c.tone}`}>
-                <span className="stats-icon">{c.icon}</span>
+              <div className="stats-main">
+                <div className="stats-value-row">
+                  <div className={`stats-value ${c.valueClass}`}>
+                    {c.value}
+                    {c.valueSuffix && (
+                      <span className="stats-value-suffix">
+                        {c.valueSuffix}
+                      </span>
+                    )}
+                  </div>
+
+                  {c.badge && <span className={c.badgeClass}>{c.badge}</span>}
+                </div>
+
+                {c.renderFooter()}
               </div>
             </div>
           </Col>

@@ -1,6 +1,8 @@
 import React from "react";
-import "./qs-sheet.css";
 import { CheckCircleOutlined } from "@ant-design/icons";
+import "./qs-sheet.css";
+
+const BASE_FILE_URL = "http://localhost:3001";
 
 function toneClass(difficulty) {
   if (difficulty === "简单") return "qs-tag-easy";
@@ -9,61 +11,108 @@ function toneClass(difficulty) {
   return "qs-tag-easy";
 }
 
+function buildMetaText(question) {
+  const parts = [];
+
+  if (question?.subject_name) parts.push(question.subject_name);
+  else if (question?.subjectName) parts.push(question.subjectName);
+
+  if (question?.chapter_name) parts.push(question.chapter_name);
+  else if (question?.chapterName) parts.push(question.chapterName);
+  else if (question?.tag) parts.push(question.tag);
+
+  return parts.join(" · ");
+}
+
+function resolveImageSrc(img) {
+  const raw = img?.imageUrl || img?.image_url || img?.url || "";
+
+  if (!raw) return "";
+
+  if (/^https?:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  return `${BASE_FILE_URL}/${String(raw).replace(/^\/+/, "")}`;
+}
+
 export default function QuestionItem({
   index,
   question,
   value,
   mode = "answer",
-  solution, // { correct, explanation }
+  solution,
   onChange,
-
-  // ✅新增：由父组件统一打开浮窗
   onOpenAI,
+  onPrev,
+  onNext,
+  onSubmit,
+  isFirst,
+  isLast,
+  submitting,
+  hideNav = false,
 }) {
-  const { difficulty, tag, stem, options = [] } = question || {};
-  const correct = solution?.correct || question?.correct || "";
+  const { difficulty, stem, options = [], images = [] } = question || {};
+
+  const metaText = buildMetaText(question);
+  const correct = (solution?.correct || question?.correct || "")
+    .toString()
+    .trim();
   const explanation = solution?.explanation || question?.explanation || "";
 
   const isReview = mode === "review";
   const isAnswered = !!value;
+  const currentValue = (value || "").toString().trim();
   const hasCorrect = !!correct;
-  const isCorrect = isReview && value && hasCorrect && value === correct;
-  const isWrong = isReview && value && hasCorrect && value !== correct;
+
+  const isCorrect =
+    isReview && currentValue && hasCorrect && currentValue === correct;
+
+  const isWrong =
+    isReview && currentValue && hasCorrect && currentValue !== correct;
+
+  const displayImages = Array.isArray(images) ? images : [];
 
   return (
-    <div
-      className={[
-        "qs-qcard",
-        isReview ? "is-review" : "",
-        isWrong ? "is-wrong-card" : "",
-        isCorrect ? "is-right-card" : "",
-      ].join(" ")}
-    >
-      <div className="qs-qhead">
-        <div className="qs-qhead-left">
-          <div className="qs-qindex">{index}</div>
+    <div className="qs-question-wrap">
+      <div className="qs-question-box">
+        <div className="qs-question-meta">
+          <span className="qs-qindex-pill">{index}</span>
+
           <span className={`qs-diff-tag ${toneClass(difficulty)}`}>
             {difficulty || "简单"}
           </span>
-          <span className="qs-qtag">{tag}</span>
+
+          {metaText ? <span className="qs-qmeta-text">{metaText}</span> : null}
         </div>
 
-        {isReview ? (
-          <div className={`qs-status ${isCorrect ? "ok" : "bad"}`}>
-            {isAnswered ? (isCorrect ? "√ 正确" : "× 错误") : "未作答"}
+        <div className="qs-stem">{stem}</div>
+
+        {displayImages.length > 0 ? (
+          <div className="qs-images">
+            {displayImages.map((img, i) => {
+              const src = resolveImageSrc(img);
+              if (!src) return null;
+
+              return (
+                <img
+                  key={img.id || i}
+                  src={src}
+                  alt={`题目图片-${i + 1}`}
+                  className="qs-image"
+                />
+              );
+            })}
           </div>
         ) : null}
       </div>
 
-      <div className="qs-stem">{stem}</div>
-
-      <div className="qs-options">
+      <div className="qs-options-block">
         {options.map((op) => {
-          const checked = value === op.key;
+          const checked = currentValue === String(op.key).trim();
 
           const showCorrect = isReview && hasCorrect && correct === op.key;
           const showWrong = isReview && isWrong && checked;
-
           const correctMark =
             showCorrect && (isWrong || !isAnswered || isCorrect);
           const wrongMark = showWrong;
@@ -86,6 +135,7 @@ export default function QuestionItem({
                 disabled={isReview}
                 onChange={() => onChange?.(op.key)}
               />
+
               <span className="qs-radio">
                 <CheckCircleOutlined className="qs-radio-icon" />
               </span>
@@ -105,9 +155,50 @@ export default function QuestionItem({
         })}
       </div>
 
+      {!hideNav && (
+        <div className="qs-nav-row">
+          <button
+            type="button"
+            className="qs-nav-btn"
+            onClick={onPrev}
+            disabled={isFirst}
+          >
+            上一题
+          </button>
+
+          {isReview ? (
+            <button
+              type="button"
+              className="qs-nav-btn primary"
+              onClick={onNext}
+              disabled={isLast}
+            >
+              下一题
+            </button>
+          ) : isLast ? (
+            <button
+              type="button"
+              className="qs-nav-btn primary"
+              onClick={onSubmit}
+              disabled={submitting}
+            >
+              {submitting ? "提交中..." : "提交"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="qs-nav-btn primary"
+              onClick={onNext}
+            >
+              Next
+            </button>
+          )}
+        </div>
+      )}
+
       {isReview ? (
-        <div className="qs-review">
-          <div className="qs-answer-pill">正确答案：{correct || "-"}</div>
+        <div className="qs-review-block">
+          <div className="qs-answer-pill">正确答案： {correct || "-"}</div>
 
           {explanation ? (
             <div className="qs-explain">
@@ -116,7 +207,6 @@ export default function QuestionItem({
             </div>
           ) : null}
 
-          {/* ✅只触发父组件打开全局浮窗 */}
           <button
             type="button"
             className="qs-askai"
@@ -128,7 +218,7 @@ export default function QuestionItem({
               })
             }
           >
-            对这道题还有疑问？问问ai助手
+            对这道题还有疑问？ 问问 AI 助手
           </button>
         </div>
       ) : null}

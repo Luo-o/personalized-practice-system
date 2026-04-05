@@ -160,7 +160,10 @@
   font-weight: 500;
   color: #111827;
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .pdm-choice:hover {
@@ -302,6 +305,7 @@
 /* 开始按钮 */
 .pdm-start {
   height: 48px;
+  width: 100%;
   border-radius: 16px;
   font-weight: 600;
   font-size: 14px;
@@ -317,7 +321,7 @@
 
 .pdm-kp-scroll {
   /* 关键：限制高度并开启内部滚动 */
-  max-height: 260px;   
+  max-height: 260px;
   overflow-y: auto;
 
   /* 让滚动区域不被左右按钮遮挡 */
@@ -351,7 +355,10 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
 }
 
 /* 左右位置 */
@@ -441,4 +448,46 @@
   color: rgba(15, 23, 42, 0.6);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.pdm-shell {
+  position: relative;
+}
+
+.pdm-body.is-busy {
+  pointer-events: none;
+}
+
+.pdm-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+}
+
+.pdm-overlay-card {
+  min-width: 180px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}
+
+.pdm-loading {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
 }

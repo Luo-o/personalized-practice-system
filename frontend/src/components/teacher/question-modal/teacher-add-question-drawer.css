@@ -45,6 +45,8 @@
 
 /* 知识点 */
 .td-kp-box {
+  max-height: 140px;
+  overflow: auto;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   padding: 12px;
@@ -72,14 +74,13 @@
 }
 
 .td-kp-add {
-  margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr 84px;
   gap: 10px;
 }
 
 .td-kp-selected {
-  margin-top: 10px;
+  margin: 10px;
 }
 
 .td-muted {

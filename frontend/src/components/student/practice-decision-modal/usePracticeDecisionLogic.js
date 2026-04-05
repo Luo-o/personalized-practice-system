@@ -1,76 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { message } from "antd";
-import { useQuestionStore, useSubjectStore } from "../../../store";
+import { http } from "../../../api/http";
 
 function clamp(value, min, max) {
   if (max < min) return min;
   return Math.max(min, Math.min(max, value));
-}
-
-function normalizeSubjects(rawSubjects = []) {
-  if (!Array.isArray(rawSubjects)) return [];
-
-  return rawSubjects.map((s) => ({
-    id: s.id,
-    name: s.subject,
-    subject: s.subject,
-    chapters: (s.chapters || []).map((ch) => ({
-      id: ch.id,
-      name: ch.name,
-      knowledgePoints: (ch.knowledgePoints || []).map((kp, index) => ({
-        id: `${ch.id}-kp-${index + 1}`,
-        name: typeof kp === "string" ? kp : kp?.name || "",
-      })),
-    })),
-  }));
-}
-
-function normalizeText(value) {
-  return String(value || "")
-    .replace(/\s+/g, "")
-    .replace(/[:：]/g, "")
-    .trim();
-}
-
-function includesNormalized(list = [], target = "") {
-  const normalizedTarget = normalizeText(target);
-  return list.some((item) => normalizeText(item) === normalizedTarget);
-}
-
-function normalizeSelectedNames(selectedValues = [], options = []) {
-  if (!Array.isArray(selectedValues)) return [];
-
-  return [
-    ...new Set(
-      selectedValues
-        .map((item) => {
-          // 先统一提取“候选值”
-          let rawValue = item;
-
-          if (typeof item === "object" && item !== null) {
-            rawValue = item.id ?? item.name ?? item.label ?? "";
-          }
-
-          // 优先尝试在 options 中按 id / name 找到对应项
-          const matched = options.find(
-            (opt) =>
-              String(opt.id) === String(rawValue) ||
-              String(opt.name) === String(rawValue),
-          );
-
-          // 找到了就返回 name
-          if (matched) return matched.name;
-
-          // 找不到再兜底
-          if (typeof item === "object" && item !== null) {
-            return item.name || item.label || "";
-          }
-
-          return String(rawValue || "");
-        })
-        .filter(Boolean),
-    ),
-  ];
 }
 
 function pickDefaultSplit(total) {
@@ -91,9 +25,9 @@ function buildDifficultyPlan(total, requestedSplit, caps) {
     };
   }
 
-  const capEasy = caps.easy ?? 0;
-  const capMid = caps.mid ?? 0;
-  const capHard = caps.hard ?? 0;
+  const capEasy = Number(caps?.easy) || 0;
+  const capMid = Number(caps?.mid) || 0;
+  const capHard = Number(caps?.hard) || 0;
   const maxAvailable = capEasy + capMid + capHard;
   const safeTotal = Math.min(total, maxAvailable);
 
@@ -102,9 +36,9 @@ function buildDifficultyPlan(total, requestedSplit, caps) {
       ? requestedSplit
       : pickDefaultSplit(safeTotal);
 
-  const desiredEasy = clamp(rawSplit[0], 0, safeTotal);
+  const desiredEasy = clamp(Number(rawSplit[0]) || 0, 0, safeTotal);
   const desiredMid = clamp(
-    rawSplit[1] - rawSplit[0],
+    (Number(rawSplit[1]) || 0) - desiredEasy,
     0,
     safeTotal - desiredEasy,
   );
@@ -155,11 +89,73 @@ function buildDifficultyPlan(total, requestedSplit, caps) {
   };
 }
 
-export function usePracticeDecisionLogic(strategy) {
-  const rawSubjects = useSubjectStore((state) => state.subjects);
-  const questions = useQuestionStore((state) => state.questions);
+function sameIdArray(a = [], b = []) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
 
-  const subjects = useMemo(() => normalizeSubjects(rawSubjects), [rawSubjects]);
+  for (let i = 0; i < a.length; i += 1) {
+    if (String(a[i]) !== String(b[i])) return false;
+  }
+  return true;
+}
+
+function getResponseData(res) {
+  if (res?.data?.data !== undefined) return res.data.data;
+  if (res?.data !== undefined) return res.data;
+  return res;
+}
+
+function normalizeSubjects(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.subjects)) return raw.subjects;
+  if (Array.isArray(raw?.data)) return raw.data;
+  return [];
+}
+
+function normalizeStats(raw) {
+  const data = raw && typeof raw === "object" ? raw : {};
+
+  return {
+    total: Number(data.total) || 0,
+    difficulty: {
+      easy: Number(data?.difficulty?.easy) || 0,
+      mid: Number(data?.difficulty?.mid) || 0,
+      hard: Number(data?.difficulty?.hard) || 0,
+    },
+    chapters: Array.isArray(data.chapters) ? data.chapters : [],
+    knowledgePoints: Array.isArray(data.knowledgePoints)
+      ? data.knowledgePoints
+      : [],
+  };
+}
+
+function normalizeIdArray(values = []) {
+  if (!Array.isArray(values)) return [];
+
+  return values
+    .map((item) => {
+      if (typeof item === "object" && item !== null) {
+        return item.id ?? item.value ?? null;
+      }
+      return item;
+    })
+    .filter(
+      (item) => item !== null && item !== undefined && String(item) !== "",
+    );
+}
+
+export function usePracticeDecisionLogic(strategy) {
+  const [loadingMeta, setLoadingMeta] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [hasLoadedStats, setHasLoadedStats] = useState(false);
+
+  const [meta, setMeta] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    difficulty: { easy: 0, mid: 0, hard: 0 },
+    chapters: [],
+    knowledgePoints: [],
+  });
 
   const [requestedTotal, setRequestedTotal] = useState(20);
   const [requestedSplit, setRequestedSplit] = useState([6, 14]);
@@ -168,37 +164,56 @@ export function usePracticeDecisionLogic(strategy) {
   const [selectedChapters, setSelectedChapters] = useState([]);
   const [selectedKnowledge, setSelectedKnowledge] = useState([]);
   const [mixScope, setMixScope] = useState("chapter");
-  const [subjectId, setSubjectId] = useState(() =>
-    subjects.length ? subjects[0].id : null,
-  );
+  const [subjectId, setSubjectId] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMeta() {
+      setLoadingMeta(true);
+      try {
+        const res = await http.get("/practice/meta");
+        const data = getResponseData(res);
+        const subjects = normalizeSubjects(data);
+
+        if (!cancelled) {
+          setMeta(subjects);
+        }
+      } catch (error) {
+        console.error("获取刷题元数据失败：", error);
+        message.error(error?.message || "获取刷题元数据失败");
+      } finally {
+        if (!cancelled) {
+          setLoadingMeta(false);
+        }
+      }
+    }
+
+    loadMeta();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const subjects = useMemo(() => normalizeSubjects(meta), [meta]);
+
+  useEffect(() => {
+    if (subjectId == null && subjects.length > 0) {
+      setSubjectId(subjects[0].id);
+    }
+  }, [subjectId, subjects]);
 
   const safeSubjectId = useMemo(() => {
-    if (!subjects.length) return null;
-    const exists = subjects.some((s) => s.id === subjectId);
+    if (!Array.isArray(subjects) || subjects.length === 0) return null;
+    const exists = subjects.some((s) => String(s.id) === String(subjectId));
     return exists ? subjectId : subjects[0].id;
   }, [subjects, subjectId]);
 
   const currentSubject = useMemo(() => {
-    return subjects.find((s) => s.id === safeSubjectId) || null;
+    if (!Array.isArray(subjects)) return null;
+    return subjects.find((s) => String(s.id) === String(safeSubjectId)) || null;
   }, [subjects, safeSubjectId]);
-
-  const chapters = useMemo(() => {
-    return currentSubject?.chapters || [];
-  }, [currentSubject]);
-
-  const allKnowledgePoints = useMemo(() => {
-    const result = [];
-    for (const chapter of chapters) {
-      for (const kp of chapter.knowledgePoints || []) {
-        result.push({
-          ...kp,
-          chapterId: chapter.id,
-          chapterName: chapter.name,
-        });
-      }
-    }
-    return result;
-  }, [chapters]);
 
   const isChapterMode =
     strategy === "chapter" || (strategy === "mix" && mixScope === "chapter");
@@ -207,100 +222,173 @@ export function usePracticeDecisionLogic(strategy) {
     strategy === "knowledge" ||
     (strategy === "mix" && mixScope === "knowledge");
 
-  // 基础题池：只按科目 + 真题开关过滤
-  const basePool = useMemo(() => {
-    if (!currentSubject) return [];
+  const selectedChapterIds = useMemo(
+    () => normalizeIdArray(selectedChapters),
+    [selectedChapters],
+  );
 
-    let pool = questions.filter((q) => q.subject === currentSubject.name);
+  const selectedKnowledgeIds = useMemo(
+    () => normalizeIdArray(selectedKnowledge),
+    [selectedKnowledge],
+  );
 
-    if (!includeTrue) {
-      pool = pool.filter((q) => !q.isReal);
+  const chapterIdsKey = useMemo(
+    () => selectedChapterIds.map(String).join(","),
+    [selectedChapterIds],
+  );
+
+  const knowledgeIdsKey = useMemo(
+    () => selectedKnowledgeIds.map(String).join(","),
+    [selectedKnowledgeIds],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer = null;
+
+    async function loadStats() {
+      if (!safeSubjectId) {
+        setStats({
+          total: 0,
+          difficulty: { easy: 0, mid: 0, hard: 0 },
+          chapters: [],
+          knowledgePoints: [],
+        });
+        return;
+      }
+
+      setLoadingStats(true);
+
+      try {
+        const res = await http.get("/practice/stats", {
+          params: {
+            subjectId: safeSubjectId,
+            includeTrue,
+            chapterIds:
+              isChapterMode && chapterIdsKey ? chapterIdsKey : undefined,
+            knowledgeIds:
+              isKnowledgeMode && knowledgeIdsKey ? knowledgeIdsKey : undefined,
+          },
+        });
+
+        const data = normalizeStats(getResponseData(res));
+
+        if (!cancelled) {
+          setStats((prev) => {
+            const same =
+              Number(prev.total) === Number(data.total) &&
+              Number(prev?.difficulty?.easy) ===
+                Number(data?.difficulty?.easy) &&
+              Number(prev?.difficulty?.mid) === Number(data?.difficulty?.mid) &&
+              Number(prev?.difficulty?.hard) ===
+                Number(data?.difficulty?.hard) &&
+              JSON.stringify(prev.chapters) === JSON.stringify(data.chapters) &&
+              JSON.stringify(prev.knowledgePoints) ===
+                JSON.stringify(data.knowledgePoints);
+
+            return same ? prev : data;
+          });
+          setHasLoadedStats(true);
+        }
+      } catch (error) {
+        console.error("获取刷题统计失败：", error);
+        message.error(error?.message || "获取刷题统计失败");
+      } finally {
+        if (!cancelled) {
+          setLoadingStats(false);
+        }
+      }
     }
 
-    return pool;
-  }, [questions, currentSubject, includeTrue]);
+    timer = setTimeout(loadStats, 60);
 
-  // 只允许选择“当前有题”的章节
-  const availableChapterNames = useMemo(() => {
-    return [...new Set(basePool.map((q) => q.chapter).filter(Boolean))];
-  }, [basePool]);
-
-  const availableChapters = useMemo(() => {
-    return chapters.filter((ch) =>
-      includesNormalized(availableChapterNames, ch.name),
-    );
-  }, [chapters, availableChapterNames]);
-
-  // 只允许选择“当前有题”的知识点
-  const availableKnowledgeNames = useMemo(() => {
-    return [...new Set(basePool.flatMap((q) => q.kps || []).filter(Boolean))];
-  }, [basePool]);
-
-  const availableKnowledgePoints = useMemo(() => {
-    return allKnowledgePoints.filter((kp) =>
-      includesNormalized(availableKnowledgeNames, kp.name),
-    );
-  }, [allKnowledgePoints, availableKnowledgeNames]);
-
-  const selectedChapterNames = useMemo(() => {
-    return normalizeSelectedNames(selectedChapters, availableChapters);
-  }, [selectedChapters, availableChapters]);
-
-  const selectedKnowledgeNames = useMemo(() => {
-    return normalizeSelectedNames(selectedKnowledge, availableKnowledgePoints);
-  }, [selectedKnowledge, availableKnowledgePoints]);
-
-  // 当前真正筛完的题池
-  const filteredPool = useMemo(() => {
-    console.log("selectedChapterNames =", selectedChapterNames);
-    console.log("selectedKnowledgeNames =", selectedKnowledgeNames);
-    console.log(
-      "question chapters =",
-      basePool.map((q) => q.chapter),
-    );
-    console.log("question kps =", [
-      ...new Set(basePool.flatMap((q) => q.kps || [])),
-    ]);
-    let pool = [...basePool];
-
-    if (isChapterMode && selectedChapterNames.length > 0) {
-      pool = pool.filter((q) =>
-        includesNormalized(selectedChapterNames, q.chapter),
-      );
-    }
-
-    if (isKnowledgeMode && selectedKnowledgeNames.length > 0) {
-      pool = pool.filter((q) =>
-        (q.kps || []).some((kp) =>
-          includesNormalized(selectedKnowledgeNames, kp),
-        ),
-      );
-    }
-
-    return pool;
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [
-    basePool,
+    safeSubjectId,
+    includeTrue,
     isChapterMode,
     isKnowledgeMode,
-    selectedChapterNames,
-    selectedKnowledgeNames,
+    chapterIdsKey,
+    knowledgeIdsKey,
   ]);
+
+  const availableChapters = useMemo(() => {
+    return (stats.chapters || []).filter(
+      (item) => (Number(item.question_count) || 0) > 0,
+    );
+  }, [stats.chapters]);
+
+  const availableKnowledgePoints = useMemo(() => {
+    return (stats.knowledgePoints || []).filter(
+      (item) => (Number(item.question_count) || 0) > 0,
+    );
+  }, [stats.knowledgePoints]);
+
+  useEffect(() => {
+    setSelectedChapters((prev) => {
+      const prevIds = normalizeIdArray(prev);
+      const validIds = new Set(
+        availableChapters.map((item) => String(item.id)),
+      );
+      const next = prevIds.filter((id) => validIds.has(String(id)));
+      return sameIdArray(prevIds, next) ? prev : next;
+    });
+  }, [availableChapters]);
+
+  useEffect(() => {
+    setSelectedKnowledge((prev) => {
+      const prevIds = normalizeIdArray(prev);
+      const validIds = new Set(
+        availableKnowledgePoints.map((item) => String(item.id)),
+      );
+      const next = prevIds.filter((id) => validIds.has(String(id)));
+      return sameIdArray(prevIds, next) ? prev : next;
+    });
+  }, [availableKnowledgePoints]);
 
   const difficultyCaps = useMemo(() => {
     return {
-      easy: filteredPool.filter((q) => q.difficulty === "简单").length,
-      mid: filteredPool.filter((q) => q.difficulty === "中等").length,
-      hard: filteredPool.filter((q) => q.difficulty === "困难").length,
+      easy: Number(stats?.difficulty?.easy) || 0,
+      mid: Number(stats?.difficulty?.mid) || 0,
+      hard: Number(stats?.difficulty?.hard) || 0,
     };
-  }, [filteredPool]);
+  }, [stats]);
 
-  const maxQuestionCount = filteredPool.length;
+  const maxQuestionCount = Number(stats.total) || 0;
   const minQuestionCount = maxQuestionCount > 0 ? 1 : 0;
 
   const safeTotal = useMemo(() => {
     if (maxQuestionCount <= 0) return 0;
     return clamp(requestedTotal, minQuestionCount, maxQuestionCount);
   }, [requestedTotal, minQuestionCount, maxQuestionCount]);
+
+  useEffect(() => {
+    if (maxQuestionCount <= 0) {
+      setRequestedTotal(0);
+      setRequestedSplit([0, 0]);
+      return;
+    }
+
+    setRequestedTotal((prev) => {
+      const next = clamp(prev || 20, 1, maxQuestionCount);
+      return prev === next ? prev : next;
+    });
+
+    setRequestedSplit((prev) => {
+      if (Array.isArray(prev) && prev.length === 2) {
+        const next = [
+          clamp(prev[0], 0, maxQuestionCount),
+          clamp(prev[1], 0, maxQuestionCount),
+        ];
+        return sameIdArray(prev, next) ? prev : next;
+      }
+
+      return pickDefaultSplit(Math.min(20, maxQuestionCount));
+    });
+  }, [maxQuestionCount]);
 
   const difficultyPlan = useMemo(() => {
     return buildDifficultyPlan(safeTotal, requestedSplit, difficultyCaps);
@@ -351,7 +439,11 @@ export function usePracticeDecisionLogic(strategy) {
       return false;
     }
 
-    if (isChapterMode && selectedChapterNames.length === 0) {
+    if (
+      isChapterMode &&
+      availableChapters.length > 0 &&
+      selectedChapterIds.length === 0
+    ) {
       message.warning("请至少选择一个章节");
       return false;
     }
@@ -359,7 +451,7 @@ export function usePracticeDecisionLogic(strategy) {
     if (
       isKnowledgeMode &&
       availableKnowledgePoints.length > 0 &&
-      selectedKnowledgeNames.length === 0
+      selectedKnowledgeIds.length === 0
     ) {
       message.warning("请至少选择一个知识点");
       return false;
@@ -387,11 +479,11 @@ export function usePracticeDecisionLogic(strategy) {
     };
 
     if (strategy === "chapter") {
-      cfg.chapters = selectedChapterNames;
+      cfg.chapterIds = selectedChapterIds;
     }
 
     if (strategy === "knowledge") {
-      cfg.knowledgePoints = selectedKnowledgeNames;
+      cfg.knowledgeIds = selectedKnowledgeIds;
     }
 
     if (strategy === "mix") {
@@ -399,9 +491,9 @@ export function usePracticeDecisionLogic(strategy) {
       cfg.split = safeSplit;
 
       if (mixScope === "chapter") {
-        cfg.chapters = selectedChapterNames;
+        cfg.chapterIds = selectedChapterIds;
       } else {
-        cfg.knowledgePoints = selectedKnowledgeNames;
+        cfg.knowledgeIds = selectedKnowledgeIds;
       }
     }
 
@@ -412,7 +504,14 @@ export function usePracticeDecisionLogic(strategy) {
     return cfg;
   };
 
+  const initialLoading = loadingMeta || (!hasLoadedStats && loadingStats);
+  const refreshingStats = hasLoadedStats && loadingStats;
+
   return {
+    loading: initialLoading,
+    initialLoading,
+    refreshingStats,
+
     subjects,
     currentSubject,
     safeSubjectId,

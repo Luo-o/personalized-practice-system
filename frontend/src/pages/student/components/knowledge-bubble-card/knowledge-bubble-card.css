@@ -1,0 +1,72 @@
+.knowledge-guide-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 190px;
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+}
+
+.knowledge-guide-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/images/knowledge-bg.jpg") right bottom / cover no-repeat;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* 左侧内容 */
+.knowledge-guide-card__content {
+  position: relative;
+  z-index: 2;
+  max-width: 55%;
+  color: #1e293b;
+}
+
+.knowledge-guide-card__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.knowledge-guide-card__desc {
+  margin: 8px 0 16px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.knowledge-guide-card__button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: none;
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.knowledge-guide-card__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.knowledge-guide-card__decor {
+  display: none;
+}
+
+.knowledge-guide-card__image {
+  position: absolute;
+  right: -20px;
+  bottom: -10px;
+  width: 160px;
+  height: auto;
+  pointer-events: none;
+  opacity: 0.95;
+}

@@ -1,80 +1,14 @@
-// import { create } from "zustand";
-
-// const initialSubmissions = [
-//   {
-//     id: 5001,
-//     examId: 1001,
-//     studentId: 1,
-//     title: "期中考试",
-//     subject: "计算机网络",
-//     total: 2,
-//     score: 50,
-//     correctCount: 1,
-//     durationMin: 35,
-//     finishedAt: "2024-05-01 10:12",
-//     classId: 1,
-//   },
-//   {
-//     id: 5002,
-//     examId: 1002,
-//     studentId: 1,
-//     title: "第3章 章节测验",
-//     subject: "计算机网络",
-//     total: 1,
-//     score: 100,
-//     correctCount: 1,
-//     durationMin: 8,
-//     finishedAt: "2024-04-20 14:25",
-//     classId: 1,
-//   },
-// ];
-
-// export const useSubmissionStore = create((set, get) => ({
-//   submissions: initialSubmissions,
-
-//   addSubmission: (submission) =>
-//     set((state) => ({
-//       submissions: [...state.submissions, submission],
-//     })),
-
-//   updateSubmission: (id, data) =>
-//     set((state) => ({
-//       submissions: state.submissions.map((s) =>
-//         s.id === id ? { ...s, ...data } : s,
-//       ),
-//     })),
-
-//   deleteSubmission: (id) =>
-//     set((state) => ({
-//       submissions: state.submissions.filter((s) => s.id !== id),
-//     })),
-
-//   getSubmissionById: (id) => get().submissions.find((s) => s.id === id) || null,
-
-//   getSubmissionsByStudentId: (studentId) =>
-//     get().submissions.filter((s) => s.studentId === studentId),
-
-//   getSubmissionsByExamId: (examId) =>
-//     get().submissions.filter((s) => s.examId === examId),
-
-//   getSubmissionByExamAndStudent: (examId, studentId) =>
-//     get().submissions.find(
-//       (s) => s.examId === examId && s.studentId === studentId,
-//     ) || null,
-
-//   getFinishedCountByExamId: (examId) =>
-//     get().submissions.filter((s) => s.examId === examId).length,
-// }));
 import { create } from "zustand";
 import { http } from "../../api/http";
 import { useStudentStore } from "./studentStore";
+import { message } from "antd";
 
 export const useSubmissionStore = create((set, get) => ({
   submissions: [],
   currentSubmission: null,
   loading: false,
 
-  // 获取全部提交记录（教师端）
+  // 获取全部提交记录（教师端 / 学生端记录页共用）
   fetchSubmissions: async () => {
     set({ loading: true });
 
@@ -131,34 +65,45 @@ export const useSubmissionStore = create((set, get) => ({
     }
   },
 
-  // 学生提交答卷
-  submitExam: async ({ examId, answers, duration }) => {
+  // 学生提交答卷 / 自主刷题
+  submitExam: async (payload = {}) => {
     const studentId = useStudentStore.getState().getCurrentStudentId();
 
     if (!studentId) {
       throw new Error("学生未登录");
     }
 
+    const now = new Date();
+    const submittedAt = `${now.getFullYear()}-${String(
+      now.getMonth() + 1,
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(
+      now.getHours(),
+    ).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(
+      now.getSeconds(),
+    ).padStart(2, "0")}`;
+
     const submissionId = Date.now();
 
-    const payload = {
+    const requestBody = {
       id: submissionId,
-      exam_id: examId,
-      student_id: studentId,
-      duration_min: duration,
-      submitted_at: new Date().toISOString(),
-      answers,
+      type: payload.type || "exam",
+      exam_id: payload.exam_id ?? payload.examId ?? null,
+      student_id: payload.student_id ?? studentId,
+      class_id: payload.class_id ?? null,
+      title: payload.title ?? null,
+      subject_id: payload.subject_id ?? null,
+      duration_min: payload.duration_min ?? payload.duration ?? null,
+      submitted_at: payload.submitted_at || submittedAt,
+      answers: Array.isArray(payload.answers) ? payload.answers : [],
     };
 
+    console.log("submitExam requestBody =", requestBody);
+
     try {
-      const res = await http.post("/submissions", payload);
-
-      set((state) => ({
-        submissions: [...state.submissions, res.submission],
-      }));
-
+      const res = await http.post("/submissions", requestBody);
       return res;
     } catch (error) {
+      message.error("提交失败");
       throw error;
     }
   },

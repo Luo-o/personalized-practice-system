@@ -1,425 +1,35 @@
-// import React, { useMemo, useState } from "react";
-// import { Input, Tag, Select } from "antd";
-// import {
-//   FileTextOutlined,
-//   FilterOutlined,
-//   SearchOutlined,
-// } from "@ant-design/icons";
-// import { useSearchParams } from "react-router-dom";
-// import PageHeader from "../../components/PageHeader";
-// import WrongQuestionSheetDrawer from "../../components/student/wrong-book/WrongQuestionSheetDrawer";
-// import {
-//   useAnswerRecordStore,
-//   useQuestionStore,
-//   useAuthStore,
-// } from "../../store";
-// import "./wrong-book.css";
-
-// function toParams(prev, patch) {
-//   const next = new URLSearchParams(prev);
-//   Object.entries(patch).forEach(([k, v]) => {
-//     const val = (v ?? "").toString().trim();
-//     if (!val) next.delete(k);
-//     else next.set(k, val);
-//   });
-//   return next;
-// }
-
-// export default function WrongBook() {
-//   const answerRecords = useAnswerRecordStore((s) => s.answerRecords);
-//   const questions = useQuestionStore((s) => s.questions);
-//   const currentUser = useAuthStore((s) => s.currentUser);
-
-//   const currentStudentId =
-//     currentUser?.role === "student" ? currentUser.id : null;
-
-//   const wrongs = useMemo(() => {
-//     if (!currentStudentId) return [];
-
-//     const records = answerRecords.filter(
-//       (r) => r.studentId === currentStudentId && !r.isCorrect,
-//     );
-
-//     const grouped = new Map();
-
-//     records.forEach((r) => {
-//       const q = questions.find((item) => item.id === r.questionId);
-//       if (!q) return;
-
-//       const old = grouped.get(r.questionId);
-//       if (!old) {
-//         grouped.set(r.questionId, {
-//           id: `w_${r.questionId}`,
-//           questionId: r.questionId,
-//           subject: q.subject,
-//           wrongCount: 1,
-//           lastPracticeAt: (r.answeredAt || "").split(" ")[0],
-//           chapterText: q.chapter,
-//           knowledgePoint: q.kps?.[0] || "未归类",
-//           title: q.title,
-//           difficulty: q.difficulty,
-//           tag: q.kps?.[0] || "",
-//           question: {
-//             id: q.id,
-//             difficulty: q.difficulty,
-//             tag: `${q.subject} · ${q.chapter}`,
-//             stem: q.title,
-//             options: q.options,
-//             correct: q.correct,
-//             explanation: q.analysis,
-//           },
-//           lastAttempt: {
-//             answer: r.selectedAnswer,
-//             answeredAt: r.answeredAt,
-//           },
-//           mastered: false,
-//         });
-//       } else {
-//         old.wrongCount += 1;
-//         old.lastPracticeAt = (r.answeredAt || "").split(" ")[0];
-//         old.lastAttempt = {
-//           answer: r.selectedAnswer,
-//           answeredAt: r.answeredAt,
-//         };
-//       }
-//     });
-
-//     return Array.from(grouped.values()).sort(
-//       (a, b) =>
-//         new Date(b.lastAttempt.answeredAt) - new Date(a.lastAttempt.answeredAt),
-//     );
-//   }, [answerRecords, questions, currentStudentId]);
-
-//   const [masteredIds, setMasteredIds] = useState([]);
-//   const [searchParams, setSearchParams] = useSearchParams();
-
-//   const enrichedWrongs = useMemo(() => {
-//     return wrongs.map((w) => ({
-//       ...w,
-//       mastered: masteredIds.includes(w.id),
-//     }));
-//   }, [wrongs, masteredIds]);
-
-//   const totalWrongCount = enrichedWrongs.length;
-//   const masteredCount = enrichedWrongs.filter((w) => w.mastered).length;
-//   const pendingCount = enrichedWrongs.filter((w) => !w.mastered).length;
-
-//   const subjectValue = searchParams.get("sub") || "全部科目";
-//   const kpSearch = searchParams.get("kp") || "";
-//   const tabParam = searchParams.get("tab") || "";
-
-//   const subjectOptions = useMemo(() => {
-//     const set = new Set();
-//     for (const w of enrichedWrongs) set.add(w.subject || "未设置");
-//     const list = Array.from(set)
-//       .sort()
-//       .map((s) => ({ value: s, label: s }));
-//     return [{ value: "全部科目", label: "全部科目" }, ...list];
-//   }, [enrichedWrongs]);
-
-//   const wrongsBySubject = useMemo(() => {
-//     if (subjectValue === "全部科目") return enrichedWrongs;
-//     return enrichedWrongs.filter(
-//       (w) => (w.subject || "未设置") === subjectValue,
-//     );
-//   }, [enrichedWrongs, subjectValue]);
-
-//   const kpStats = useMemo(() => {
-//     const map = new Map();
-//     for (const w of wrongsBySubject) {
-//       const kp = w.knowledgePoint || "未归类";
-//       map.set(kp, (map.get(kp) || 0) + 1);
-//     }
-//     return Array.from(map.entries())
-//       .map(([kp, count]) => ({ kp, count }))
-//       .sort((a, b) => b.count - a.count);
-//   }, [wrongsBySubject]);
-
-//   const activeKp = useMemo(() => {
-//     if (tabParam) return tabParam;
-//     if (!kpSearch) return "全部";
-//     const exists = kpStats.some((x) => x.kp === kpSearch);
-//     return exists ? kpSearch : "全部";
-//   }, [tabParam, kpSearch, kpStats]);
-
-//   const filteredKpStats = useMemo(() => {
-//     const s = kpSearch.trim().toLowerCase();
-//     if (!s) return kpStats;
-//     return kpStats.filter((x) => x.kp.toLowerCase().includes(s));
-//   }, [kpStats, kpSearch]);
-
-//   const displayWrongs = useMemo(() => {
-//     let list = wrongsBySubject;
-
-//     if (activeKp !== "全部") {
-//       list = list.filter((w) => (w.knowledgePoint || "未归类") === activeKp);
-//     }
-
-//     const s = kpSearch.trim().toLowerCase();
-//     if (s) {
-//       list = list.filter((w) =>
-//         (w.knowledgePoint || "未归类").toLowerCase().includes(s),
-//       );
-//     }
-
-//     return list;
-//   }, [wrongsBySubject, activeKp, kpSearch]);
-
-//   const [drawerOpen, setDrawerOpen] = useState(false);
-//   const [drawerDefaultView, setDrawerDefaultView] = useState("practice");
-//   const [currentWrong, setCurrentWrong] = useState(null);
-
-//   const openPractice = (wrong) => {
-//     setCurrentWrong(wrong);
-//     setDrawerDefaultView("practice");
-//     setDrawerOpen(true);
-//   };
-
-//   const openAnalysis = (wrong) => {
-//     setCurrentWrong(wrong);
-//     setDrawerDefaultView("analysis");
-//     setDrawerOpen(true);
-//   };
-
-//   const hasFilter =
-//     subjectValue !== "全部科目" ||
-//     activeKp !== "全部" ||
-//     kpSearch.trim().length > 0;
-
-//   const clearAll = () => {
-//     setSearchParams({});
-//   };
-
-//   return (
-//     <div className="wb-page">
-//       <PageHeader
-//         title="我的错题本"
-//         subtitle={`共${pendingCount}道错题待复习`}
-//         icon={
-//           <div className="wb-ph-icon">
-//             <FileTextOutlined />
-//           </div>
-//         }
-//       />
-
-//       <div className="wb-wrap">
-//         <div className="wb-stats">
-//           <div className="wb-stat wrong-total">
-//             <div className="wb-stat-label">总错题数</div>
-//             <div className="wb-stat-value is-red">{totalWrongCount}</div>
-//           </div>
-//           <div className="wb-stat mastered-count">
-//             <div className="wb-stat-label">已掌握</div>
-//             <div className="wb-stat-value is-green">{masteredCount}</div>
-//           </div>
-//         </div>
-
-//         <div className="wb-filter-card">
-//           <div className="wb-filter-head">
-//             <div className="wb-filter-title">
-//               <FilterOutlined />
-//               <span>筛选</span>
-//             </div>
-
-//             <div className="wb-filter-right">
-//               <Select
-//                 className="wb-subject-select"
-//                 value={subjectValue}
-//                 options={subjectOptions}
-//                 size="middle"
-//                 onChange={(v) => {
-//                   setSearchParams(
-//                     toParams(searchParams, { sub: v, tab: "", kp: "" }),
-//                     { replace: true },
-//                   );
-//                 }}
-//               />
-
-//               <Input
-//                 className="wb-kp-search"
-//                 placeholder="搜索知识点"
-//                 allowClear
-//                 value={kpSearch}
-//                 onChange={(e) => {
-//                   setSearchParams(
-//                     toParams(searchParams, { kp: e.target.value }),
-//                     {
-//                       replace: true,
-//                     },
-//                   );
-//                 }}
-//                 prefix={<SearchOutlined />}
-//               />
-//             </div>
-//           </div>
-
-//           <div className="wb-kp-tabs">
-//             <button
-//               type="button"
-//               className={[
-//                 "wb-kp-tab",
-//                 activeKp === "全部" ? "is-active" : "",
-//               ].join(" ")}
-//               onClick={() =>
-//                 setSearchParams(toParams(searchParams, { tab: "" }), {
-//                   replace: true,
-//                 })
-//               }
-//             >
-//               全部（{wrongsBySubject.length}）
-//             </button>
-
-//             {filteredKpStats.map((x) => (
-//               <button
-//                 key={x.kp}
-//                 type="button"
-//                 className={[
-//                   "wb-kp-tab",
-//                   activeKp === x.kp ? "is-active" : "",
-//                 ].join(" ")}
-//                 onClick={() =>
-//                   setSearchParams(toParams(searchParams, { tab: x.kp }), {
-//                     replace: true,
-//                   })
-//                 }
-//               >
-//                 {x.kp}（{x.count}）
-//               </button>
-//             ))}
-//           </div>
-
-//           {hasFilter && (
-//             <div className="wb-filter-bar">
-//               <div className="wb-filter-bar-text">
-//                 当前：{subjectValue}
-//                 {activeKp !== "全部" ? ` - ${activeKp}` : ""}
-//                 {kpSearch.trim() ? ` | 搜索“${kpSearch.trim()}”` : ""}
-//               </div>
-//               <button
-//                 type="button"
-//                 className="wb-filter-clear"
-//                 onClick={clearAll}
-//               >
-//                 清除
-//               </button>
-//             </div>
-//           )}
-//         </div>
-
-//         <div className="wb-list">
-//           {displayWrongs.map((w, idx) => (
-//             <div key={w.id} className="wb-item">
-//               <div className="wb-item-head">
-//                 <div className="wb-item-left">
-//                   <div className="wb-item-index">#{idx + 1}</div>
-//                   <Tag className="wb-tag-wrong" color="red">
-//                     错误{w.wrongCount}次
-//                   </Tag>
-//                   <span className="wb-item-title">{w.title}</span>
-//                 </div>
-
-//                 <div className="wb-item-right">
-//                   {w.mastered ? (
-//                     <Tag color="green" className="wb-tag-mastered">
-//                       已掌握
-//                     </Tag>
-//                   ) : (
-//                     <Tag color="orange" className="wb-tag-pending">
-//                       待复习
-//                     </Tag>
-//                   )}
-//                 </div>
-//               </div>
-
-//               <div className="wb-item-sub">
-//                 <span className="wb-sub">{w.subject || "未设置"}</span>
-//                 <span className="wb-dot">|</span>
-//                 <span className="wb-sub">{w.chapterText}</span>
-//                 <span className="wb-dot">|</span>
-//                 <span className="wb-sub">{w.knowledgePoint || "未归类"}</span>
-//                 <span className="wb-dot">|</span>
-//                 <span className="wb-sub">最后练习：{w.lastPracticeAt}</span>
-//               </div>
-
-//               <div className="wb-item-actions">
-//                 <button
-//                   className="wb-btn primary"
-//                   type="button"
-//                   onClick={() => openPractice(w)}
-//                 >
-//                   重新练习
-//                 </button>
-
-//                 <button
-//                   className="wb-btn ghost"
-//                   type="button"
-//                   onClick={() => openAnalysis(w)}
-//                 >
-//                   查看解析
-//                 </button>
-//               </div>
-//             </div>
-//           ))}
-
-//           {displayWrongs.length === 0 && (
-//             <div className="wb-empty">
-//               当前筛选下暂无错题
-//               {hasFilter && (
-//                 <button
-//                   type="button"
-//                   className="wb-empty-clear"
-//                   onClick={clearAll}
-//                 >
-//                   清除筛选
-//                 </button>
-//               )}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-
-//       <WrongQuestionSheetDrawer
-//         open={drawerOpen}
-//         onClose={() => setDrawerOpen(false)}
-//         wrong={currentWrong}
-//         defaultView={drawerDefaultView}
-//         onMarkMastered={(wrongId) => {
-//           setMasteredIds((prev) =>
-//             prev.includes(wrongId) ? prev : [...prev, wrongId],
-//           );
-//         }}
-//       />
-//     </div>
-//   );
-// }
-
 import React, { useEffect, useMemo, useState } from "react";
-import { Input, Tag, Select } from "antd";
+import { Button, Dropdown, Tag, Breadcrumb, message } from "antd";
 import {
-  FileTextOutlined,
+  CheckOutlined,
+  DownOutlined,
   FilterOutlined,
-  SearchOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
-import { useSearchParams } from "react-router-dom";
-import PageHeader from "../../components/PageHeader";
+import { Link } from "react-router-dom";
 import WrongQuestionSheetDrawer from "../../components/student/wrong-book/WrongQuestionSheetDrawer";
 import { useAnswerRecordStore, useQuestionStore } from "../../store";
 import "./wrong-book.css";
 
-function toParams(prev, patch) {
-  const next = new URLSearchParams(prev);
-  Object.entries(patch).forEach(([k, v]) => {
-    const val = (v ?? "").toString().trim();
-    if (!val) next.delete(k);
-    else next.set(k, val);
-  });
-  return next;
+const ALL_SUBJECT = "全部科目";
+const ALL_CHAPTER = "全部章节";
+const ALL_KP = "全部知识点";
+const ALL_DIFFICULTY = "全部难度";
+const STATUS_PENDING = "pending";
+const STATUS_MASTERED = "mastered";
+
+function formatDateTime(value) {
+  if (!value) return "暂无记录";
+  return String(value).replace("T", " ").slice(0, 19);
 }
 
 export default function WrongBook() {
   const wrongQuestions = useAnswerRecordStore((s) => s.wrongQuestions);
   const fetchWrongQuestions = useAnswerRecordStore(
     (s) => s.fetchWrongQuestions,
+  );
+  const markWrongQuestionMastered = useAnswerRecordStore(
+    (s) => s.markWrongQuestionMastered,
   );
 
   const questions = useQuestionStore((s) => s.questions);
@@ -441,45 +51,90 @@ export default function WrongBook() {
       const questionId = r.questionId;
       const old = grouped.get(questionId);
 
+      const subjectName = q?.subjectName || r.subjectName || "未设置科目";
+      const chapterName = q?.chapterName || r.chapterName || "未分章节";
+      const knowledgePoints = (q?.knowledgePoints || []).map((kp) => ({
+        id: kp.id,
+        name: kp.name,
+      }));
+      const firstKnowledgeName = knowledgePoints[0]?.name || "未归类";
+      const difficulty = q?.difficulty || r.difficulty || "未设置";
+
+      const questionData = q
+        ? {
+            id: q.id,
+            difficulty: q.difficulty,
+            subject_name: q.subjectName,
+            chapter_name: q.chapterName,
+            knowledge_points: knowledgePoints,
+            stem: q.title,
+            title: q.title,
+            options: (q.options || []).map((item) => ({
+              key: item.key || item.option_key,
+              text: item.text || item.option_text,
+            })),
+            correct: q.correct,
+            explanation: q.analysis,
+          }
+        : {
+            id: questionId,
+            difficulty,
+            subject_name: subjectName,
+            chapter_name: chapterName,
+            knowledge_points: knowledgePoints,
+            stem: r.title,
+            title: r.title,
+            options: [],
+            correct: r.correctAnswer,
+            explanation: r.analysis,
+          };
+
       if (!old) {
         grouped.set(questionId, {
           id: `w_${questionId}`,
+          wrongBookId: r.wrongBookId ?? null,
           questionId,
-          subject: q?.subjectName || "未设置",
-          wrongCount: 1,
-          lastPracticeAt: (r.answeredAt || "").split(" ")[0],
-          chapterText: q?.chapterName || "未分章",
-          knowledgePoint: q?.knowledgePoints?.[0]?.name || "未归类",
-          title: q?.title || r.title,
-          difficulty: q?.difficulty || r.difficulty,
-          tag: q?.knowledgePoints?.[0]?.name || "",
-          question: q
-            ? {
-                id: q.id,
-                difficulty: q.difficulty,
-                tag: `${q.subjectName || ""} · ${q.chapterName || ""}`,
-                stem: q.title,
-                options: (q.options || []).map((item) => ({
-                  key: item.key || item.option_key,
-                  text: item.text || item.option_text,
-                })),
-                correct: q.correct,
-                explanation: q.analysis,
-              }
-            : null,
+          title: q?.title || r.title || `题目 ${questionId}`,
+          subject: subjectName,
+          chapterText: chapterName,
+          knowledgePoints,
+          knowledgePoint: firstKnowledgeName,
+          difficulty,
+          wrongCount: Number(r.wrongCount || 1),
+          lastPracticeAt: r.lastPracticeAt || r.answeredAt || "",
+          lastWrongAt: r.lastWrongAt || r.answeredAt || "",
           lastAttempt: {
             answer: r.selectedAnswer,
-            answeredAt: r.answeredAt,
+            answeredAt: r.lastPracticeAt || r.answeredAt || "",
           },
-          mastered: false,
+          question: questionData,
+          status: r.status || STATUS_PENDING,
+          mastered: (r.status || STATUS_PENDING) === STATUS_MASTERED,
         });
       } else {
-        old.wrongCount += 1;
-        old.lastPracticeAt = (r.answeredAt || "").split(" ")[0];
-        old.lastAttempt = {
-          answer: r.selectedAnswer,
-          answeredAt: r.answeredAt,
-        };
+        old.wrongCount = Math.max(
+          Number(old.wrongCount || 0),
+          Number(r.wrongCount || 0),
+        );
+        old.status = r.status || old.status || STATUS_PENDING;
+        old.mastered = (old.status || STATUS_PENDING) === STATUS_MASTERED;
+
+        const oldTime = new Date(
+          String(old.lastAttempt?.answeredAt || "").replace(" ", "T"),
+        ).getTime();
+
+        const newTime = new Date(
+          String(r.lastPracticeAt || r.answeredAt || "").replace(" ", "T"),
+        ).getTime();
+
+        if (newTime >= oldTime) {
+          old.lastPracticeAt = r.lastPracticeAt || r.answeredAt || "";
+          old.lastWrongAt = r.lastWrongAt || old.lastWrongAt || "";
+          old.lastAttempt = {
+            answer: r.selectedAnswer,
+            answeredAt: r.lastPracticeAt || r.answeredAt || "",
+          };
+        }
       }
     });
 
@@ -490,80 +145,99 @@ export default function WrongBook() {
     );
   }, [wrongQuestions, questions]);
 
-  const [masteredIds, setMasteredIds] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [statusTab, setStatusTab] = useState(STATUS_PENDING);
 
-  const enrichedWrongs = useMemo(() => {
-    return wrongs.map((w) => ({
-      ...w,
-      mastered: masteredIds.includes(w.id),
-    }));
-  }, [wrongs, masteredIds]);
+  const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECT);
+  const [selectedChapter, setSelectedChapter] = useState(ALL_CHAPTER);
+  const [selectedKnowledgePoint, setSelectedKnowledgePoint] = useState(ALL_KP);
+  const [selectedDifficulty, setSelectedDifficulty] = useState(ALL_DIFFICULTY);
 
-  const totalWrongCount = enrichedWrongs.length;
-  const masteredCount = enrichedWrongs.filter((w) => w.mastered).length;
-  const pendingCount = enrichedWrongs.filter((w) => !w.mastered).length;
-
-  const subjectValue = searchParams.get("sub") || "全部科目";
-  const kpSearch = searchParams.get("kp") || "";
-  const tabParam = searchParams.get("tab") || "";
+  const pendingCount = wrongs.filter((w) => !w.mastered).length;
+  const masteredCount = wrongs.filter((w) => w.mastered).length;
 
   const subjectOptions = useMemo(() => {
-    const set = new Set();
-    for (const w of enrichedWrongs) set.add(w.subject || "未设置");
-    const list = Array.from(set)
-      .sort()
-      .map((s) => ({ value: s, label: s }));
-    return [{ value: "全部科目", label: "全部科目" }, ...list];
-  }, [enrichedWrongs]);
+    const set = new Set(wrongs.map((w) => w.subject || "未设置科目"));
+    return [ALL_SUBJECT, ...Array.from(set)];
+  }, [wrongs]);
 
-  const wrongsBySubject = useMemo(() => {
-    if (subjectValue === "全部科目") return enrichedWrongs;
-    return enrichedWrongs.filter(
-      (w) => (w.subject || "未设置") === subjectValue,
-    );
-  }, [enrichedWrongs, subjectValue]);
+  const chapterOptions = useMemo(() => {
+    const base =
+      selectedSubject === ALL_SUBJECT
+        ? wrongs
+        : wrongs.filter((w) => w.subject === selectedSubject);
 
-  const kpStats = useMemo(() => {
-    const map = new Map();
-    for (const w of wrongsBySubject) {
-      const kp = w.knowledgePoint || "未归类";
-      map.set(kp, (map.get(kp) || 0) + 1);
+    const set = new Set(base.map((w) => w.chapterText || "未分章节"));
+    return [ALL_CHAPTER, ...Array.from(set)];
+  }, [wrongs, selectedSubject]);
+
+  const knowledgePointOptions = useMemo(() => {
+    let base = wrongs;
+
+    if (selectedSubject !== ALL_SUBJECT) {
+      base = base.filter((w) => w.subject === selectedSubject);
     }
-    return Array.from(map.entries())
-      .map(([kp, count]) => ({ kp, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [wrongsBySubject]);
 
-  const activeKp = useMemo(() => {
-    if (tabParam) return tabParam;
-    if (!kpSearch) return "全部";
-    const exists = kpStats.some((x) => x.kp === kpSearch);
-    return exists ? kpSearch : "全部";
-  }, [tabParam, kpSearch, kpStats]);
+    if (selectedChapter !== ALL_CHAPTER) {
+      base = base.filter((w) => w.chapterText === selectedChapter);
+    }
 
-  const filteredKpStats = useMemo(() => {
-    const s = kpSearch.trim().toLowerCase();
-    if (!s) return kpStats;
-    return kpStats.filter((x) => x.kp.toLowerCase().includes(s));
-  }, [kpStats, kpSearch]);
+    const kpSet = new Set();
+    base.forEach((w) => {
+      const kpList =
+        w.knowledgePoints?.length > 0
+          ? w.knowledgePoints.map((kp) => kp.name)
+          : [w.knowledgePoint || "未归类"];
+
+      kpList.forEach((name) => kpSet.add(name));
+    });
+
+    return [ALL_KP, ...Array.from(kpSet)];
+  }, [wrongs, selectedSubject, selectedChapter]);
+
+  const difficultyOptions = useMemo(() => {
+    const set = new Set(wrongs.map((w) => w.difficulty || "未设置"));
+    return [ALL_DIFFICULTY, ...Array.from(set)];
+  }, [wrongs]);
 
   const displayWrongs = useMemo(() => {
-    let list = wrongsBySubject;
+    let list = wrongs;
 
-    if (activeKp !== "全部") {
-      list = list.filter((w) => (w.knowledgePoint || "未归类") === activeKp);
+    list =
+      statusTab === STATUS_MASTERED
+        ? list.filter((w) => w.mastered)
+        : list.filter((w) => !w.mastered);
+
+    if (selectedSubject !== ALL_SUBJECT) {
+      list = list.filter((w) => w.subject === selectedSubject);
     }
 
-    const s = kpSearch.trim().toLowerCase();
-    if (s) {
-      list = list.filter((w) =>
-        (w.knowledgePoint || "未归类").toLowerCase().includes(s),
-      );
+    if (selectedChapter !== ALL_CHAPTER) {
+      list = list.filter((w) => w.chapterText === selectedChapter);
+    }
+
+    if (selectedKnowledgePoint !== ALL_KP) {
+      list = list.filter((w) => {
+        const kpList =
+          w.knowledgePoints?.length > 0
+            ? w.knowledgePoints.map((kp) => kp.name)
+            : [w.knowledgePoint || "未归类"];
+        return kpList.includes(selectedKnowledgePoint);
+      });
+    }
+
+    if (selectedDifficulty !== ALL_DIFFICULTY) {
+      list = list.filter((w) => w.difficulty === selectedDifficulty);
     }
 
     return list;
-  }, [wrongsBySubject, activeKp, kpSearch]);
+  }, [
+    wrongs,
+    statusTab,
+    selectedSubject,
+    selectedChapter,
+    selectedKnowledgePoint,
+    selectedDifficulty,
+  ]);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerDefaultView, setDrawerDefaultView] = useState("practice");
@@ -581,198 +255,277 @@ export default function WrongBook() {
     setDrawerOpen(true);
   };
 
-  const hasFilter =
-    subjectValue !== "全部科目" ||
-    activeKp !== "全部" ||
-    kpSearch.trim().length > 0;
+  const resetFilters = () => {
+    setSelectedSubject(ALL_SUBJECT);
+    setSelectedChapter(ALL_CHAPTER);
+    setSelectedKnowledgePoint(ALL_KP);
+    setSelectedDifficulty(ALL_DIFFICULTY);
+  };
 
-  const clearAll = () => {
-    setSearchParams({});
+  const createSingleSelectMenu = (options, selectedValue, onSelect) => ({
+    items: options.map((item) => ({
+      key: item,
+      label: (
+        <div className="wb-dropdown-item">
+          <span>{item}</span>
+          {selectedValue === item ? <CheckOutlined /> : null}
+        </div>
+      ),
+    })),
+    onClick: ({ key }) => onSelect(key),
+  });
+
+  const handleMarkMastered = async (wrong) => {
+    if (!wrong?.questionId) return;
+
+    try {
+      await markWrongQuestionMastered(wrong.questionId);
+      await fetchWrongQuestions();
+
+      setCurrentWrong((prev) =>
+        prev && Number(prev.questionId) === Number(wrong.questionId)
+          ? {
+              ...prev,
+              status: STATUS_MASTERED,
+              mastered: true,
+            }
+          : prev,
+      );
+
+      message.success("已标记为掌握");
+    } catch (error) {
+      console.error("标记已掌握失败:", error);
+      message.error("标记失败，请稍后重试");
+    }
+  };
+
+  const handleAskAI = async (text, question, images = [], history = []) => {
+    const formData = new FormData();
+    formData.append("message", text);
+    formData.append("questionId", question?.id || "");
+    formData.append("questionStem", question?.stem || "");
+    formData.append("history", JSON.stringify(history));
+
+    images.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    const res = await fetch("/api/ai/chat", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    return data?.reply || "暂无回复";
   };
 
   return (
     <div className="wb-page">
-      <PageHeader
-        title="我的错题本"
-        subtitle={`共${pendingCount}道错题待复习`}
-        icon={
-          <div className="wb-ph-icon">
-            <FileTextOutlined />
-          </div>
-        }
-      />
-
-      <div className="wb-wrap">
-        <div className="wb-stats">
-          <div className="wb-stat wrong-total">
-            <div className="wb-stat-label">总错题数</div>
-            <div className="wb-stat-value is-red">{totalWrongCount}</div>
-          </div>
-          <div className="wb-stat mastered-count">
-            <div className="wb-stat-label">已掌握</div>
-            <div className="wb-stat-value is-green">{masteredCount}</div>
-          </div>
+      <div className="wb-wrap wb-wrap--wide">
+        <div className="wb-content-top">
+          <Breadcrumb
+            items={[
+              {
+                title: (
+                  <Link to="/student/dashboard" className="wr-breadcrumb-link">
+                    <HomeOutlined />
+                  </Link>
+                ),
+              },
+              {
+                title: (
+                  <Link
+                    to="/student/wrong-book"
+                    className="wr-breadcrumb-current"
+                  >
+                    错题本
+                  </Link>
+                ),
+              },
+            ]}
+          />
         </div>
 
-        <div className="wb-filter-card">
-          <div className="wb-filter-head">
-            <div className="wb-filter-title">
-              <FilterOutlined />
-              <span>筛选</span>
+        <div className="wb-board">
+          <div className="wb-board-top">
+            <div className="wb-count-tabs">
+              <button
+                type="button"
+                className={`wb-count-tab ${statusTab === STATUS_PENDING ? "is-active" : ""}`}
+                onClick={() => setStatusTab(STATUS_PENDING)}
+              >
+                <span className="wb-count-tab-dot pending" />
+                <span className="wb-count-tab-number">{pendingCount}</span>
+                <span className="wb-count-tab-text">待复习</span>
+              </button>
+
+              <button
+                type="button"
+                className={`wb-count-tab ${statusTab === STATUS_MASTERED ? "is-active" : ""}`}
+                onClick={() => setStatusTab(STATUS_MASTERED)}
+              >
+                <span className="wb-count-tab-dot mastered" />
+                <span className="wb-count-tab-number">{masteredCount}</span>
+                <span className="wb-count-tab-text">已掌握</span>
+              </button>
             </div>
 
-            <div className="wb-filter-right">
-              <Select
-                className="wb-subject-select"
-                value={subjectValue}
-                options={subjectOptions}
-                size="middle"
-                onChange={(v) => {
-                  setSearchParams(
-                    toParams(searchParams, { sub: v, tab: "", kp: "" }),
-                    { replace: true },
-                  );
-                }}
-              />
+            <div className="wb-toolbar">
+              <Dropdown
+                menu={createSingleSelectMenu(
+                  subjectOptions,
+                  selectedSubject,
+                  (value) => {
+                    setSelectedSubject(value);
+                    setSelectedChapter(ALL_CHAPTER);
+                    setSelectedKnowledgePoint(ALL_KP);
+                  },
+                )}
+                trigger={["click"]}
+              >
+                <Button className="wb-filter-dropdown-btn">
+                  科目：{selectedSubject} <DownOutlined />
+                </Button>
+              </Dropdown>
 
-              <Input
-                className="wb-kp-search"
-                placeholder="搜索知识点"
-                allowClear
-                value={kpSearch}
-                onChange={(e) => {
-                  setSearchParams(
-                    toParams(searchParams, { kp: e.target.value }),
-                    { replace: true },
-                  );
-                }}
-                prefix={<SearchOutlined />}
-              />
+              <Dropdown
+                menu={createSingleSelectMenu(
+                  chapterOptions,
+                  selectedChapter,
+                  (value) => {
+                    setSelectedChapter(value);
+                    setSelectedKnowledgePoint(ALL_KP);
+                  },
+                )}
+                trigger={["click"]}
+              >
+                <Button className="wb-filter-dropdown-btn">
+                  章节：{selectedChapter} <DownOutlined />
+                </Button>
+              </Dropdown>
+
+              <Dropdown
+                menu={createSingleSelectMenu(
+                  knowledgePointOptions,
+                  selectedKnowledgePoint,
+                  setSelectedKnowledgePoint,
+                )}
+                trigger={["click"]}
+              >
+                <Button className="wb-filter-dropdown-btn">
+                  知识点：{selectedKnowledgePoint} <DownOutlined />
+                </Button>
+              </Dropdown>
+
+              <Dropdown
+                menu={createSingleSelectMenu(
+                  difficultyOptions,
+                  selectedDifficulty,
+                  setSelectedDifficulty,
+                )}
+                trigger={["click"]}
+              >
+                <Button className="wb-filter-dropdown-btn">
+                  难度：{selectedDifficulty} <DownOutlined />
+                </Button>
+              </Dropdown>
+
+              <button
+                type="button"
+                className="wb-reset-btn"
+                onClick={resetFilters}
+              >
+                <FilterOutlined />
+                重置
+              </button>
             </div>
           </div>
 
-          <div className="wb-kp-tabs">
-            <button
-              type="button"
-              className={[
-                "wb-kp-tab",
-                activeKp === "全部" ? "is-active" : "",
-              ].join(" ")}
-              onClick={() =>
-                setSearchParams(toParams(searchParams, { tab: "" }), {
-                  replace: true,
-                })
-              }
-            >
-              全部（{wrongsBySubject.length}）
-            </button>
+          <div className="wb-issue-list">
+            {displayWrongs.map((w) => {
+              const kpList =
+                w.knowledgePoints?.length > 0
+                  ? w.knowledgePoints
+                  : [{ id: "fallback", name: w.knowledgePoint || "未归类" }];
 
-            {filteredKpStats.map((x) => (
-              <button
-                key={x.kp}
-                type="button"
-                className={[
-                  "wb-kp-tab",
-                  activeKp === x.kp ? "is-active" : "",
-                ].join(" ")}
-                onClick={() =>
-                  setSearchParams(toParams(searchParams, { tab: x.kp }), {
-                    replace: true,
-                  })
-                }
-              >
-                {x.kp}（{x.count}）
-              </button>
-            ))}
+              return (
+                <div key={w.id} className="wb-issue-row">
+                  <div className="wb-issue-main">
+                    <div className="wb-issue-title-row">
+                      <button
+                        type="button"
+                        className="wb-issue-title-btn"
+                        onClick={() => openPractice(w)}
+                      >
+                        {w.title}
+                      </button>
+                    </div>
+
+                    <div className="wb-issue-tags">
+                      {w.mastered ? (
+                        <span className="wb-mastered-icon">
+                          <CheckOutlined />
+                        </span>
+                      ) : null}
+
+                      <Tag className="wb-label-tag wb-label-tag-subject">
+                        {w.subject || "未设置科目"}
+                      </Tag>
+
+                      <Tag className="wb-label-tag wb-label-tag-chapter">
+                        {w.chapterText || "未分章节"}
+                      </Tag>
+
+                      {kpList.map((kp) => (
+                        <Tag
+                          key={kp.id || kp.name}
+                          className="wb-label-tag wb-label-tag-kp"
+                        >
+                          {kp.name}
+                        </Tag>
+                      ))}
+
+                      <Tag className="wb-label-tag wb-label-tag-difficulty">
+                        {w.difficulty || "未设置"}
+                      </Tag>
+
+                      <Tag className="wb-label-tag wb-label-tag-times">
+                        错误 {w.wrongCount} 次
+                      </Tag>
+                    </div>
+
+                    <div className="wb-issue-meta">
+                      最后提交时间：{formatDateTime(w.lastPracticeAt)}
+                    </div>
+                  </div>
+
+                  <div className="wb-issue-actions">
+                    <button
+                      type="button"
+                      className="wb-action-btn wb-action-btn-primary"
+                      onClick={() => openPractice(w)}
+                    >
+                      重新练习
+                    </button>
+                    <button
+                      type="button"
+                      className="wb-action-btn"
+                      onClick={() => openAnalysis(w)}
+                    >
+                      查看解析
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {displayWrongs.length === 0 && (
+              <div className="wb-empty-panel">
+                当前筛选下暂无
+                {statusTab === STATUS_MASTERED ? "已掌握题目" : "待复习题目"}
+              </div>
+            )}
           </div>
-
-          {hasFilter && (
-            <div className="wb-filter-bar">
-              <div className="wb-filter-bar-text">
-                当前：{subjectValue}
-                {activeKp !== "全部" ? ` - ${activeKp}` : ""}
-                {kpSearch.trim() ? ` | 搜索“${kpSearch.trim()}”` : ""}
-              </div>
-              <button
-                type="button"
-                className="wb-filter-clear"
-                onClick={clearAll}
-              >
-                清除
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="wb-list">
-          {displayWrongs.map((w, idx) => (
-            <div key={w.id} className="wb-item">
-              <div className="wb-item-head">
-                <div className="wb-item-left">
-                  <div className="wb-item-index">#{idx + 1}</div>
-                  <Tag className="wb-tag-wrong" color="red">
-                    错误{w.wrongCount}次
-                  </Tag>
-                  <span className="wb-item-title">{w.title}</span>
-                </div>
-
-                <div className="wb-item-right">
-                  {w.mastered ? (
-                    <Tag color="green" className="wb-tag-mastered">
-                      已掌握
-                    </Tag>
-                  ) : (
-                    <Tag color="orange" className="wb-tag-pending">
-                      待复习
-                    </Tag>
-                  )}
-                </div>
-              </div>
-
-              <div className="wb-item-sub">
-                <span className="wb-sub">{w.subject || "未设置"}</span>
-                <span className="wb-dot">|</span>
-                <span className="wb-sub">{w.chapterText}</span>
-                <span className="wb-dot">|</span>
-                <span className="wb-sub">{w.knowledgePoint || "未归类"}</span>
-                <span className="wb-dot">|</span>
-                <span className="wb-sub">最后练习：{w.lastPracticeAt}</span>
-              </div>
-
-              <div className="wb-item-actions">
-                <button
-                  className="wb-btn primary"
-                  type="button"
-                  onClick={() => openPractice(w)}
-                >
-                  重新练习
-                </button>
-
-                <button
-                  className="wb-btn ghost"
-                  type="button"
-                  onClick={() => openAnalysis(w)}
-                >
-                  查看解析
-                </button>
-              </div>
-            </div>
-          ))}
-
-          {displayWrongs.length === 0 && (
-            <div className="wb-empty">
-              当前筛选下暂无错题
-              {hasFilter && (
-                <button
-                  type="button"
-                  className="wb-empty-clear"
-                  onClick={clearAll}
-                >
-                  清除筛选
-                </button>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
@@ -781,11 +534,8 @@ export default function WrongBook() {
         onClose={() => setDrawerOpen(false)}
         wrong={currentWrong}
         defaultView={drawerDefaultView}
-        onMarkMastered={(wrongId) => {
-          setMasteredIds((prev) =>
-            prev.includes(wrongId) ? prev : [...prev, wrongId],
-          );
-        }}
+        onMarkMastered={() => handleMarkMastered(currentWrong)}
+        onAskAI={handleAskAI}
       />
     </div>
   );
