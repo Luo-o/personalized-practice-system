@@ -20,6 +20,7 @@ export default function ClassOverview({
   teacherName,
   teacherTitle,
   teacherAvatar,
+  onStudentManage,
 }) {
   const avatarText = useMemo(() => {
     return teacherName?.trim()?.charAt(0) || "师";
@@ -114,6 +115,15 @@ export default function ClassOverview({
                 onClick={onCreate}
               >
                 创建班级
+              </Button>
+
+              <Button
+                type="default"
+                icon={<PlusOutlined />}
+                className="tcl-create-btn"
+                onClick={onStudentManage}
+              >
+                学生管理
               </Button>
             </div>
           </div>

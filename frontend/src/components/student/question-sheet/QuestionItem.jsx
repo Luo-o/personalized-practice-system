@@ -2,7 +2,7 @@ import React from "react";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import "./qs-sheet.css";
 
-const BASE_FILE_URL = "http://localhost:3001";
+const BASE_FILE_URL = "http://localhost:8088";
 
 function toneClass(difficulty) {
   if (difficulty === "简单") return "qs-tag-easy";
@@ -190,7 +190,7 @@ export default function QuestionItem({
               className="qs-nav-btn primary"
               onClick={onNext}
             >
-              Next
+              下一题
             </button>
           )}
         </div>

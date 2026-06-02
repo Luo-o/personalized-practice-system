@@ -2,6 +2,14 @@ import { create } from "zustand";
 import { http } from "../../api/http";
 import { useStudentStore } from "./studentStore";
 
+function normalizeKnowledgePoints(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map((kp) => ({
+    id: kp.id,
+    name: kp.name,
+  }));
+}
+
 function normalizeWrongQuestion(item) {
   return {
     wrongBookId: item.id ?? null,
@@ -18,8 +26,11 @@ function normalizeWrongQuestion(item) {
     wrongCount: Number(item.wrong_count || 1),
     lastPracticeAt: item.last_practice_at || item.answered_at || "",
     lastWrongAt: item.last_wrong_at || item.answered_at || "",
+    subjectId: item.subject_id ?? null,
     subjectName: item.subject_name || "",
+    chapterId: item.chapter_id ?? null,
     chapterName: item.chapter_name || "",
+    knowledgePoints: normalizeKnowledgePoints(item.knowledgePoints),
   };
 }
 
@@ -36,8 +47,11 @@ function normalizeAnswerRecord(item) {
     answeredAt: item.answered_at || "",
     title: item.title || "",
     difficulty: item.difficulty || "未设置",
+    subjectId: item.subject_id ?? null,
     subjectName: item.subject_name || "",
+    chapterId: item.chapter_id ?? null,
     chapterName: item.chapter_name || "",
+    knowledgePoints: normalizeKnowledgePoints(item.knowledgePoints),
   };
 }
 

@@ -1,6 +1,9 @@
 const {
-  findUserByUsername,
+  findStudentByStudentNo,
+  findTeacherByTeacherNo,
+  findUserByRoleAndProfileId,
   findUserProfile,
+  registerStudentAccount,
   updateStudentProfile,
   updateTeacherProfile,
   updateUserPassword,
@@ -12,31 +15,107 @@ function withDefaultAvatar(user, profile) {
   if (user.role === "student") {
     return {
       ...profile,
-      avatar: profile.avatar || "/avatars/default-student-avatar.svg",
+      avatar: profile.avatar || "/avatars/default-student-avatar.png",
     };
   }
 
   if (user.role === "teacher") {
     return {
       ...profile,
-      avatar: profile.avatar || "/avatars/default-teacher-avatar.svg",
+      avatar: profile.avatar || "/avatars/default-teacher-avatar.png",
     };
   }
 
   return profile;
 }
 
-async function login(req, res) {
+async function registerStudent(req, res) {
   try {
-    const { username, password } = req.body || {};
+    const { studentNo, name, password, confirmPassword } = req.body || {};
 
-    if (!username || !password) {
+    if (!studentNo || !name || !password || !confirmPassword) {
       return res.status(400).json({
-        message: "用户名和密码不能为空",
+        message: "请完整填写注册信息",
       });
     }
 
-    const user = await findUserByUsername(username);
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        message: "两次输入的密码不一致",
+      });
+    }
+
+    if (String(password).length < 6) {
+      return res.status(400).json({
+        message: "密码长度不能少于 6 位",
+      });
+    }
+
+    const existedStudent = await findStudentByStudentNo(
+      String(studentNo).trim(),
+    );
+    if (existedStudent) {
+      return res.status(400).json({
+        message: "学号已存在",
+      });
+    }
+
+    const result = await registerStudentAccount({
+      studentNo: String(studentNo).trim(),
+      name: String(name).trim(),
+      password: String(password),
+    });
+
+    return res.status(201).json({
+      message: "学生注册成功",
+      data: result,
+    });
+  } catch (error) {
+    console.error("学生注册失败:", error);
+    return res.status(500).json({
+      message: "服务器内部错误",
+      error: error.message,
+    });
+  }
+}
+
+async function login(req, res) {
+  try {
+    const { account, password, role } = req.body || {};
+
+    if (!account || !password || !role) {
+      return res.status(400).json({
+        message: "账号、密码和角色不能为空",
+      });
+    }
+
+    let profile = null;
+    let user = null;
+    const normalizedAccount = String(account).trim();
+
+    if (role === "student") {
+      profile = await findStudentByStudentNo(normalizedAccount);
+      if (!profile) {
+        return res.status(401).json({
+          message: "用户不存在或密码错误",
+        });
+      }
+
+      user = await findUserByRoleAndProfileId("student", profile.id);
+    } else if (role === "teacher") {
+      profile = await findTeacherByTeacherNo(normalizedAccount);
+      if (!profile) {
+        return res.status(401).json({
+          message: "用户不存在或密码错误",
+        });
+      }
+
+      user = await findUserByRoleAndProfileId("teacher", profile.id);
+    } else {
+      return res.status(400).json({
+        message: "非法角色类型",
+      });
+    }
 
     if (!user) {
       return res.status(401).json({
@@ -76,15 +155,15 @@ async function login(req, res) {
 
 async function me(req, res) {
   try {
-    const { username } = req.query;
+    const { role, profileId } = req.query;
 
-    if (!username) {
+    if (!role || !profileId) {
       return res.status(400).json({
-        message: "缺少 username 参数",
+        message: "缺少 role 或 profileId 参数",
       });
     }
 
-    const user = await findUserByUsername(username);
+    const user = await findUserByRoleAndProfileId(role, Number(profileId));
 
     if (!user) {
       return res.status(404).json({
@@ -117,15 +196,15 @@ async function me(req, res) {
 
 async function updateMyProfile(req, res) {
   try {
-    const { username } = req.body || {};
+    const { role, profileId } = req.body || {};
 
-    if (!username) {
+    if (!role || !profileId) {
       return res.status(400).json({
-        message: "缺少 username",
+        message: "缺少 role 或 profileId",
       });
     }
 
-    const user = await findUserByUsername(username);
+    const user = await findUserByRoleAndProfileId(role, Number(profileId));
 
     if (!user) {
       return res.status(404).json({
@@ -135,7 +214,6 @@ async function updateMyProfile(req, res) {
 
     if (user.role === "student") {
       const result = await updateStudentProfile(user.profile_id, req.body);
-
       return res.json({
         message: "学生信息更新成功",
         data: result,
@@ -144,7 +222,6 @@ async function updateMyProfile(req, res) {
 
     if (user.role === "teacher") {
       const result = await updateTeacherProfile(user.profile_id, req.body);
-
       return res.json({
         message: "教师信息更新成功",
         data: result,
@@ -165,15 +242,15 @@ async function updateMyProfile(req, res) {
 
 async function changePassword(req, res) {
   try {
-    const { username, oldPassword, newPassword } = req.body || {};
+    const { role, profileId, oldPassword, newPassword } = req.body || {};
 
-    if (!username || !oldPassword || !newPassword) {
+    if (!role || !profileId || !oldPassword || !newPassword) {
       return res.status(400).json({
         message: "参数不完整",
       });
     }
 
-    const user = await findUserByUsername(username);
+    const user = await findUserByRoleAndProfileId(role, Number(profileId));
 
     if (!user) {
       return res.status(404).json({
@@ -202,6 +279,7 @@ async function changePassword(req, res) {
 }
 
 module.exports = {
+  registerStudent,
   login,
   me,
   updateMyProfile,

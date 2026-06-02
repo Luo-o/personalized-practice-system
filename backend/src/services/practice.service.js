@@ -64,6 +64,7 @@ function bucketByDifficulty(questions = []) {
   return { easy, mid, hard };
 }
 
+// ε-greedy 抽题
 function pickWithExploration(sortedList, count, epsilon = 0.1) {
   if (!count || !sortedList.length) return [];
 
@@ -156,7 +157,7 @@ async function getPracticeMeta() {
 
 async function getPracticeStats({
   subjectId,
-  includeTrue = true,
+  onlyTrue = false,
   chapterIds = [],
   knowledgePointIds = [],
 }) {
@@ -166,7 +167,7 @@ async function getPracticeStats({
 
   return practiceModel.getPracticeStats({
     subjectId,
-    includeTrue,
+    onlyTrue,
     chapterIds,
     knowledgePointIds,
   });
@@ -180,8 +181,8 @@ async function generatePractice(studentId, config = {}) {
     split = { easy: 3, mid: 4, hard: 3 },
     chapterIds = [],
     knowledgeIds = [],
-    includeTrue = true,
-    shuffle = false,
+    onlyTrue = false,
+    shuffle = true,
     epsilon = 0.1,
   } = config;
 
@@ -200,7 +201,7 @@ async function generatePractice(studentId, config = {}) {
     subjectId,
     chapterIds,
     knowledgePointIds: knowledgeIds,
-    includeTrue,
+    onlyTrue,
   });
 
   if (!candidates.length) {
@@ -230,6 +231,7 @@ async function generatePractice(studentId, config = {}) {
   const wrongSet = new Set(wrongIds);
   const recentSet = new Set(recentIds);
 
+  // 多因素评分
   const scored = candidates
     .map((q) => {
       const knowledgePoints = knowledgeMap[q.id] || [];

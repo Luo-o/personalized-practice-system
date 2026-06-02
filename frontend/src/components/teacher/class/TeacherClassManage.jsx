@@ -5,6 +5,7 @@ import "./class-manage.css";
 import ClassOverview from "./ClassOverview";
 import ClassDetail from "./ClassDetail";
 import CreateClassModal from "./CreateClassModal";
+import StudentManageModal from "./StudentManageModal";
 import { useClassStore, useExamStore, useAuthStore } from "../../../store";
 
 function getLatestExam(exams) {
@@ -23,6 +24,7 @@ function getLatestExam(exams) {
 export default function TeacherClassManage() {
   const [activeClassId, setActiveClassId] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [studentManageOpen, setStudentManageOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
 
   const allClasses = useClassStore((s) => s.classes);
@@ -176,6 +178,7 @@ export default function TeacherClassManage() {
           onKeywordChange={setKeyword}
           onEnter={(id) => setActiveClassId(id)}
           onCreate={() => setCreateOpen(true)}
+          onStudentManage={() => setStudentManageOpen(true)}
           teacherName={teacherName}
           teacherTitle={currentUser?.profile?.title}
           teacherAvatar={teacherAvatar}
@@ -191,6 +194,13 @@ export default function TeacherClassManage() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreateClass}
+      />
+
+      <StudentManageModal
+        open={studentManageOpen}
+        classes={classes}
+        onClose={() => setStudentManageOpen(false)}
+        onSuccess={fetchTeacherClasses}
       />
     </>
   );

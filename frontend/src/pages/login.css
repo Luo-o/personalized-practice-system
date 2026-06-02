@@ -9,8 +9,10 @@
 
 .login-panel {
   width: 100%;
-  max-width: 420px;
-  padding: 24px 8px;
+  max-width: 480px;
+  padding: 72px 48px;
+  background: #fff;
+  border-radius: 10px;
 }
 
 .login-brand {
@@ -24,8 +26,11 @@
   font-size: 34px;
   line-height: 1.2;
   font-weight: 600;
-  color: #2f80ff;
   letter-spacing: 0.5px;
+
+  background: linear-gradient(30deg, #2f80ff, #53a6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .login-brand-subtitle {
@@ -157,6 +162,39 @@
 
 .login-switch-link:hover {
   opacity: 0.8;
+}
+
+.login-role-switch {
+  display: flex;
+  gap: 10px;
+  padding: 0 120px;
+  margin-bottom: 20px;
+}
+
+.login-role-btn {
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: #fff;
+  color: #5b6573;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-role-btn:hover {
+  color: #2f80ff;
+}
+
+.login-role-btn.active {
+  color: #2f80ff;
+  font-weight: 500;
+}
+
+.login-role-separator {
+  width: 1px;
+  height: 20px;
+  background: #dfe5ee;
 }
 
 @media (max-width: 480px) {

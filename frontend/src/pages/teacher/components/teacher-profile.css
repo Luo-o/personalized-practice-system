@@ -36,7 +36,7 @@
   overflow: hidden;
   border: 2px solid #eaf2ff;
   flex-shrink: 0;
-  background: #f5f9ff;
+  background: #fff;
 }
 
 .teacher-profile-page-v2__avatar {
@@ -194,7 +194,6 @@
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #eaf2ff;
-  background: #f5f9ff;
 }
 
 .profile-avatar-picker {

@@ -20,7 +20,7 @@ export const useTeacherStore = create(() => ({
       email: profile.email,
       title: profile.title,
       department: profile.department,
-      avatar: profile.avatar || "/avatars/default-teacher-avatar.svg",
+      avatar: profile.avatar || "/avatars/default-teacher-avatar.png",
     };
   },
 

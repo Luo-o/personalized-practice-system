@@ -4,8 +4,8 @@ import { UserOutlined } from "@ant-design/icons";
 
 function getDefaultAvatarByRole(role) {
   return role === "教师" || role === "teacher"
-    ? "/avatars/default-teacher-avatar.svg"
-    : "/avatars/default-student-avatar.svg";
+    ? "/avatars/default-teacher-avatar.png"
+    : "/avatars/default-student-avatar.png";
 }
 
 export default function ClassMembersPanel({ classInfo, classStudents = [] }) {

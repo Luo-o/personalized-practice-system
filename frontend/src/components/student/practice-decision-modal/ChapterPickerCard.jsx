@@ -1,7 +1,7 @@
-import React from "react"
-import SectionCard from "./SectionCard"
-import { BookOutlined } from "@ant-design/icons"
-import "./practice-decision-modal.css"
+import React from "react";
+import SectionCard from "./SectionCard";
+import { BookOutlined, LayoutOutlined } from "@ant-design/icons";
+import "./practice-decision-modal.css";
 
 export default function ChapterPickerCard({
   chapters = [],
@@ -9,16 +9,16 @@ export default function ChapterPickerCard({
   onChange,
 }) {
   const toggle = (id) => {
-    const has = value.includes(id)
-    const next = has ? value.filter((x) => x !== id) : [...value, id]
-    onChange?.(next)
-  }
+    const has = value.includes(id);
+    const next = has ? value.filter((x) => x !== id) : [...value, id];
+    onChange?.(next);
+  };
 
   return (
-    <SectionCard icon={<BookOutlined />} title="选择章节">
+    <SectionCard icon={<LayoutOutlined />} title="选择章节">
       <div className="pdm-grid pdm-grid-3">
         {chapters.map((c) => {
-          const active = value.includes(c.id)
+          const active = value.includes(c.id);
           return (
             <button
               key={c.id}
@@ -28,9 +28,9 @@ export default function ChapterPickerCard({
             >
               {c.name}
             </button>
-          )
+          );
         })}
       </div>
     </SectionCard>
-  )
+  );
 }

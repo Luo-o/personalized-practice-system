@@ -108,7 +108,7 @@ export default function ClassListPage() {
     currentStudent?.avatar ||
     currentStudent?.avatarUrl ||
     currentStudent?.profile?.avatar ||
-    "/avatars/default-student-avatar.svg";
+    "/avatars/default-student-avatar.png";
 
   const studentGrade =
     currentStudent?.grade ||

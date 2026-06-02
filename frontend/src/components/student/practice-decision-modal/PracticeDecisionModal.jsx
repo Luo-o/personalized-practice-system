@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Slider, Button, Checkbox, Empty } from "antd";
-import { RiseOutlined, SettingOutlined } from "@ant-design/icons";
+import { Modal, Slider, Button, Empty, Radio } from "antd";
+import {
+  RiseOutlined,
+  SettingOutlined,
+  FilterOutlined,
+  SearchOutlined,
+  PartitionOutlined,
+} from "@ant-design/icons";
 import "./practice-decision-modal.css";
 
 import SectionCard from "./SectionCard";
@@ -55,9 +61,8 @@ function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
     setRequestedTotal,
     setRequestedSplit,
 
-    includeTrue,
-    shuffle,
-    setShuffle,
+    onlyTrue,
+    handleOnlyTrueChange,
 
     selectedChapters,
     setSelectedChapters,
@@ -76,7 +81,6 @@ function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
     minQuestionCount,
 
     handleSubjectChange,
-    handleIncludeTrueChange,
     handleSwitchToChapter,
     handleSwitchToKnowledge,
     buildConfig,
@@ -134,6 +138,20 @@ function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
           onChange={handleSubjectChange}
         />
 
+        <SectionCard icon={<SearchOutlined />} title="题源范围">
+          <Radio.Group
+            className="pdm-source-radio"
+            value={onlyTrue ? "only_true" : "all"}
+            onChange={(e) =>
+              handleOnlyTrueChange(e.target.value === "only_true")
+            }
+            disabled={busy}
+          >
+            <Radio value="all">全部题目</Radio>
+            <Radio value="only_true">只含真题</Radio>
+          </Radio.Group>
+        </SectionCard>
+
         <SectionCard
           icon={<SettingOutlined />}
           title="题目数量"
@@ -144,7 +162,7 @@ function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
                 <span>题</span>
               </div>
               <div className="pdm-minmax">
-                最少 {minQuestionCount} · 最多 {maxQuestionCount}
+                最少 {minQuestionCount} 最多 {maxQuestionCount}
               </div>
             </div>
           }
@@ -161,7 +179,7 @@ function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
         </SectionCard>
 
         {strategy === "mix" && (
-          <SectionCard icon={<SettingOutlined />} title="题目分布">
+          <SectionCard icon={<PartitionOutlined />} title="题目分布">
             <div className="pdm-scope-row">
               <button
                 type="button"
@@ -232,28 +250,6 @@ function InnerPracticeDecisionContent({ strategy, onClose, onStart }) {
             </div>
           </SectionCard>
         )}
-
-        <SectionCard icon={<SettingOutlined />} title="其他选项">
-          <div className="pdm-checks">
-            <label className="pdm-check">
-              <Checkbox
-                checked={includeTrue}
-                onChange={(e) => handleIncludeTrueChange(e.target.checked)}
-                disabled={busy}
-              />
-              <span>只含真题</span>
-            </label>
-
-            <label className="pdm-check">
-              <Checkbox
-                checked={shuffle}
-                onChange={(e) => setShuffle(e.target.checked)}
-                disabled={busy}
-              />
-              <span>随机顺序</span>
-            </label>
-          </div>
-        </SectionCard>
 
         <div className="pdm-actions">
           <Button

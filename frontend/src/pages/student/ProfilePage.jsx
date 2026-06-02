@@ -21,12 +21,12 @@ const STUDENT_AVATAR_OPTIONS = [
   {
     key: "student-default",
     label: "默认学生头像",
-    value: "/avatars/default-student-avatar.svg",
+    value: "/avatars/default-student-avatar.png",
   },
   {
     key: "teacher-default",
     label: "教师风格头像",
-    value: "/avatars/default-teacher-avatar.svg",
+    value: "/avatars/default-teacher-avatar.png",
   },
 ];
 
@@ -87,6 +87,7 @@ export default function ProfilePage() {
   const [savingPhone, setSavingPhone] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [savingInfo, setSavingInfo] = useState(false);
 
   const profile = useMemo(() => {
     const raw = currentUser?.profile || {};
@@ -98,7 +99,7 @@ export default function ProfilePage() {
       email: raw.email || "",
       major: raw.major || "",
       grade: raw.grade || "",
-      avatar: raw.avatar || "/avatars/default-student-avatar.svg",
+      avatar: raw.avatar || "/avatars/default-student-avatar.png",
     };
   }, [currentUser]);
 
@@ -110,6 +111,13 @@ export default function ProfilePage() {
       password: "点击修改密码",
     };
   }, [profile]);
+
+  const [infoForm, setInfoForm] = useState({
+    name: "",
+    gender: "",
+    major: "",
+    grade: "",
+  });
 
   const [emailForm, setEmailForm] = useState({
     email: "",
@@ -126,7 +134,7 @@ export default function ProfilePage() {
   });
 
   const [avatarForm, setAvatarForm] = useState({
-    avatar: "/avatars/default-student-avatar.svg",
+    avatar: "/avatars/default-student-avatar.png",
   });
 
   useEffect(() => {
@@ -141,6 +149,16 @@ export default function ProfilePage() {
 
     init();
   }, [currentUser?.id, refreshMe]);
+
+  const openInfoModal = () => {
+    setInfoForm({
+      name: profile.name || "",
+      gender: profile.gender || "",
+      major: profile.major || "",
+      grade: profile.grade || "",
+    });
+    setActiveModal("info");
+  };
 
   const openEmailModal = () => {
     setEmailForm({
@@ -167,25 +185,52 @@ export default function ProfilePage() {
 
   const openAvatarModal = () => {
     setAvatarForm({
-      avatar: profile.avatar || "/avatars/default-student-avatar.svg",
+      avatar: profile.avatar || "/avatars/default-student-avatar.png",
     });
     setActiveModal("avatar");
   };
 
-  const openReadonlyTip = (fieldLabel) => {
-    Modal.info({
-      title: `修改${fieldLabel}`,
-      content: `该信息由系统统一导入，若需要修改，请联系管理人员。`,
-      okText: "我知道了",
-      centered: true,
-    });
-  };
-
   const closeModal = () => {
-    if (savingEmail || savingPhone || savingPassword || savingAvatar) {
+    if (
+      savingEmail ||
+      savingPhone ||
+      savingPassword ||
+      savingAvatar ||
+      savingInfo
+    ) {
       return;
     }
     setActiveModal(null);
+  };
+
+  const handleSaveInfo = async () => {
+    const name = infoForm.name.trim();
+    const gender = infoForm.gender.trim();
+    const major = infoForm.major.trim();
+    const grade = infoForm.grade.trim();
+
+    if (!name) {
+      message.warning("请输入姓名");
+      return;
+    }
+
+    try {
+      setSavingInfo(true);
+      await updateProfile({
+        name,
+        gender,
+        major,
+        grade,
+      });
+      await refreshMe?.();
+      message.success("个人信息修改成功");
+      setActiveModal(null);
+    } catch (error) {
+      console.error("修改个人信息失败：", error);
+      message.error(error?.message || "个人信息修改失败");
+    } finally {
+      setSavingInfo(false);
+    }
   };
 
   const handleSaveEmail = async () => {
@@ -432,34 +477,34 @@ export default function ProfilePage() {
 
         <SettingSection
           title="个人信息"
-          subtitle="以下信息由系统导入，若需要修改，请联系管理人员"
+          subtitle="点击下方信息项可修改个人资料"
         >
           <SettingItem
             icon={<IdcardFilled />}
             label="姓名"
             value={profile.name || "未设置"}
-            onClick={() => openReadonlyTip("姓名")}
+            onClick={openInfoModal}
           />
 
           <SettingItem
             icon={<MergeFilled />}
             label="性别"
             value={profile.gender || "未设置"}
-            onClick={() => openReadonlyTip("性别")}
+            onClick={openInfoModal}
           />
 
           <SettingItem
             icon={<BookFilled />}
             label="专业"
             value={profile.major || "未设置"}
-            onClick={() => openReadonlyTip("专业")}
+            onClick={openInfoModal}
           />
 
           <SettingItem
             icon={<CalendarFilled />}
             label="年级"
             value={profile.grade || "未设置"}
-            onClick={() => openReadonlyTip("年级")}
+            onClick={openInfoModal}
           />
         </SettingSection>
 
@@ -473,6 +518,83 @@ export default function ProfilePage() {
           />
         </SettingSection>
       </div>
+
+      <Modal
+        title="修改个人信息"
+        open={activeModal === "info"}
+        onCancel={closeModal}
+        footer={[
+          <Button key="cancel" onClick={closeModal} disabled={savingInfo}>
+            取消
+          </Button>,
+          <Button
+            key="save"
+            type="primary"
+            onClick={handleSaveInfo}
+            loading={savingInfo}
+          >
+            保存
+          </Button>,
+        ]}
+        centered
+        destroyOnClose
+      >
+        <div className="profile-modal-body">
+          <div className="profile-modal-tip">
+            修改后会同步更新个人资料展示。
+          </div>
+
+          <div className="profile-modal-form">
+            <Input
+              value={infoForm.name}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                }))
+              }
+              placeholder="请输入姓名"
+              prefix={<IdcardFilled />}
+            />
+
+            <Input
+              value={infoForm.gender}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  gender: e.target.value,
+                }))
+              }
+              placeholder="请输入性别"
+              prefix={<MergeFilled />}
+            />
+
+            <Input
+              value={infoForm.major}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  major: e.target.value,
+                }))
+              }
+              placeholder="请输入专业"
+              prefix={<BookFilled />}
+            />
+
+            <Input
+              value={infoForm.grade}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  grade: e.target.value,
+                }))
+              }
+              placeholder="请输入年级"
+              prefix={<CalendarFilled />}
+            />
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         title="更换头像"

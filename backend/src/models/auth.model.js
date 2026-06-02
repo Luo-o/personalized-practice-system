@@ -19,6 +19,63 @@ function findUserByUsername(username) {
   });
 }
 
+function findStudentByStudentNo(studentNo) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT id, student_no, name
+      FROM students
+      WHERE student_no = ?
+      LIMIT 1
+    `;
+
+    db.get(sql, [studentNo], (err, row) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(row || null);
+    });
+  });
+}
+
+function findTeacherByTeacherNo(teacherNo) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT id, teacher_no, name
+      FROM teachers
+      WHERE teacher_no = ?
+      LIMIT 1
+    `;
+
+    db.get(sql, [teacherNo], (err, row) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(row || null);
+    });
+  });
+}
+
+function findUserByRoleAndProfileId(role, profileId) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT id, username, password_hash, role, profile_id, status
+      FROM users
+      WHERE role = ? AND profile_id = ?
+      LIMIT 1
+    `;
+
+    db.get(sql, [role, profileId], (err, row) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(row || null);
+    });
+  });
+}
+
 function findUserProfile(role, profileId) {
   return new Promise((resolve, reject) => {
     let sql = "";
@@ -48,6 +105,93 @@ function findUserProfile(role, profileId) {
         return;
       }
       resolve(row || null);
+    });
+  });
+}
+
+function registerStudentAccount({ studentNo, name, password }) {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION");
+
+      const insertStudentSql = `
+        INSERT INTO students (
+          student_no,
+          name,
+          gender,
+          phone,
+          email,
+          major,
+          grade,
+          class_name,
+          avatar
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.run(
+        insertStudentSql,
+        [
+          studentNo,
+          name,
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "/avatars/default-student-avatar.png",
+        ],
+        function (studentErr) {
+          if (studentErr) {
+            db.run("ROLLBACK");
+            reject(studentErr);
+            return;
+          }
+
+          const studentId = this.lastID;
+
+          const insertUserSql = `
+            INSERT INTO users (
+              username,
+              password_hash,
+              role,
+              profile_id,
+              status
+            )
+            VALUES (?, ?, ?, ?, ?)
+          `;
+
+          db.run(
+            insertUserSql,
+            [studentNo, password, "student", studentId, "active"],
+            function (userErr) {
+              if (userErr) {
+                db.run("ROLLBACK");
+                reject(userErr);
+                return;
+              }
+
+              const userId = this.lastID;
+
+              db.run("COMMIT", (commitErr) => {
+                if (commitErr) {
+                  db.run("ROLLBACK");
+                  reject(commitErr);
+                  return;
+                }
+
+                resolve({
+                  userId,
+                  username: studentNo,
+                  role: "student",
+                  profileId: studentId,
+                });
+              });
+            },
+          );
+        },
+      );
     });
   });
 }
@@ -213,7 +357,11 @@ function updateUserPassword(userId, newPassword) {
 
 module.exports = {
   findUserByUsername,
+  findStudentByStudentNo,
+  findTeacherByTeacherNo,
+  findUserByRoleAndProfileId,
   findUserProfile,
+  registerStudentAccount,
   updateStudentProfile,
   updateTeacherProfile,
   updateUserPassword,

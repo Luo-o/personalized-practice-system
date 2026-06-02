@@ -177,7 +177,7 @@
   height: 36px;
   border: none;
   background: transparent;
-  color: #2563eb;
+  color: #4b4b4b;
   font-weight: 500;
   cursor: pointer;
   padding: 0 8px;
@@ -187,7 +187,7 @@
 }
 
 .tb-reset-btn:hover {
-  color: #1d4ed8;
+  color: #111827;
 }
 
 .tb-selected-row {
@@ -355,6 +355,23 @@
 .tb-empty-text {
   color: #9ca3af;
   font-size: 13px;
+}
+
+.tb-entry-card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tb-entry-card-col {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .tb-entry-card-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 960px) {

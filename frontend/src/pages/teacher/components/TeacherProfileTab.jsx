@@ -21,12 +21,12 @@ const TEACHER_AVATAR_OPTIONS = [
   {
     key: "teacher-default",
     label: "默认教师头像",
-    value: "/avatars/default-teacher-avatar.svg",
+    value: "/avatars/default-teacher-avatar.png",
   },
   {
     key: "student-default",
     label: "学生风格头像",
-    value: "/avatars/default-student-avatar.svg",
+    value: "/avatars/default-student-avatar.png",
   },
 ];
 
@@ -89,6 +89,14 @@ export default function TeacherProfileTab() {
   const [savingPhone, setSavingPhone] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [savingInfo, setSavingInfo] = useState(false);
+
+  const [infoForm, setInfoForm] = useState({
+    name: "",
+    gender: "",
+    title: "",
+    department: "",
+  });
 
   const [emailForm, setEmailForm] = useState({
     email: "",
@@ -105,7 +113,7 @@ export default function TeacherProfileTab() {
   });
 
   const [avatarForm, setAvatarForm] = useState({
-    avatar: "/avatars/default-teacher-avatar.svg",
+    avatar: "/avatars/default-teacher-avatar.png",
   });
 
   useEffect(() => {
@@ -131,7 +139,7 @@ export default function TeacherProfileTab() {
       email: raw.email || "",
       title: raw.title || "",
       department: raw.department || "",
-      avatar: raw.avatar || "/avatars/default-teacher-avatar.svg",
+      avatar: raw.avatar || "/avatars/default-teacher-avatar.png",
     };
   }, [currentUser]);
 
@@ -143,6 +151,16 @@ export default function TeacherProfileTab() {
       password: "点击修改密码",
     };
   }, [profile]);
+
+  const openInfoModal = () => {
+    setInfoForm({
+      name: profile.name || "",
+      gender: profile.gender || "",
+      title: profile.title || "",
+      department: profile.department || "",
+    });
+    setActiveModal("info");
+  };
 
   const openEmailModal = () => {
     setEmailForm({
@@ -169,23 +187,55 @@ export default function TeacherProfileTab() {
 
   const openAvatarModal = () => {
     setAvatarForm({
-      avatar: profile.avatar || "/avatars/default-teacher-avatar.svg",
+      avatar: profile.avatar || "/avatars/default-teacher-avatar.png",
     });
     setActiveModal("avatar");
   };
 
-  const openReadonlyTip = (fieldLabel) => {
-    Modal.info({
-      title: `修改${fieldLabel}`,
-      content: `该信息由系统统一导入，若需要修改，请联系管理人员。`,
-      okText: "我知道了",
-      centered: true,
-    });
+  const closeModal = () => {
+    if (
+      savingEmail ||
+      savingPhone ||
+      savingPassword ||
+      savingAvatar ||
+      savingInfo
+    ) {
+      return;
+    }
+
+    setActiveModal(null);
   };
 
-  const closeModal = () => {
-    if (savingEmail || savingPhone || savingPassword || savingAvatar) return;
-    setActiveModal(null);
+  const handleSaveInfo = async () => {
+    const name = infoForm.name.trim();
+    const gender = infoForm.gender.trim();
+    const title = infoForm.title.trim();
+    const department = infoForm.department.trim();
+
+    if (!name) {
+      message.warning("请输入姓名");
+      return;
+    }
+
+    try {
+      setSavingInfo(true);
+
+      await updateProfile({
+        name,
+        gender,
+        title,
+        department,
+      });
+
+      await refreshMe?.();
+      message.success("个人信息修改成功");
+      setActiveModal(null);
+    } catch (error) {
+      console.error("修改个人信息失败：", error);
+      message.error(error?.message || "个人信息修改失败");
+    } finally {
+      setSavingInfo(false);
+    }
   };
 
   const handleSaveEmail = async () => {
@@ -322,9 +372,11 @@ export default function TeacherProfileTab() {
 
     try {
       setSavingAvatar(true);
+
       await updateProfile({
         avatar: avatarForm.avatar,
       });
+
       await refreshMe?.();
       message.success("头像修改成功");
       setActiveModal(null);
@@ -434,34 +486,34 @@ export default function TeacherProfileTab() {
 
         <SettingSection
           title="个人信息"
-          subtitle="以下信息由系统导入，若需要修改，请联系管理人员"
+          subtitle="点击下方信息项可修改个人资料"
         >
           <SettingItem
             icon={<IdcardFilled />}
             label="姓名"
             value={profile.name || "未设置"}
-            onClick={() => openReadonlyTip("姓名")}
+            onClick={openInfoModal}
           />
 
           <SettingItem
             icon={<MergeFilled />}
             label="性别"
             value={profile.gender || "未设置"}
-            onClick={() => openReadonlyTip("性别")}
+            onClick={openInfoModal}
           />
 
           <SettingItem
             icon={<SafetyCertificateFilled />}
             label="职称"
             value={profile.title || "未设置"}
-            onClick={() => openReadonlyTip("职称")}
+            onClick={openInfoModal}
           />
 
           <SettingItem
             icon={<BankFilled />}
             label="院系"
             value={profile.department || "未设置"}
-            onClick={() => openReadonlyTip("院系")}
+            onClick={openInfoModal}
           />
         </SettingSection>
 
@@ -475,6 +527,83 @@ export default function TeacherProfileTab() {
           />
         </SettingSection>
       </div>
+
+      <Modal
+        title="修改个人信息"
+        open={activeModal === "info"}
+        onCancel={closeModal}
+        footer={[
+          <Button key="cancel" onClick={closeModal} disabled={savingInfo}>
+            取消
+          </Button>,
+          <Button
+            key="save"
+            type="primary"
+            onClick={handleSaveInfo}
+            loading={savingInfo}
+          >
+            保存
+          </Button>,
+        ]}
+        centered
+        destroyOnClose
+      >
+        <div className="profile-modal-body">
+          <div className="profile-modal-tip">
+            修改后会同步更新教师资料展示。
+          </div>
+
+          <div className="profile-modal-form">
+            <Input
+              value={infoForm.name}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                }))
+              }
+              placeholder="请输入姓名"
+              prefix={<IdcardFilled />}
+            />
+
+            <Input
+              value={infoForm.gender}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  gender: e.target.value,
+                }))
+              }
+              placeholder="请输入性别"
+              prefix={<MergeFilled />}
+            />
+
+            <Input
+              value={infoForm.title}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  title: e.target.value,
+                }))
+              }
+              placeholder="请输入职称"
+              prefix={<SafetyCertificateFilled />}
+            />
+
+            <Input
+              value={infoForm.department}
+              onChange={(e) =>
+                setInfoForm((prev) => ({
+                  ...prev,
+                  department: e.target.value,
+                }))
+              }
+              placeholder="请输入院系"
+              prefix={<BankFilled />}
+            />
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         title="更换头像"

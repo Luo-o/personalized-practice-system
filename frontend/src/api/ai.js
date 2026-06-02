@@ -8,7 +8,7 @@ export async function askAI(text, question, files = [], messages = []) {
     formData.append("images", file);
   });
 
-  const response = await fetch("http://localhost:3001/api/ai/chat", {
+  const response = await fetch("http://localhost:8088/api/ai/chat", {
     method: "POST",
     body: formData,
   });

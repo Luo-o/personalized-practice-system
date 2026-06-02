@@ -1,64 +1,65 @@
-import { useMemo, useState } from "react";
+import React, { useState } from "react";
+import { Form, Input, Button, message } from "antd";
+import { UserOutlined, LockOutlined, IdcardOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Typography, message } from "antd";
-import {
-  UserOutlined,
-  LockOutlined,
-  BookOutlined,
-  TeamOutlined,
-} from "@ant-design/icons";
+import { useAuthStore } from "../store/index";
 import "./login.css";
-import { APP_NAME } from "../constants";
-import { useAuthStore } from "../store";
-
-const { Text } = Typography;
 
 export default function Login() {
-  const [loading, setLoading] = useState(false);
-  const [isStudent, setIsStudent] = useState(true);
+  const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const login = useAuthStore((s) => s.login);
+  const [mode, setMode] = useState("login"); // login | register
+  const [loginRole, setLoginRole] = useState("student"); // student | teacher
 
-  const currentRoleText = useMemo(
-    () => (isStudent ? "学生端登录" : "教师端登录"),
-    [isStudent],
-  );
+  const { login, registerStudent } = useAuthStore();
 
-  const switchRoleText = useMemo(
-    () => (isStudent ? "切换教师端" : "切换学生端"),
-    [isStudent],
-  );
+  const isRegister = mode === "register";
+  const isStudentLogin = loginRole === "student";
 
-  const usernamePlaceholder = useMemo(
-    () => (isStudent ? "请输入学生用户名" : "请输入教师用户名"),
-    [isStudent],
-  );
-
-  const onFinish = async (values) => {
-    const { username, password } = values;
-    setLoading(true);
-
+  const handleLogin = async (values) => {
     try {
-      const user = await login(username, password);
+      const user = await login({
+        account: values.account,
+        password: values.password,
+        role: loginRole,
+      });
+
+      message.success("登录成功");
 
       if (user.role === "student") {
-        message.success("学生登录成功");
         navigate("/student/dashboard");
-        return;
-      }
-
-      if (user.role === "teacher") {
-        message.success("教师登录成功");
+      } else if (user.role === "teacher") {
         navigate("/teacher");
+      } else {
+        message.error("用户角色异常");
+      }
+    } catch (err) {
+      message.error(err?.message || "登录失败");
+    }
+  };
+
+  const handleRegister = async (values) => {
+    try {
+      if (values.password !== values.confirmPassword) {
+        message.error("两次输入的密码不一致");
         return;
       }
 
-      message.warning("登录成功，但用户角色未知");
-    } catch (error) {
-      message.error(error.message || "登录失败");
-    } finally {
-      setLoading(false);
+      await registerStudent({
+        studentNo: values.studentNo,
+        name: values.name,
+        username: values.username,
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+      });
+
+      message.success("注册成功，请登录");
+      setMode("login");
+      setLoginRole("student");
+      form.resetFields();
+    } catch (err) {
+      message.error(err?.message || "注册失败");
     }
   };
 
@@ -66,31 +67,75 @@ export default function Login() {
     <div className="login-wrapper">
       <div className="login-panel">
         <div className="login-brand">
-          <div className="login-brand-title">{APP_NAME}</div>
+          <div className="login-brand-title">
+            {isRegister ? "注册" : "智慧练习系统"}
+          </div>
           <div className="login-brand-subtitle">
-            Personalized Practice System
+            {isRegister ? "创建学生账号" : "欢迎使用系统"}
           </div>
         </div>
 
-        <div className="login-divider">
-          <span>{currentRoleText}</span>
-        </div>
+        {!isRegister && (
+          <div className="login-role-switch">
+            <button
+              type="button"
+              className={`login-role-btn ${isStudentLogin ? "active" : ""}`}
+              onClick={() => setLoginRole("student")}
+            >
+              学生端
+            </button>
+            <span className="login-role-separator"></span>
+            <button
+              type="button"
+              className={`login-role-btn ${!isStudentLogin ? "active" : ""}`}
+              onClick={() => setLoginRole("teacher")}
+            >
+              教师端
+            </button>
+          </div>
+        )}
 
         <Form
-          layout="vertical"
-          onFinish={onFinish}
+          form={form}
           className="login-form"
-          autoComplete="off"
+          layout="vertical"
+          onFinish={isRegister ? handleRegister : handleLogin}
         >
+          {isRegister && (
+            <>
+              <Form.Item
+                label="学号"
+                name="studentNo"
+                rules={[{ required: true, message: "请输入学号" }]}
+              >
+                <Input prefix={<IdcardOutlined />} placeholder="请输入学号" />
+              </Form.Item>
+
+              <Form.Item
+                label="姓名"
+                name="name"
+                rules={[{ required: true, message: "请输入姓名" }]}
+              >
+                <Input prefix={<UserOutlined />} placeholder="请输入姓名" />
+              </Form.Item>
+            </>
+          )}
+
           <Form.Item
-            label="账号"
-            name="username"
-            rules={[{ required: true, message: "请输入用户名" }]}
+            label={loginRole === "student" ? "学号" : "工号"}
+            name="account"
+            rules={[
+              {
+                required: true,
+                message: loginRole === "student" ? "请输入学号" : "请输入工号",
+              },
+            ]}
           >
             <Input
-              size="large"
               prefix={<UserOutlined />}
-              placeholder={usernamePlaceholder}
+              placeholder={
+                loginRole === "student" ? "请输入学号" : "请输入工号"
+              }
             />
           </Form.Item>
 
@@ -100,45 +145,69 @@ export default function Login() {
             rules={[{ required: true, message: "请输入密码" }]}
           >
             <Input.Password
-              size="large"
               prefix={<LockOutlined />}
               placeholder="请输入密码"
             />
           </Form.Item>
 
-          <div className="login-forgot-row">
-            <button
-              type="button"
-              className="login-text-button"
-              onClick={() => message.info("暂未开放找回密码功能")}
+          {isRegister && (
+            <Form.Item
+              label="再次确认密码"
+              name="confirmPassword"
+              rules={[{ required: true, message: "请再次输入密码" }]}
             >
-              忘记密码？
-            </button>
-          </div>
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="请再次输入密码"
+              />
+            </Form.Item>
+          )}
 
           <Form.Item className="login-submit-item">
             <Button
               type="primary"
               htmlType="submit"
               block
-              size="large"
-              loading={loading}
               className="login-submit-btn"
             >
-              登录
+              {isRegister
+                ? "注册"
+                : `进入${isStudentLogin ? "学生端" : "教师端"}`}
             </Button>
           </Form.Item>
         </Form>
 
         <div className="login-switch-row">
-          <Text className="login-switch-tip">当前为{currentRoleText}</Text>
-          <button
-            type="button"
-            className="login-switch-link"
-            onClick={() => setIsStudent((prev) => !prev)}
-          >
-            {switchRoleText}
-          </button>
+          {isRegister ? (
+            <>
+              <span className="login-switch-tip">已有账号？</span>
+              <button
+                type="button"
+                className="login-switch-link"
+                onClick={() => {
+                  setMode("login");
+                  form.resetFields();
+                }}
+              >
+                去登录
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="login-switch-tip">没有账号？</span>
+              <button
+                type="button"
+                className="login-switch-link"
+                onClick={() => {
+                  setMode("register");
+                  setLoginRole("student");
+                  form.resetFields();
+                }}
+              >
+                注册
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -68,7 +68,7 @@
 
 .eam-bottom-grid {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 0.8fr 0.8fr;
   gap: 16px;
 }
 
@@ -110,6 +110,11 @@
   font-weight: 700;
   color: var(--text);
   line-height: 1.6;
+  /* 只显示一行 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
 }
 
 .eam-question-wrong {
@@ -146,15 +151,15 @@
 
 .eam-kp-item {
   display: grid;
-  grid-template-columns: 92px 1fr 48px;
+  grid-template-columns: 100px 1fr 48px;
   gap: 10px;
   align-items: center;
 }
 
 .eam-kp-name {
   color: var(--text);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 12px;
+  width: 100%;
 }
 
 .eam-kp-bar-wrap {

@@ -1,0 +1,128 @@
+.tb-import-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tb-import-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.tb-import-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tb-import-title {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.tb-import-desc {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tb-import-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tb-import-dragger .ant-upload {
+  padding: 20px 12px !important;
+  border-radius: 16px !important;
+}
+
+.tb-import-structure {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fafafa;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #959595;
+
+  white-space: pre;
+}
+
+.tb-import-note {
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  padding: 12px 14px;
+}
+
+.tb-import-note-title {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.tb-import-note-text {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.tb-import-note code,
+.tb-import-desc code {
+  margin: 0 4px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 12px;
+}
+
+.tb-import-options {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.tb-import-options .ant-checkbox-wrapper {
+  color: #334155;
+  font-size: 13px;
+}
+
+.tb-import-subject-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tb-import-subject-label {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tb-import-subject-select {
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .tb-import-head {
+    align-items: stretch;
+  }
+
+  .tb-import-head-actions {
+    width: 100%;
+  }
+}

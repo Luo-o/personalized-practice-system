@@ -27,7 +27,7 @@ export default function StudentHeader() {
   }, [studentName]);
 
   const studentAvatar = useMemo(() => {
-    return profile.avatar || "/avatars/default-student-avatar.svg";
+    return profile.avatar || "/avatars/default-student-avatar.png";
   }, [profile.avatar]);
 
   const items = [
@@ -78,7 +78,7 @@ export default function StudentHeader() {
             <ReadOutlined />
           </div>
           <div className="student-sidebar-brand-text">
-            <div className="student-sidebar-brand-title">智慧刷题系统</div>
+            <div className="student-sidebar-brand-title">智慧练习系统</div>
           </div>
         </div>
 

@@ -159,8 +159,8 @@ export function usePracticeDecisionLogic(strategy) {
 
   const [requestedTotal, setRequestedTotal] = useState(20);
   const [requestedSplit, setRequestedSplit] = useState([6, 14]);
-  const [includeTrue, setIncludeTrue] = useState(true);
-  const [shuffle, setShuffle] = useState(false);
+  const [onlyTrue, setOnlyTrue] = useState(true);
+  const [shuffle, setShuffle] = useState(true);
   const [selectedChapters, setSelectedChapters] = useState([]);
   const [selectedKnowledge, setSelectedKnowledge] = useState([]);
   const [mixScope, setMixScope] = useState("chapter");
@@ -263,7 +263,7 @@ export function usePracticeDecisionLogic(strategy) {
         const res = await http.get("/practice/stats", {
           params: {
             subjectId: safeSubjectId,
-            includeTrue,
+            onlyTrue,
             chapterIds:
               isChapterMode && chapterIdsKey ? chapterIdsKey : undefined,
             knowledgeIds:
@@ -308,7 +308,7 @@ export function usePracticeDecisionLogic(strategy) {
     };
   }, [
     safeSubjectId,
-    includeTrue,
+    onlyTrue,
     isChapterMode,
     isKnowledgeMode,
     chapterIdsKey,
@@ -408,8 +408,8 @@ export function usePracticeDecisionLogic(strategy) {
     setRequestedSplit([6, 14]);
   };
 
-  const handleIncludeTrueChange = (checked) => {
-    setIncludeTrue(checked);
+  const handleOnlyTrueChange = (checked) => {
+    setOnlyTrue(checked);
     setSelectedChapters([]);
     setSelectedKnowledge([]);
     setRequestedTotal(20);
@@ -471,7 +471,7 @@ export function usePracticeDecisionLogic(strategy) {
     const cfg = {
       strategy,
       total: difficultyPlan.total,
-      includeTrue,
+      onlyTrue,
       shuffle,
       subjectId: safeSubjectId,
       subjectName: currentSubject?.name || "",
@@ -527,7 +527,7 @@ export function usePracticeDecisionLogic(strategy) {
     requestedSplit,
     setRequestedSplit,
 
-    includeTrue,
+    onlyTrue,
     shuffle,
     setShuffle,
 
@@ -549,7 +549,7 @@ export function usePracticeDecisionLogic(strategy) {
     minQuestionCount,
 
     handleSubjectChange,
-    handleIncludeTrueChange,
+    handleOnlyTrueChange,
     handleSwitchToChapter,
     handleSwitchToKnowledge,
     buildConfig,

@@ -89,13 +89,13 @@ async function getCandidateQuestions({
   subjectId,
   chapterIds = [],
   knowledgePointIds = [],
-  includeTrue = true,
+  onlyTrue = false,
 }) {
   const params = [subjectId];
   const where = [`q.subject_id = ?`];
 
-  if (!includeTrue) {
-    where.push(`q.is_real = 0`);
+  if (onlyTrue) {
+    where.push(`q.is_real = 1`);
   }
 
   if (chapterIds.length) {
@@ -409,7 +409,7 @@ async function getPracticeQuestionsByPracticeId(practiceId) {
  */
 async function getPracticeStats({
   subjectId,
-  includeTrue = true,
+  onlyTrue = false,
   chapterIds = [],
   knowledgePointIds = [],
 }) {
@@ -429,8 +429,8 @@ async function getPracticeStats({
   const params = [subjectId];
   const where = [`q.subject_id = ?`];
 
-  if (!includeTrue) {
-    where.push(`q.is_real = 0`);
+  if (onlyTrue) {
+    where.push(`q.is_real = 1`);
   }
 
   if (chapterIds.length) {
@@ -477,8 +477,8 @@ async function getPracticeStats({
 
   const chapterParams = [subjectId];
   const chapterWhere = [`q.subject_id = ?`];
-  if (!includeTrue) {
-    chapterWhere.push(`q.is_real = 0`);
+  if (onlyTrue) {
+    chapterWhere.push(`q.is_real = 1`);
   }
   if (knowledgePointIds.length) {
     const placeholders = knowledgePointIds.map(() => "?").join(",");
@@ -514,8 +514,8 @@ async function getPracticeStats({
 
   const knowledgeParams = [subjectId];
   const knowledgeWhere = [`q.subject_id = ?`];
-  if (!includeTrue) {
-    knowledgeWhere.push(`q.is_real = 0`);
+  if (onlyTrue) {
+    knowledgeWhere.push(`q.is_real = 1`);
   }
   if (chapterIds.length) {
     const placeholders = chapterIds.map(() => "?").join(",");

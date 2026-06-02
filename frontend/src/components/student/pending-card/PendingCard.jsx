@@ -60,7 +60,7 @@ export default function PendingCard() {
 
     return (exams || [])
       .filter((e) => {
-        const hasSubmitted = Number(e.has_submitted) === 1;
+        const hasSubmitted = Number(e.hasSubmitted) === 1;
         const isExpired = new Date(e.deadlineAt) <= now;
 
         return !hasSubmitted && !isExpired;

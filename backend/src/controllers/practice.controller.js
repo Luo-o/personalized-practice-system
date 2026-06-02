@@ -44,12 +44,11 @@ async function getMeta(req, res) {
 
 async function getStats(req, res) {
   try {
-    const { subjectId, includeTrue, chapterIds, knowledgeIds } =
-      req.query || {};
+    const { subjectId, onlyTrue, chapterIds, knowledgeIds } = req.query || {};
 
     const data = await practiceService.getPracticeStats({
       subjectId: Number(subjectId),
-      includeTrue: toBoolean(includeTrue, true),
+      onlyTrue: toBoolean(onlyTrue, false),
       chapterIds: toIdArray(chapterIds),
       knowledgePointIds: toIdArray(knowledgeIds),
     });
@@ -76,7 +75,7 @@ async function generate(req, res) {
       split,
       chapterIds,
       knowledgeIds,
-      includeTrue,
+      onlyTrue,
       shuffle,
       epsilon,
     } = req.body || {};
@@ -94,7 +93,7 @@ async function generate(req, res) {
       split,
       chapterIds,
       knowledgeIds,
-      includeTrue,
+      onlyTrue,
       shuffle,
       epsilon,
     });

@@ -108,7 +108,7 @@
 
 .qs-stem {
   font-size: 14px;
-  line-height: 1;
+  line-height: 1.5;
   color: #243b63;
   font-weight: 500;
 }
@@ -466,13 +466,13 @@
 .qs-images {
   margin-top: 12px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
 }
 
 .qs-image {
   display: block;
-  max-width: 100%;
+  max-width: 45%;
   width: auto;
   max-height: 320px;
   object-fit: contain;

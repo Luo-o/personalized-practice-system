@@ -78,7 +78,6 @@ export default function ClassTasksPanel({ classInfo, classExams = [] }) {
               <tr>
                 <th>标题</th>
                 <th>题目数</th>
-                <th>限制时间</th>
                 <th>截止时间</th>
                 <th>操作</th>
               </tr>
@@ -90,7 +89,6 @@ export default function ClassTasksPanel({ classInfo, classExams = [] }) {
                   <tr key={item.key}>
                     <td className="class-table-cell-title">{item.title}</td>
                     <td>{item.questionCount}题</td>
-                    <td>{item.duration}分钟</td>
                     <td>{formatDateTime(item.deadlineAt)}</td>
                     <td>
                       <button

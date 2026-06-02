@@ -5,6 +5,7 @@ import { useStudentStore } from "./studentStore";
 function normalizePracticeQuestion(item) {
   return {
     id: item.id,
+    questionId: item.questionId ?? item.question_id ?? item.id,
     ownerType: item.owner_type,
     teacherId: item.teacher_id,
     title: item.title,
@@ -68,8 +69,8 @@ export const usePracticeStore = create((set, get) => ({
         split: config.split,
         chapterIds: config.chapterIds || [],
         knowledgeIds: config.knowledgeIds || [],
-        includeTrue: config.includeTrue ?? true,
-        shuffle: config.shuffle ?? false,
+        onlyTrue: config.onlyTrue ?? false,
+        shuffle: config.shuffle ?? true,
         epsilon: config.epsilon ?? 0.1,
       };
 

@@ -5,24 +5,37 @@ export const useAuthStore = create((set, get) => ({
   currentUser: null,
   loading: false,
 
-  login: async (username, password) => {
+  registerStudent: async ({ studentNo, name, password, confirmPassword }) => {
+    return await http.post("/auth/register-student", {
+      studentNo,
+      name,
+      password,
+      confirmPassword,
+    });
+  },
+
+  login: async ({ account, password, role }) => {
     set({ loading: true });
 
     try {
       const loginRes = await http.post("/auth/login", {
-        username,
+        account,
         password,
+        role,
       });
 
-      const meRes = await http.get(
-        `/auth/me?username=${encodeURIComponent(loginRes.username)}`,
-      );
+      const meRes = await http.get("/auth/me", {
+        params: {
+          role: loginRes.role,
+          profileId: loginRes.profileId,
+        },
+      });
 
       const currentUser = {
-        id: loginRes.id, // users 表 id
+        id: loginRes.id,
         username: loginRes.username,
         role: loginRes.role,
-        profileId: loginRes.profileId, // students/teachers 表 id
+        profileId: loginRes.profileId,
         status: meRes.status,
         profile: meRes.profile || null,
       };
@@ -61,11 +74,14 @@ export const useAuthStore = create((set, get) => ({
 
   refreshMe: async () => {
     const currentUser = get().currentUser;
-    if (!currentUser?.username) return null;
+    if (!currentUser?.role || !currentUser?.profileId) return null;
 
-    const meRes = await http.get(
-      `/auth/me?username=${encodeURIComponent(currentUser.username)}`,
-    );
+    const meRes = await http.get("/auth/me", {
+      params: {
+        role: currentUser.role,
+        profileId: currentUser.profileId,
+      },
+    });
 
     const nextUser = {
       ...currentUser,
@@ -96,14 +112,16 @@ export const useAuthStore = create((set, get) => ({
   getRole: () => get().currentUser?.role || null,
   getUserId: () => get().currentUser?.id || null,
   getProfileId: () => get().currentUser?.profileId || null,
+
   updateProfile: async (data) => {
     const currentUser = get().currentUser;
-    if (!currentUser?.username) {
+    if (!currentUser?.role || !currentUser?.profileId) {
       throw new Error("当前未登录");
     }
 
     const res = await http.put("/auth/update-profile", {
-      username: currentUser.username,
+      role: currentUser.role,
+      profileId: currentUser.profileId,
       ...data,
     });
 
@@ -113,12 +131,13 @@ export const useAuthStore = create((set, get) => ({
 
   changePassword: async ({ oldPassword, newPassword }) => {
     const currentUser = get().currentUser;
-    if (!currentUser?.username) {
+    if (!currentUser?.role || !currentUser?.profileId) {
       throw new Error("当前未登录");
     }
 
     return await http.put("/auth/change-password", {
-      username: currentUser.username,
+      role: currentUser.role,
+      profileId: currentUser.profileId,
       oldPassword,
       newPassword,
     });

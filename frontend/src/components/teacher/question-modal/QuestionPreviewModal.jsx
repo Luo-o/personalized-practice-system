@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Modal, Tag, Empty } from "antd";
 import "./question-preview-modal.css";
 
-const BASE_FILE_URL = "http://localhost:3001";
+const BASE_FILE_URL = "http://localhost:8088";
 
 export default function QuestionPreviewModal({ open, question, onClose }) {
   useEffect(() => {

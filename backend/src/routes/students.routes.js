@@ -7,7 +7,16 @@ const {
   getWrongQuestions,
   getStudentAnswerRecords,
   updateWrongQuestionStatus,
+  searchStudents,
+  batchCreateStudentAccounts,
+  batchAddStudentsToClassController,
 } = require("../controllers/student.controller");
+
+router.get("/search", searchStudents);
+
+router.post("/batch-create", batchCreateStudentAccounts);
+
+router.post("/classes/:classId/batch-add", batchAddStudentsToClassController);
 
 router.get("/:id/classes", getStudentClasses);
 

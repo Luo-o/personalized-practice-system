@@ -1,3 +1,8 @@
+.pem-modal.ant-modal {
+  top: 24px;
+  padding-bottom: 0;
+}
+
 .pem-modal .ant-modal-content {
   border-radius: 18px;
 }
@@ -93,7 +98,8 @@
 
 .pem-picked {
   margin-top: 10px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   height: 220px;
   min-height: 220px;
@@ -108,12 +114,23 @@
   justify-content: center;
 }
 
+.pem-dropdown-menu {
+  max-height: none;
+  overflow: visible;
+}
+
+.pem-dropdown-menu .ant-dropdown-menu {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 .pem-picked-item {
   background: #fff;
   border-radius: 14px;
   padding: 10px 12px;
   display: flex;
   gap: 10px;
+  max-height: 68px;
   align-items: flex-start;
 }
 
@@ -232,8 +249,7 @@
   margin-top: 10px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  min-height: 220px;
-  max-height: 360px;
+  height: 220px;
   overflow-y: auto;
 }
 

@@ -1,0 +1,239 @@
+.teacher-subject-manage-modal .ant-modal-content {
+  border-radius: 20px;
+  padding: 22px 24px;
+}
+
+.teacher-subject-manage-modal .ant-modal-header {
+  margin-bottom: 18px;
+}
+
+.teacher-subject-manage-modal .ant-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2329;
+}
+
+.teacher-subject-manage-modal__layout {
+  display: grid;
+  gap: 16px;
+  height: 75vh;
+  align-items: start;
+  overflow-y: auto;
+}
+
+.teacher-subject-manage-modal__layout--two {
+  grid-template-columns: 0.95fr 1.25fr;
+}
+
+.teacher-subject-manage-modal__panel {
+  border: 1px solid #edf1f7;
+  border-radius: 18px;
+  background: #fff;
+  padding: 16px;
+  min-width: 0;
+  align-self: start;
+}
+
+.teacher-subject-manage-modal__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.teacher-subject-manage-modal__panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2329;
+}
+
+.teacher-subject-manage-modal__panel-title--sub {
+  margin-bottom: 12px;
+}
+
+.teacher-subject-manage-modal__section {
+  margin-bottom: 14px;
+}
+
+.teacher-subject-manage-modal__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.teacher-subject-manage-modal__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e5969;
+  margin-bottom: 8px;
+}
+
+.teacher-subject-manage-modal__draft-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teacher-subject-manage-modal__draft-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 110px 40px;
+  gap: 8px;
+  align-items: center;
+}
+
+.teacher-subject-manage-modal__draft-index {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #f2f3f5;
+  color: #4e5969;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.teacher-subject-manage-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.teacher-subject-manage-modal__list,
+.teacher-subject-manage-modal__kp-wrap {
+  flex: 1;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-top: 2px;
+}
+
+.teacher-subject-manage-modal__list--chapter {
+  max-height: 180px;
+}
+
+.teacher-subject-manage-modal__list-item {
+  width: 100%;
+  border: 1px solid #edf1f7;
+  border-radius: 14px;
+  background: #fff;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.teacher-subject-manage-modal__list-item:hover {
+  border-color: #bfd2ff;
+  background: #f8fbff;
+  transform: translateY(-1px);
+}
+
+.teacher-subject-manage-modal__list-item.is-active {
+  border-color: #4c7dff;
+  background: #eef4ff;
+}
+
+.teacher-subject-manage-modal__list-text {
+  min-width: 0;
+  font-size: 14px;
+  color: #1f2329;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.teacher-subject-manage-modal__list-extra {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #86909c;
+}
+
+.teacher-subject-manage-modal__kp-create {
+  display: grid;
+  grid-template-columns: 1fr 120px auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.teacher-subject-manage-modal__kp-item {
+  border: 1px solid #edf1f7;
+  border-radius: 14px;
+  padding: 8px 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.teacher-subject-manage-modal__kp-name {
+  min-width: 0;
+  font-size: 14px;
+  color: #1f2329;
+  word-break: break-all;
+}
+
+.teacher-subject-manage-modal__kp-order {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #86909c;
+}
+
+.teacher-subject-manage-modal__divider {
+  margin: 18px 0 12px;
+}
+
+.teacher-subject-manage-modal__footer-tip {
+  font-size: 12px;
+  color: #86909c;
+  line-height: 1.6;
+}
+
+.teacher-subject-manage-modal__list::-webkit-scrollbar,
+.teacher-subject-manage-modal__kp-wrap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.teacher-subject-manage-modal__list::-webkit-scrollbar-thumb,
+.teacher-subject-manage-modal__kp-wrap::-webkit-scrollbar-thumb {
+  background: rgba(31, 35, 41, 0.16);
+  border-radius: 999px;
+}
+
+.teacher-subject-manage-modal__list::-webkit-scrollbar-track,
+.teacher-subject-manage-modal__kp-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (max-width: 1100px) {
+  .teacher-subject-manage-modal__layout--two {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-subject-manage-modal__kp-create {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-subject-manage-modal__draft-row {
+    grid-template-columns: 32px 1fr;
+  }
+}

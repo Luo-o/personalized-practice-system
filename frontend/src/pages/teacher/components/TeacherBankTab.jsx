@@ -20,7 +20,8 @@ import {
   CheckOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import TeacherSystemBankImportModal from "../../../components/teacher/bank-import-modal/TeacherSystemBankImportModal";
+import TeacherQuestionImportEntryCard from "../../../components/teacher/question-import-card/TeacherQuestionImportEntryCard";
+import TeacherSubjectManageEntryCard from "../../../components/teacher/subject-manage-card/TeacherSubjectManageEntryCard";
 import TeacherAddQuestionDrawer from "../../../components/teacher/question-modal/TeacherAddQuestionDrawer";
 import QuestionPreviewModal from "../../../components/teacher/question-modal/QuestionPreviewModal";
 import {
@@ -69,23 +70,16 @@ function extractChapterOrder(name = "") {
   return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
 }
 
-function sortChapterNames(list = []) {
-  return [...list].sort((a, b) => {
-    const na = extractChapterOrder(a);
-    const nb = extractChapterOrder(b);
-    if (na !== nb) return na - nb;
-    return String(a).localeCompare(String(b), "zh-Hans-CN");
-  });
-}
-
 function FilterDropdownButton({
   label,
   options,
   value,
   onSelect,
   searchable = false,
-  getOptionLabel = (item) => (typeof item === "string" ? item : item?.name ?? ""),
-  getOptionValue = (item) => (typeof item === "string" ? item : item?.id ?? item?.name),
+  getOptionLabel = (item) =>
+    typeof item === "string" ? item : (item?.name ?? ""),
+  getOptionValue = (item) =>
+    typeof item === "string" ? item : (item?.id ?? item?.name),
 }) {
   const [keyword, setKeyword] = useState("");
 
@@ -178,13 +172,12 @@ export default function TeacherBankTab() {
   const [difficulty, setDifficulty] = useState(ALL_DIFFICULTY);
   const [kp, setKp] = useState(ALL_KP);
   const [chapter, setChapter] = useState({
-  id: undefined,
-  name: ALL_CHAPTER,
-});
+    id: undefined,
+    name: ALL_CHAPTER,
+  });
   const [sourceScope, setSourceScope] = useState(ALL_SOURCE);
   const [realScope, setRealScope] = useState(ALL_REAL);
 
-  const [importOpen, setImportOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -212,7 +205,10 @@ export default function TeacherBankTab() {
   );
 
   const subjects = useSubjectStore((s) => s.subjects);
+  const chapters = useSubjectStore((s) => s.chapters);
+  const chapterTree = useSubjectStore((s) => s.chapterTree);
   const fetchSubjects = useSubjectStore((s) => s.fetchSubjects);
+  const fetchSubjectDetail = useSubjectStore((s) => s.fetchSubjectDetail);
 
   const currentTeacherId =
     currentUser?.role === "teacher" ? currentUser.profileId : null;
@@ -251,9 +247,22 @@ export default function TeacherBankTab() {
     return map;
   }, [subjects]);
 
+  const currentSubjectId = useMemo(() => {
+    return subject !== ALL_SUBJECT
+      ? subjectNameToIdMap.get(subject)
+      : undefined;
+  }, [subject, subjectNameToIdMap]);
+
+  useEffect(() => {
+    if (!currentSubjectId) return;
+
+    fetchSubjectDetail(currentSubjectId).catch((error) => {
+      console.error("获取科目详情失败：", error);
+    });
+  }, [currentSubjectId, fetchSubjectDetail]);
+
   const requestParams = useMemo(() => {
-    const subjectId =
-      subject !== ALL_SUBJECT ? subjectNameToIdMap.get(subject) : undefined;
+    const subjectId = currentSubjectId;
 
     const isReal =
       realScope === ALL_REAL ? undefined : realScope === "真题" ? 1 : 0;
@@ -278,8 +287,7 @@ export default function TeacherBankTab() {
     };
   }, [
     currentTeacherId,
-    subject,
-    subjectNameToIdMap,
+    currentSubjectId,
     chapter,
     kp,
     difficulty,
@@ -395,52 +403,43 @@ export default function TeacherBankTab() {
   ]);
 
   const chapterList = useMemo(() => {
-  const map = new Map();
+    const list = [...chapters].sort((a, b) => {
+      const na = extractChapterOrder(a.name);
+      const nb = extractChapterOrder(b.name);
 
-  questions.forEach((item) => {
-    if (item.chapterId != null && item.chapterName) {
-      map.set(String(item.chapterId), {
-        id: item.chapterId,
-        name: item.chapterName,
-      });
-    }
-  });
+      if (na !== nb) return na - nb;
 
-  const list = Array.from(map.values()).sort((a, b) => {
-    const na = extractChapterOrder(a.name);
-    const nb = extractChapterOrder(b.name);
-    if (na !== nb) return na - nb;
-    return String(a.name).localeCompare(String(b.name), "zh-Hans-CN");
-  });
+      return String(a.name || "").localeCompare(
+        String(b.name || ""),
+        "zh-Hans-CN",
+      );
+    });
 
-  return [
-    { id: undefined, name: ALL_CHAPTER },
-    ...list,
-  ];
-}, [questions]);
+    return [{ id: undefined, name: ALL_CHAPTER }, ...list];
+  }, [chapters]);
 
   const kpList = useMemo(() => {
-    let base = questions;
+    let base = chapterTree;
 
     if (chapter.id != null) {
-  base = base.filter((item) => String(item.chapterId) === String(chapter.id));
-}
+      base = chapterTree.filter(
+        (item) => String(item.id) === String(chapter.id),
+      );
+    }
 
-    return [
-      ALL_KP,
-      ...[
-        ...new Set(
-          base
-            .flatMap((item) => item.knowledgePoints || [])
-            .map((item) => item.name)
-            .filter(Boolean),
-        ),
-      ],
+    const names = [
+      ...new Set(
+        base
+          .flatMap((item) => item.knowledgePoints || [])
+          .map((item) => item.name)
+          .filter(Boolean),
+      ),
     ];
-  }, [questions, chapter]);
+
+    return [ALL_KP, ...names];
+  }, [chapterTree, chapter.id]);
 
   const difficultyList = [ALL_DIFFICULTY, "简单", "中等", "困难"];
-
   const realList = [ALL_REAL, "真题", "非真题"];
   const sourceList = [ALL_SOURCE, "系统题", "自建题"];
 
@@ -533,8 +532,43 @@ export default function TeacherBankTab() {
     setSourceScope(ALL_SOURCE);
   };
 
+  const handleImportSuccess = async () => {
+    try {
+      cacheRef.current.clear();
+      await fetchQuestions(requestParams).catch(() => {});
+      await fetchTeacherQuestionSubjectSummary().catch(() => {});
+      await fetchSubjects().catch(() => {});
+    } catch (error) {
+      console.error("导入后刷新题库失败：", error);
+    }
+  };
+
+  const handleSubjectManageSuccess = async () => {
+    try {
+      await fetchSubjects().catch(() => {});
+      await fetchTeacherQuestionSubjectSummary().catch(() => {});
+      cacheRef.current.clear();
+      await fetchQuestions(requestParams).catch(() => {});
+    } catch (error) {
+      console.error("管理科目后刷新失败：", error);
+    }
+  };
+
   return (
     <div className="tb-page">
+      <div className="tb-entry-card-row">
+        <div className="tb-entry-card-col">
+          <TeacherQuestionImportEntryCard
+            onImportSuccess={handleImportSuccess}
+          />
+        </div>
+        <div className="tb-entry-card-col">
+          <TeacherSubjectManageEntryCard
+            onSuccess={handleSubjectManageSuccess}
+          />
+        </div>
+      </div>
+
       <div className="tb-board">
         <div className="tb-top-row">
           <div className="tb-subject-tabs">
@@ -577,16 +611,16 @@ export default function TeacherBankTab() {
 
           <div className="tb-toolbar-actions">
             <FilterDropdownButton
-  label="章节"
-  options={chapterList}
-  value={chapter.id}
-  onSelect={(item) => {
-    setChapter(item);
-    setKp(ALL_KP);
-  }}
-  getOptionLabel={(item) => item.name}
-  getOptionValue={(item) => item.id}
-/>
+              label="章节"
+              options={chapterList}
+              value={chapter.id}
+              onSelect={(item) => {
+                setChapter(item);
+                setKp(ALL_KP);
+              }}
+              getOptionLabel={(item) => item.name}
+              getOptionValue={(item) => item.id}
+            />
 
             <FilterDropdownButton
               label="知识点"
@@ -773,11 +807,6 @@ export default function TeacherBankTab() {
         </div>
       </div>
 
-      <TeacherSystemBankImportModal
-        open={importOpen}
-        onClose={() => setImportOpen(false)}
-      />
-
       <TeacherAddQuestionDrawer
         open={addOpen}
         editingQuestion={editingQuestion}
@@ -810,6 +839,7 @@ export default function TeacherBankTab() {
 
             fetchQuestions(requestParams).catch(() => {});
             fetchTeacherQuestionSubjectSummary().catch(() => {});
+            fetchSubjects().catch(() => {});
 
             setAddOpen(false);
             setEditingQuestion(null);

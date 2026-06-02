@@ -1,1 +1,1 @@
-export const APP_NAME = '智慧刷题系统'
+export const APP_NAME = "智慧练习系统";

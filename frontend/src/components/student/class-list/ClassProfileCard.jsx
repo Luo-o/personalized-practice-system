@@ -17,7 +17,7 @@ export default function ClassProfileCard({
   pendingTaskCount,
 }) {
   const finalAvatar = useMemo(() => {
-    return avatar || avatarUrl || "/avatars/default-student-avatar.svg";
+    return avatar || avatarUrl || "/avatars/default-student-avatar.png";
   }, [avatar, avatarUrl]);
 
   const finalAvatarText = useMemo(() => {

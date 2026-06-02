@@ -544,6 +544,7 @@ export default function PublishExamModal({
         </Dropdown>
 
         <Dropdown
+          overlayClassName="pem-dropdown-menu"
           menu={createSingleSelectMenu(
             knowledgePointOptions,
             selectedKnowledgePointName,

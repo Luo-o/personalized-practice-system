@@ -67,6 +67,7 @@ export default function ExamDo() {
   const examQuestions = useMemo(() => {
     return rawQuestionList.map((q) => ({
       id: q.id,
+      questionId: q.questionId ?? q.question_id ?? q.id,
       difficulty: q.difficulty,
       tag: `${q.subjectName || q.subject || ""} · ${q.chapterName || q.chapter || ""}`,
       stem: q.title,
@@ -123,7 +124,7 @@ export default function ExamDo() {
         onSubmit={async ({ answers }) => {
           try {
             const answerList = examQuestions.map((q) => ({
-              question_id: q.id,
+              question_id: q.questionId ?? q.id,
               selected_answer: answers[String(q.id)] || answers[q.id] || "",
             }));
 

@@ -30,6 +30,28 @@ function readQuestionSubject(q) {
   return q.subjectName || q.subject || "";
 }
 
+function readRecordSubject(record) {
+  return record.subjectName || record.subject_name || "";
+}
+
+function buildQuestionFromRecord(record) {
+  return {
+    id: Number(record.questionId),
+    title: record.title || "",
+    subjectId: record.subjectId ?? null,
+    subjectName: record.subjectName || "",
+    chapterId: record.chapterId ?? null,
+    chapterName: record.chapterName || "",
+    difficulty: record.difficulty || "未设置",
+    knowledgePoints: Array.isArray(record.knowledgePoints)
+      ? record.knowledgePoints.map((kp) => ({
+          id: kp.id,
+          name: kp.name,
+        }))
+      : [],
+  };
+}
+
 function buildKnowledgeMapData(questions, answerRecords, subjectName) {
   const questionMap = new Map((questions || []).map((q) => [Number(q.id), q]));
 
@@ -37,7 +59,10 @@ function buildKnowledgeMapData(questions, answerRecords, subjectName) {
   const knowledgeMap = new Map();
 
   (answerRecords || []).forEach((record) => {
-    const q = questionMap.get(Number(record.questionId));
+    const q =
+      questionMap.get(Number(record.questionId)) ||
+      buildQuestionFromRecord(record);
+
     if (!q) return;
 
     const qSubject = readQuestionSubject(q);
@@ -48,10 +73,10 @@ function buildKnowledgeMapData(questions, answerRecords, subjectName) {
     const chapterId = String(q.chapterId || "unknown");
     const chapterName = q.chapterName || `章节 ${chapterId}`;
 
-    // ===== 1. 章节统计 =====
+    // 章节节点
     if (!chapterMap.has(chapterId)) {
       chapterMap.set(chapterId, {
-        id: chapterId,
+        id: `chapter_${chapterId}`,
         name: chapterName,
         type: "chapter",
         total: 0,
@@ -65,18 +90,21 @@ function buildKnowledgeMapData(questions, answerRecords, subjectName) {
       chapter.correct += 1;
     }
 
-    // ===== 2. 知识点统计 =====
+    // 知识点节点
     const kpList = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : [];
 
     kpList.forEach((kp) => {
-      const kpId = String(kp.id ?? kp.name);
+      const kpId = String(kp?.id ?? kp?.name);
+      if (!kpId) return;
+
+      const kpName = kp?.name || "未命名知识点";
 
       if (!knowledgeMap.has(kpId)) {
         knowledgeMap.set(kpId, {
-          id: kpId,
-          name: kp.name || "未命名知识点",
+          id: `kp_${kpId}`,
+          name: kpName,
           type: "knowledge",
-          chapterId, // 🔥 关键
+          chapterId: `chapter_${chapterId}`, // 这里必须叫 chapterId
           total: 0,
           correct: 0,
         });
@@ -91,19 +119,18 @@ function buildKnowledgeMapData(questions, answerRecords, subjectName) {
     });
   });
 
-  // ===== 3. 转换成图数据 =====
   const chapters = Array.from(chapterMap.values()).map((c) => ({
-    id: `chapter_${c.id}`,
+    id: c.id,
     name: c.name,
     type: "chapter",
     accuracy: c.total ? c.correct / c.total : 0,
   }));
 
   const knowledge = Array.from(knowledgeMap.values()).map((k) => ({
-    id: `kp_${k.id}`,
+    id: k.id,
     name: k.name,
     type: "knowledge",
-    chapterId: `chapter_${k.chapterId}`, // 🔥 对应章节
+    chapterId: k.chapterId,
     accuracy: k.total ? k.correct / k.total : 0,
   }));
 
@@ -138,7 +165,33 @@ export default function StudentDashboard() {
   );
 
   useEffect(() => {
-    fetchQuestions();
+    const questionMap = new Map(
+      (questions || []).map((q) => [Number(q.id), q]),
+    );
+
+    const related = (answerRecords || []).map((r) => {
+      const q = questionMap.get(Number(r.questionId));
+      return {
+        recordQuestionId: Number(r.questionId),
+        found: !!q,
+        title: q?.title || r.title,
+        subjectId: q?.subjectId,
+        chapterId: q?.chapterId,
+        chapterName: q?.chapterName,
+        kpCount: Array.isArray(q?.knowledgePoints)
+          ? q.knowledgePoints.length
+          : -1,
+        knowledgePoints: q?.knowledgePoints || [],
+        isCorrect: r.isCorrect,
+        answeredAt: r.answeredAt,
+      };
+    });
+
+    console.log("knowledge map related questions =", related);
+  }, [questions, answerRecords]);
+
+  useEffect(() => {
+    fetchQuestions({ pageSize: 1000 });
     fetchStudentAnswerRecords();
     fetchWrongQuestions();
     fetchStudentExams();
@@ -154,8 +207,7 @@ export default function StudentDashboard() {
   const subjectOptions = useMemo(() => {
     const map = new Map();
 
-    (questions || []).forEach((q) => {
-      const subjectName = readQuestionSubject(q);
+    const addSubject = (subjectName) => {
       if (!subjectName) return;
 
       const key = normalizeText(subjectName);
@@ -165,10 +217,18 @@ export default function StudentDashboard() {
           value: subjectName,
         });
       }
+    };
+
+    (questions || []).forEach((q) => {
+      addSubject(readQuestionSubject(q));
+    });
+
+    (answerRecords || []).forEach((record) => {
+      addSubject(readRecordSubject(record));
     });
 
     return Array.from(map.values());
-  }, [questions]);
+  }, [questions, answerRecords]);
 
   useEffect(() => {
     if (!selectedSubject && subjectOptions.length > 0) {
@@ -176,8 +236,23 @@ export default function StudentDashboard() {
     }
   }, [selectedSubject, subjectOptions]);
 
+  useEffect(() => {
+    const questionIds = new Set((questions || []).map((q) => Number(q.id)));
+
+    const missed = (answerRecords || []).filter(
+      (r) => !questionIds.has(Number(r.questionId)),
+    );
+
+    console.log("questions count =", questions.length);
+    console.log("answerRecords count =", answerRecords.length);
+    console.log("未命中题目数量 =", missed.length);
+    console.log(
+      "未命中的 questionId =",
+      missed.map((r) => r.questionId),
+    );
+  }, [questions, answerRecords]);
+
   const masteryData = useMemo(() => {
-    if (!selectedSubject) return [];
     return buildKnowledgeMapData(questions, answerRecords, selectedSubject);
   }, [questions, answerRecords, selectedSubject]);
 

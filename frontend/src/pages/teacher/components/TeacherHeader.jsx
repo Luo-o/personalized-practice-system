@@ -27,7 +27,7 @@ export default function TeacherHeader() {
   }, [teacherName]);
 
   const teacherAvatar = useMemo(() => {
-    return profile.avatar || "/avatars/default-teacher-avatar.svg";
+    return profile.avatar || "/avatars/default-teacher-avatar.png";
   }, [profile.avatar]);
 
   const items = [
@@ -78,7 +78,7 @@ export default function TeacherHeader() {
             <ReadOutlined />
           </div>
           <div className="teacher-sidebar-brand-text">
-            <div className="teacher-sidebar-brand-title">智慧刷题系统</div>
+            <div className="teacher-sidebar-brand-title">智慧练习系统</div>
           </div>
         </div>
 
